@@ -1,22 +1,29 @@
 package com.mmorrell.serumdata.controller;
 
 import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serumdata.manager.TokenManager;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.Memcmp;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 public class ApiController {
+
+    private final TokenManager tokenManager;
+
+    public ApiController(TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
+    }
+
+
     @GetMapping(value = "/api/test/{testValue}")
     public Map<String, Integer> getTest(@PathVariable Integer testValue) {
         Map<String, Integer> testMap = new HashMap<>();
@@ -46,13 +53,13 @@ public class ApiController {
     @GetMapping(value = "/api/serum/markets")
     public List<String> getSerumMarkets() throws RpcException {
         RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
-        // getprogram accounts against serum v3 dex program id
-        // bytes at index 85 must equal usdc mint (usdc quote markets)
-        // datasize equals market account
         List<ProgramAccount> programAccounts = client.getApi().getProgramAccounts(
                 SerumUtils.SERUM_PROGRAM_ID_V3,
                 List.of(
-                        new Memcmp(85, "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+                        new Memcmp(
+                                85,
+                                "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+                        )
                 ),
                 388
         );
@@ -65,5 +72,16 @@ public class ApiController {
                 .map(ProgramAccount::getPubkey)
                 .collect(Collectors.toList());
     }
+
+    // TODO - return a list of "Token" DTOs
+    @GetMapping(value = "/api/solana/tokens")
+    public List<String> getTokenRegistry() {
+        tokenManager.getRegistry();
+        return new ArrayList<>();
+    }
+
+
+
+
 
 }
