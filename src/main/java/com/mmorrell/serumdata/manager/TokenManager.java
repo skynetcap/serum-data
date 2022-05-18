@@ -11,15 +11,16 @@ import okhttp3.Response;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class TokenManager {
 
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // <tokenMint string, token>
+    private final Map<String, Token> tokenCache = new HashMap<>();
 
     public TokenManager() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
@@ -45,6 +46,9 @@ public class TokenManager {
                     tokenNode.get("address").textValue()
             );
             tokens.add(token);
+
+            // update cache
+            tokenCache.put(token.getAddress(), token);
         }
 
         return tokens;
@@ -57,6 +61,15 @@ public class TokenManager {
             return response.body().string();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public String getTokenByMint(String tokenMint) {
+        Token token = tokenCache.get(tokenMint);
+        if (token != null) {
+            return token.getName();
+        } else {
+            return "";
         }
     }
 
