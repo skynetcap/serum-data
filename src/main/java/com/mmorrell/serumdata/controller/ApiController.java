@@ -1,5 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
+import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
 import com.mmorrell.serumdata.manager.TokenManager;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -63,6 +64,15 @@ public class ApiController {
                 ),
                 388
         );
+
+        for(ProgramAccount programAccount : programAccounts) {
+            Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
+            System.out.printf("Market: %s / USDC, ", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
+            System.out.printf("Market ID: %s", market.getOwnAddress().toBase58());
+            System.out.println();
+        }
+
+
 
         if (programAccounts == null) {
             return new ArrayList<>();
