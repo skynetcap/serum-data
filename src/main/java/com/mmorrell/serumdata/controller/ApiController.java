@@ -41,16 +41,11 @@ public class ApiController {
         return result;
     }
 
-    /*
-    TODO:
-    1. Get ALL Serum markets on-chain
-    2. Get Bids/Asks (one API response) for a given market id
-    3. (more)
+    /**
+     *
+     * @return
+     * @throws RpcException
      */
-
-    // None of this is going to be cached or anything, 1-1 poll/RPC call each time (heavy)
-
-
     @GetMapping(value = "/api/serum/markets")
     public List<String> getSerumMarkets() throws RpcException {
         RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
@@ -82,16 +77,5 @@ public class ApiController {
                 .map(ProgramAccount::getPubkey)
                 .collect(Collectors.toList());
     }
-
-    // TODO - return a list of "Token" DTOs
-    @GetMapping(value = "/api/solana/tokens")
-    public List<String> getTokenRegistry() {
-        tokenManager.getRegistry();
-        return new ArrayList<>();
-    }
-
-
-
-
 
 }

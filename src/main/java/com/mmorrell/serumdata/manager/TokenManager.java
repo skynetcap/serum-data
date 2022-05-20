@@ -22,11 +22,13 @@ public class TokenManager {
     // <tokenMint string, token>
     private final Map<String, Token> tokenCache = new HashMap<>();
 
+    // Loads tokens from github repo into memory when this constructor is called. (e.g. during Bean creation)
     public TokenManager() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+        updateRegistry();
     }
 
-    public List<Token> getRegistry() {
+    public void updateRegistry() {
         String json = httpGet("https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json");
 
         JsonNode rootNode;
@@ -38,20 +40,16 @@ public class TokenManager {
 
         JsonNode tokensNode = rootNode.path("tokens");
         Iterator<JsonNode> elements = tokensNode.elements();
-        List<Token> tokens = new ArrayList<>();
         while (elements.hasNext()) {
             JsonNode tokenNode = elements.next();
             Token token = new Token(
                     tokenNode.get("name").textValue(),
                     tokenNode.get("address").textValue()
             );
-            tokens.add(token);
 
             // update cache
             tokenCache.put(token.getAddress(), token);
         }
-
-        return tokens;
     }
 
     private String httpGet(String url) {
