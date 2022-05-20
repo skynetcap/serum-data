@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
 
+
+/**
+ * Caches the Solana token registry in-memory
+ */
 @Component
 public class TokenManager {
 
@@ -50,6 +54,7 @@ public class TokenManager {
             // update cache
             tokenCache.put(token.getAddress(), token);
         }
+        System.out.println("Cached tokens.");
     }
 
     private String httpGet(String url) {
