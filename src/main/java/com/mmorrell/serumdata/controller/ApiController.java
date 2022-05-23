@@ -47,7 +47,7 @@ public class ApiController {
      * @return
      * @throws RpcException
      */
-    @GetMapping(value = "/api/serum/markets")
+    @GetMapping(value = "/api/serum/allMarkets")
     public List<String> getSerumMarkets() throws RpcException {
 //        for(ProgramAccount programAccount : programAccounts) {
 //            Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
@@ -60,6 +60,32 @@ public class ApiController {
                 .map(Market::getOwnAddress)
                 .map(PublicKey::toBase58)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/api/serum/market/{marketId}")
+    public Map<String, Object> getMarket(@PathVariable String marketId) {
+        Map<String, Object> result = new HashMap<>();
+        Optional<Market> marketFromCache = marketManager.getMarketCache().stream()
+                .filter(market -> market.getOwnAddress().toBase58().equalsIgnoreCase(marketId))
+                .findFirst();
+
+        if (marketFromCache.isEmpty()) {
+            // make this an error, nothing was found
+            return result;
+        }
+
+        Market market = marketFromCache.get();
+        result.put("id", market.getOwnAddress().toBase58());
+        result.put("baseName", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
+        result.put("baseMint", market.getBaseMint().toBase58());
+        result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
+        result.put("quoteMint", market.getQuoteMint().toBase58());
+
+        // bids array
+        // asks array
+        // are todo
+
+        return result;
     }
 
 }
