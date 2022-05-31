@@ -57,6 +57,10 @@ public class TokenManager {
         System.out.println("Cached tokens.");
     }
 
+    public Map<String, Token> getRegistry() {
+        return tokenCache;
+    }
+
     private String httpGet(String url) {
         Request request = new Request.Builder().url(url).build();
 

@@ -12,6 +12,7 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -162,5 +163,13 @@ public class ApiController {
         });
 
         return reverseSortedMap;
+    }
+
+    @GetMapping("/")
+    public ModelAndView passParametersWithModelAndView() {
+        ModelAndView modelAndView = new ModelAndView("index");
+        modelAndView.addObject("testVal", "Hi, it worked!");
+        modelAndView.addObject("tokens", tokenManager.getRegistry());
+        return modelAndView;
     }
 }
