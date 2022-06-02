@@ -48,7 +48,8 @@ public class TokenManager {
             JsonNode tokenNode = elements.next();
             Token token = new Token(
                     tokenNode.get("name").textValue(),
-                    tokenNode.get("address").textValue()
+                    tokenNode.get("address").textValue(),
+                    tokenNode.get("symbol").textValue()
             );
 
             // update cache

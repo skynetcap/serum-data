@@ -1,18 +1,26 @@
 package com.mmorrell.serumdata.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 
 public class Token implements Serializable {
 
-    public Token(String name, String address) {
+    public Token(String name, String address, String symbol) {
         this.name = name;
         this.address = address;
+        this.symbol = symbol;
     }
 
     private String name;
     private String address;
+    private String symbol;
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 
     public String getName() {
         return name;
@@ -35,6 +43,7 @@ public class Token implements Serializable {
         return "Token{" +
                 "name='" + name + '\'' +
                 ", address='" + address + '\'' +
+                ", symbol='" + symbol + '\'' +
                 '}';
     }
 }

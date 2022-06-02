@@ -2,7 +2,7 @@
 Thymeleaf message: <span th:text="${testVal}"></span><br>
 <label for="tokenSelect">Token: </label>
 <select class="form-control" id="tokenSelect">
-    <option th:each="token : ${tokens.values()}" th:value="${token.address}" th:text="${token.name}"></option>
+    <option th:each="token : ${tokens.values()}" th:value="${token.address}" th:text="${token.name} + ' (' + ${token.symbol} + ')'"></option>
 </select>
 <br>
 Serum
