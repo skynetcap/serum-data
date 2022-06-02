@@ -2,7 +2,9 @@ package com.mmorrell.serumdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public class Token {
+import java.io.Serializable;
+
+public class Token implements Serializable {
 
     public Token(String name, String address) {
         this.name = name;

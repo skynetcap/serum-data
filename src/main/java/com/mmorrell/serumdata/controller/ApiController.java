@@ -168,7 +168,7 @@ public class ApiController {
     @GetMapping("/")
     public ModelAndView passParametersWithModelAndView() {
         ModelAndView modelAndView = new ModelAndView("index");
-        modelAndView.addObject("testVal", "Hi, it worked!");
+        modelAndView.addObject("testVal", "Welcome to Serum Data.");
         modelAndView.addObject("tokens", tokenManager.getRegistry());
         return modelAndView;
     }

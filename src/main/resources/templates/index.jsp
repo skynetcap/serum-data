@@ -1,6 +1,9 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
-Thymeleaf message: <span th:text="${testVal}"></span>
-Tokens: <span th:text="${tokens}"></span>
+Thymeleaf message: <span th:text="${testVal}"></span><br>
+<label for="tokenSelect">Token: </label>
+<select class="form-control" id="tokenSelect">
+    <option th:each="token : ${tokens.values()}" th:value="${token.address}" th:text="${token.name}"></option>
+</select>
 <br>
 Serum
 <hr>
