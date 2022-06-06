@@ -48,9 +48,16 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
-    public List<Market> getMarketsByBaseMint(@PathVariable String tokenId) {
+    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
-        return marketManager.getMarketsByMint(tokenId);
+        List<Map<String, Object>> results = new ArrayList<>();
+        List<Market> markets = marketManager.getMarketsByMint(tokenId);
+
+        for (Market market : markets) {
+            results.add(convertMarketToMap(market));
+        }
+
+        return results;
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}")
@@ -152,5 +159,15 @@ public class ApiController {
         ModelAndView modelAndView = new ModelAndView("index");
         modelAndView.addObject("tokens", tokenManager.getRegistry());
         return modelAndView;
+    }
+
+    private Map<String, Object> convertMarketToMap(Market market) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", market.getOwnAddress().toBase58());
+        result.put("baseName", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
+        result.put("baseMint", market.getBaseMint().toBase58());
+        result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
+        result.put("quoteMint", market.getQuoteMint().toBase58());
+        return result;
     }
 }
