@@ -39,7 +39,7 @@ public class MarketManager {
     public void updateMarkets() {
         marketMapCache.clear();
         RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
-        List<ProgramAccount> programAccounts = null;
+        List<ProgramAccount> programAccounts = new ArrayList<>();
         try {
             programAccounts = client.getApi().getProgramAccounts(
                     SerumUtils.SERUM_PROGRAM_ID_V3,
@@ -50,6 +50,24 @@ public class MarketManager {
                             )
                     ),
                     388
+            );
+        } catch (RpcException e) {
+            throw new RuntimeException(e);
+        }
+
+        // also cache SOL quoted markets for better coverage.
+        try {
+            programAccounts.addAll(
+                client.getApi().getProgramAccounts(
+                    SerumUtils.SERUM_PROGRAM_ID_V3,
+                    List.of(
+                            new Memcmp(
+                                    85,
+                                    "So11111111111111111111111111111111111111112"
+                            )
+                    ),
+                    388
+                )
             );
         } catch (RpcException e) {
             throw new RuntimeException(e);
