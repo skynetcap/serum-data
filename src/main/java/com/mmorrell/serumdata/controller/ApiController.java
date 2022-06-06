@@ -34,23 +34,6 @@ public class ApiController {
         this.identityManager = identityManager;
     }
 
-
-    @GetMapping(value = "/api/test/{testValue}")
-    public Map<String, Integer> getTest(@PathVariable Integer testValue) {
-        Map<String, Integer> testMap = new HashMap<>();
-        testMap.put("Test Key", testValue);
-        return testMap;
-    }
-
-    @GetMapping(value = "/api/test/list")
-    public List<Double> getListTest() {
-        List<Double> result = new ArrayList<>();
-        for(int i = 0; i < 10; i++) {
-            result.add(Math.random());
-        }
-        return result;
-    }
-
     /**
      *
      * @return
@@ -58,17 +41,16 @@ public class ApiController {
      */
     @GetMapping(value = "/api/serum/allMarkets")
     public List<String> getSerumMarkets() throws RpcException {
-//        for(ProgramAccount programAccount : programAccounts) {
-//            Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
-//            System.out.printf("Market: %s / USDC, ", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
-//            System.out.printf("Market ID: %s", market.getOwnAddress().toBase58());
-//            System.out.println();
-//        }
-
         return marketManager.getMarketCache().stream()
                 .map(Market::getOwnAddress)
                 .map(PublicKey::toBase58)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/api/serum/token/{tokenId}")
+    public List<Market> getMarketsByBaseMint(@PathVariable String tokenId) {
+        // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
+        return marketManager.getMarketsByMint(tokenId);
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}")

@@ -29,6 +29,10 @@ public class MarketManager {
                 .collect(Collectors.toList());
     }
 
+    public List<Market> getMarketsByMint(String tokenMint) {
+        return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
+    }
+
     /**
      * Update marketCache with the latest markets
      */
