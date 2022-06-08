@@ -57,6 +57,8 @@ Market Details: <span id="marketIdSpan"></span>
 
 <script>
 
+    var activeMarketId;
+
     $('#searchForMarkets').click(function () {
         var baseMint = $('#tokenSelect').val();
         loadMarkets(baseMint);
@@ -74,7 +76,8 @@ Market Details: <span id="marketIdSpan"></span>
     }
 
     function loadMarketDetail(marketId) {
-        let apiUrl = "/api/serum/market/" + marketId;
+        activeMarketId = marketId;
+        let apiUrl = "/api/serum/market/" + activeMarketId;
         $.get( apiUrl, function( data ) {
             $("#marketIdSpan").text(marketId);
 
@@ -99,10 +102,16 @@ Market Details: <span id="marketIdSpan"></span>
                 }
                 $("#asksTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>"  + v.owner + "</td></tr>");
             })
-
-            setTimeout(loadMarketDetail(marketId), 800);
         });
     }
+
+    function updateOrderBookLoop() {
+        if (activeMarketId) {
+            loadMarketDetail(activeMarketId);
+        }
+    }
+
+    setInterval(updateOrderBookLoop, 800);
 </script>
 
 </html>
