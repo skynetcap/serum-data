@@ -1,5 +1,6 @@
 # serum-data
-Data display and visualization project for Project Serum on the Solana blockchain.
+A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
+
 ## Building
 ```
 mvn clean install
