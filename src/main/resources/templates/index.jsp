@@ -99,6 +99,8 @@ Market Details: <span id="marketIdSpan"></span>
                 }
                 $("#asksTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>"  + v.owner + "</td></tr>");
             })
+
+            setTimeout(loadMarketDetail(marketId), 800);
         });
     }
 </script>
