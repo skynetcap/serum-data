@@ -2,6 +2,11 @@
 A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
 
 ## Building
+### Requirements
+* Java 11
+* Maven
+
+### Building with Maven
 ```
 mvn clean install
 ```
