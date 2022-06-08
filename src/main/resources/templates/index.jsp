@@ -81,12 +81,22 @@ Market Details: <span id="marketIdSpan"></span>
             // bids
             $('#bidsTable tbody').empty();
             $.each(data.bids, function(k, v) {
+                if (v.owner === '4beBRAZSVcCm7jD7yAmizqqVyi39gVrKNeEPskickzSF') {
+                    v.owner = 'Alameda Research';
+                } else if (v.owner === 'EpAdzaqV13Es3x4dukfjFoCrKVXnZ7y9Y76whgMHo5qx') {
+                    v.owner = 'Atrix Finance';
+                }
                 $("#bidsTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>"  + v.owner + "</td></tr>");
             })
 
             // asks
             $('#asksTable tbody').empty();
             $.each(data.asks, function(k, v) {
+                if (v.owner === '4beBRAZSVcCm7jD7yAmizqqVyi39gVrKNeEPskickzSF') {
+                    v.owner = 'Alameda Research';
+                } else if (v.owner === 'EpAdzaqV13Es3x4dukfjFoCrKVXnZ7y9Y76whgMHo5qx') {
+                    v.owner = 'Atrix Finance';
+                }
                 $("#asksTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>"  + v.owner + "</td></tr>");
             })
         });
