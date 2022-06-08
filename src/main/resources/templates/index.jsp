@@ -76,13 +76,7 @@ Market Details: <span id="marketIdSpan"></span>
     function loadMarketDetail(marketId) {
         let apiUrl = "/api/serum/market/" + marketId;
         $.get( apiUrl, function( data ) {
-            //alert("Market detail: " + JSON.stringify(data));
-            // $.each(data, function(k, v) {
-            //     $("#marketList").append("<li>" + v.baseName + " / " + v.quoteName + " / "  + v.id + "</li>");
-            // })
-            //$("#bids").text(JSON.stringify(data.bids));
             $("#marketIdSpan").text(marketId);
-
 
             // bids
             $('#bidsTable tbody').empty();
