@@ -23,12 +23,10 @@ Markets:
 <ul id="marketList">
 </ul>
 <hr>
-Market Details:
-<br>
-Bids:
+Market Details: <span id="marketIdSpan"></span>
 <table>
     <tr>
-        <td>
+        <td style="vertical-align:top;">
             <table id="bidsTable" >
                 <thead>
                 <tr>
@@ -40,7 +38,7 @@ Bids:
                 </tbody>
             </table>
         </td>
-        <td>
+        <td style="vertical-align:top;">
             <table id="asksTable" >
                 <thead>
                 <tr>
@@ -54,13 +52,6 @@ Bids:
         </td>
     </tr>
 </table>
-
-
-
-<!--<span id="bids"></span>--><br>
-
-
-Asks: <!--<span id="asks"></span>-->
 <hr>
 
 
@@ -90,6 +81,7 @@ Asks: <!--<span id="asks"></span>-->
             //     $("#marketList").append("<li>" + v.baseName + " / " + v.quoteName + " / "  + v.id + "</li>");
             // })
             //$("#bids").text(JSON.stringify(data.bids));
+            $("#marketIdSpan").text(marketId);
 
 
             // bids
