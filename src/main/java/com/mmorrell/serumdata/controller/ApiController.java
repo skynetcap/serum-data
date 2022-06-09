@@ -2,6 +2,8 @@ package com.mmorrell.serumdata.controller;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.MarketBuilder;
+import ch.openserum.serum.model.TradeEvent;
+import com.google.common.collect.ImmutableMap;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
@@ -168,6 +170,38 @@ public class ApiController {
         result.put("baseMint", market.getBaseMint().toBase58());
         result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
         result.put("quoteMint", market.getQuoteMint().toBase58());
+        return result;
+    }
+
+    @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
+    public List<Map<String, Object>> getMarketTradeHistory(@PathVariable String marketId) {
+        final ArrayList<Map<String, Object>> result = new ArrayList<>();
+        final Market marketWithEventQueue = new MarketBuilder()
+                .setClient(orderBookClient)
+                .setPublicKey(PublicKey.valueOf(marketId))
+                .setRetrieveEventQueue(true)
+                .build();
+
+        List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
+        for (int i = 0; i < tradeEvents.size(); i++) {
+            Map<String, Object> tradeEventEntry = new HashMap<>();
+            TradeEvent event = tradeEvents.get(i);
+
+            tradeEventEntry.put("index", i);
+            tradeEventEntry.put("price", event.getFloatPrice());
+            tradeEventEntry.put("quantity", event.getFloatQuantity());
+            tradeEventEntry.put("owner", event.getOpenOrders().toBase58());
+            tradeEventEntry.put("flags", ImmutableMap.of(
+                    "fill", event.getEventQueueFlags().isFill(),
+                    "out", event.getEventQueueFlags().isOut(),
+                    "bid", event.getEventQueueFlags().isBid(),
+                    "maker", event.getEventQueueFlags().isMaker()
+            ));
+
+            result.add(tradeEventEntry);
+            System.out.printf("Event: %s%n", tradeEvents.get(i).toString());
+        }
+
         return result;
     }
 }

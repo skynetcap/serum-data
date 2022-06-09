@@ -23,8 +23,13 @@ Markets:
 <ul id="marketList">
 </ul>
 <hr>
-Market Details: <span id="marketIdSpan"></span>
 <table>
+    <tr><td>Market Details: <span id="marketIdSpan"></span></td></tr>
+    <tr>
+        <td>Bids</td>
+        <td>Asks</td>
+        <td>Trade History</td>
+    </tr>
     <tr>
         <td style="vertical-align:top;">
             <table id="bidsTable" >
@@ -43,6 +48,18 @@ Market Details: <span id="marketIdSpan"></span>
                 <thead>
                 <tr>
                     <th>Price</th><th>Quantity</th><th>Owner</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </td>
+        <td style="vertical-align:top;">
+            <table id="tradeHistoryTable">
+                <thead>
+                <tr>
+                    <th>Price</th><th>Quantity</th><th>Flags</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -70,13 +87,31 @@ Market Details: <span id="marketIdSpan"></span>
             $("#marketList").empty();
             $.each(data, function(k, v) {
                 $("#marketList").append("<li>" +
-                    "<a href=\"#\" onClick=\"loadMarketDetail('" + v.id + "');\">" + v.baseName + " / " + v.quoteName + " / "  + v.id + "</a></li>");
+                    "<a href=\"#\" onClick=\"setMarket('" + v.id + "');\">" + v.baseName + " / " + v.quoteName + " / "  + v.id + "</a></li>");
+            })
+        });
+    }
+
+    function setMarket(marketId) {
+        activeMarketId = marketId; // starts order book loop
+
+        // update trade history
+        loadTradeHistory(marketId);
+    }
+
+    function loadTradeHistory(marketId) {
+        let apiUrl = "/api/serum/market/" + marketId + "/tradeHistory";
+        $.get( apiUrl, function( data ) {
+            $('#tradeHistoryTable tbody').empty();
+            $.each(data, function(k, v) {
+                if (!v.flags.maker) {
+                    $("#tradeHistoryTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + JSON.stringify(v.flags) + "</td></tr>");
+                }
             })
         });
     }
 
     function loadMarketDetail(marketId) {
-        activeMarketId = marketId;
         let apiUrl = "/api/serum/market/" + activeMarketId;
         $.get( apiUrl, function( data ) {
             $("#marketIdSpan").text(marketId);
