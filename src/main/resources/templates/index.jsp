@@ -59,7 +59,7 @@ Markets:
             <table id="tradeHistoryTable">
                 <thead>
                 <tr>
-                    <th>Price</th><th>Quantity</th><th>Flags</th>
+                    <th>Price</th><th>Quantity</th><th>Flags</th><th>Owner</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -105,7 +105,7 @@ Markets:
             $('#tradeHistoryTable tbody').empty();
             $.each(data, function(k, v) {
                 if (!v.flags.maker) {
-                    $("#tradeHistoryTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + JSON.stringify(v.flags) + "</td></tr>");
+                    $("#tradeHistoryTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + JSON.stringify(v.flags) + "</td><td>" + v.owner + "</td></tr>");
                 }
             })
         });
