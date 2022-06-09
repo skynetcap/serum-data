@@ -1,10 +1,16 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js" integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
+        }
+
+        .chart-container {
+            width: 600px;
+            height:400px
         }
     </style>
 </head>
@@ -19,9 +25,20 @@
 <br>
 Popular Tokens: <a href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');">SOL</a> - <a href="#" onClick="loadMarkets('orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE');">ORCA</a> - <a href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a>
 <hr>
-Markets:
-<ul id="marketList">
-</ul>
+<table>
+    <tr>
+        <td>
+            Markets:
+            <ul id="marketList">
+            </ul>
+        </td>
+        <td>
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </td>
+    </tr>
+</table>
 <hr>
 <table>
     <tr><td>Market Details: <span id="marketIdSpan"></span></td></tr>
@@ -59,7 +76,7 @@ Markets:
             <table id="tradeHistoryTable">
                 <thead>
                 <tr>
-                    <th>Price</th><th>Quantity</th><th>Flags</th><th>Owner</th>
+                    <th>Price</th><th>Quantity</th><th>Owner</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -69,6 +86,40 @@ Markets:
         </td>
     </tr>
 </table>
+<script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Price',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(41,98,255)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    function addData(label, data) {
+        myChart.data.labels.push(label);
+        myChart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        //myChart.update();
+    }
+</script>
+
 <hr>
 
 
@@ -105,9 +156,15 @@ Markets:
             $('#tradeHistoryTable tbody').empty();
             $.each(data, function(k, v) {
                 if (!v.flags.maker) {
-                    $("#tradeHistoryTable tbody").append("<tr><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + JSON.stringify(v.flags) + "</td><td>" + v.owner + "</td></tr>");
+                    $("#tradeHistoryTable tbody").append("<tr style='background-color: " + (v.flags.bid ? "green" : "red") + "'><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + v.owner + "</td></tr>");
                 }
+                addData(k, v.price);
             })
+
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.reverse();
+            });
+            myChart.update();
         });
     }
 
