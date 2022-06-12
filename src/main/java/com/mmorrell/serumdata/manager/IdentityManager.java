@@ -1,6 +1,7 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.OpenOrdersAccount;
+import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -15,20 +16,14 @@ import java.util.stream.Collectors;
 public class IdentityManager {
 
     private final RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
-    private Map<String, String> ownerReverseLookupCache = new HashMap<>();
-    private Map<String, String> knownEntities = new HashMap<>();
+    private final Map<String, String> ownerReverseLookupCache = new HashMap<>();
+    private final Map<String, String> knownEntities = new HashMap<>();
 
     {
         knownEntities.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "Alameda Research");
     }
 
-    // a call to getMultipleAccounts, during order book loading
-    public void addOpenOrdersAccounts(List<PublicKey> openOrdersAccounts) {
-
-    }
-
     public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {
-        // getAccountInfo, read offset into pubkey
         try {
             // first check if we need to look it up...
             if (ownerReverseLookupCache.get(openOrdersAccount.toBase58()) != null) {
@@ -36,7 +31,6 @@ public class IdentityManager {
             }
 
             final AccountInfo accountInfo = client.getApi().getAccountInfo(openOrdersAccount);
-            // offset 45 for owner
             final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
                     Base64.getDecoder().decode(
                             accountInfo.getValue().getData().get(0).getBytes()
@@ -73,18 +67,20 @@ public class IdentityManager {
     }
 
     private void lookupAndAddMultipleOwnersToCache(List<SerumOrder> unknownOwnerOrders) {
-        // craft getMultipleAccounts call (pref with dataslice)
+        // craft getMultipleAccounts call
         List<PublicKey> accountsToSearch = unknownOwnerOrders.stream()
                 .map(serumOrder -> PublicKey.valueOf(serumOrder.getOwner()))
                 .distinct()
                 .collect(Collectors.toList());
 
         try {
-            List<AccountInfo.Value> accountData = client.getApi().getMultipleAccounts(
-                    accountsToSearch
-            );
+            List<AccountInfo.Value> accountData = new ArrayList<>();
+            List<List<PublicKey>> accountsToSearchList  = Lists.partition(accountsToSearch, 100);
 
-            System.out.println("Looked up owners");
+            for(List<PublicKey> searchList : accountsToSearchList) {
+                accountData.addAll(client.getApi().getMultipleAccounts(searchList));
+            }
+
             for (int i = 0; i < accountsToSearch.size(); i++) {
                 final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
                         Base64.getDecoder().decode(
@@ -92,14 +88,10 @@ public class IdentityManager {
                         )
                 );
                 ownerReverseLookupCache.put(accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
-                System.out.println("OOA: " + accountsToSearch.get(i).toBase58() + ", Owner: " + ooa.getOwner());
             }
-
         } catch (RpcException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     public void ownerReverseLookup(List<SerumOrder> orders, List<SerumOrder> unknownOwnerOrders) {
@@ -114,5 +106,4 @@ public class IdentityManager {
             }
         }
     }
-
 }
