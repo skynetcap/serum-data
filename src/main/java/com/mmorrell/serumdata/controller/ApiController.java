@@ -109,6 +109,11 @@ public class ApiController {
                 .sorted((o1, o2) -> Float.compare(o1.getPrice(), o2.getPrice()))
                 .collect(Collectors.toList());
 
+        // process the bids and asks objects, replace each "owner" with a reverse looked up owner if we have it.
+        // otherwise, add it to a list, lookup all the missing owners on list, cache it,
+        // and update the field with the new info
+        identityManager.reverseOwnerLookup(bids, asks);
+
         result.put("bids", bids);
         result.put("asks", asks);
 
