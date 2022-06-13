@@ -77,8 +77,8 @@ public class IdentityManager {
             List<AccountInfo.Value> accountData = new ArrayList<>();
             List<List<PublicKey>> accountsToSearchList  = Lists.partition(accountsToSearch, 100);
 
-            for(List<PublicKey> searchList : accountsToSearchList) {
-                accountData.addAll(client.getApi().getMultipleAccounts(searchList));
+            for (int i = 0; i < accountsToSearchList.size(); i++) {
+                accountData.addAll(client.getApi().getMultipleAccounts(accountsToSearchList.get(i)));
             }
 
             for (int i = 0; i < accountsToSearch.size(); i++) {
@@ -88,6 +88,7 @@ public class IdentityManager {
                         )
                 );
                 ownerReverseLookupCache.put(accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
+                System.out.printf("OOA:%s,Owner:%s%n", accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
             }
         } catch (RpcException e) {
             throw new RuntimeException(e);
@@ -98,8 +99,9 @@ public class IdentityManager {
         for (SerumOrder order : orders) {
             // do we have the true owner?
             if (ownerReverseLookupCache.containsKey(order.getOwner())) {
-                // update with the true owner
-                order.setOwner(ownerReverseLookupCache.get(order.getOwner()));
+                String owner = ownerReverseLookupCache.get(order.getOwner());
+                // use human-readable name if we have it
+                order.setOwner(knownEntities.getOrDefault(owner, owner));
             } else {
                 // add to list for later processing
                 unknownOwnerOrders.add(order);

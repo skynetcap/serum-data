@@ -117,7 +117,7 @@ public class ApiController {
         result.put("bids", bids);
         result.put("asks", asks);
 
-        System.out.println("Result = " + result);
+        // System.out.println("Result = " + result);
         return result;
     }
 
@@ -204,7 +204,7 @@ public class ApiController {
             ));
 
             result.add(tradeEventEntry);
-            System.out.printf("Event: %s%n", tradeEvents.get(i).toString());
+            //System.out.printf("Event: %s%n", tradeEvents.get(i).toString());
         }
 
         return result;
