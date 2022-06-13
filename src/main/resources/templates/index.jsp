@@ -14,6 +14,8 @@
         }
     </style>
 </head>
+<h1>Serum Data</h1>
+<hr>
 <label for="tokenSelect">Token: </label>
 <select class="form-control" id="tokenSelect">
     <option th:each="token : ${tokens.values()}"
@@ -39,7 +41,6 @@ Popular Tokens: <a href="#" onClick="loadMarkets('So1111111111111111111111111111
         </td>
     </tr>
 </table>
-<h1>Serum Data</h1>
 <hr>
 <table>
     <tr>
