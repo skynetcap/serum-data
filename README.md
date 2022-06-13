@@ -14,8 +14,17 @@ mvn clean install
 ## Running in IDE
 Use the Spring Boot Run Configuration included with IntelliJ.
 
-## Running outside of IDE
-Package as a Spring Boot JAR and run the JAR on your CLI.
+## Running in Docker container
+Docker Build
+```dockerfile
+# Build's serum-data Docker image
+docker build -t serum-data .
+```
+Docker Run
+```dockerfile
+# Starts serum-data Docker image on port 8080
+docker run -p 8080:8080 serum-data
+```
 
 ## Contributing
 Open an issue with details, or pull request with changes.
