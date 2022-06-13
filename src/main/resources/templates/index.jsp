@@ -23,7 +23,7 @@
 </select>
 <input type="button" value="Search for Markets" id="searchForMarkets">
 <br>
-Popular Tokens: <a href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');">SOL</a> - <a href="#" onClick="loadMarkets('orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE');">ORCA</a> - <a href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a>
+Popular Tokens: <a href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');">SOL</a> - <a href="#" onClick="loadMarkets('orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE');">ORCA</a> - <a href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a> - <a href="#" onClick="loadMarkets('AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB');">GST</a>
 <hr>
 <table>
     <tr>
@@ -39,9 +39,17 @@ Popular Tokens: <a href="#" onClick="loadMarkets('So1111111111111111111111111111
         </td>
     </tr>
 </table>
+<h1>Serum Data</h1>
 <hr>
 <table>
-    <tr><td>Market Details: <span id="marketIdSpan"></span></td></tr>
+    <tr>
+        <td>
+            <span id="marketHeader" style="display: none;">
+                <img id="baseLogo" src="" width="64" height="64"><img id="quoteLogo" src="" width="64" height="64">
+                <span id="baseTokenSpan"></span> / <span id="quoteTokenSpan"></span>
+            </span>
+        </td>
+    </tr>
     <tr>
         <td>Bids</td>
         <td>Asks</td>
@@ -154,6 +162,22 @@ Popular Tokens: <a href="#" onClick="loadMarkets('So1111111111111111111111111111
         let apiUrl = "/api/serum/market/" + marketId + "/tradeHistory";
         $.get( apiUrl, function( data ) {
             $('#tradeHistoryTable tbody').empty();
+
+            // reset chart
+            myChart.data = {
+                labels: [],
+                    datasets: [{
+                    label: 'Price',
+                    data: [],
+                    fill: false,
+                    borderColor: 'rgb(41,98,255)',
+                    tension: 0.1
+                }]
+            };
+
+            myChart.update();
+
+
             $.each(data, function(k, v) {
                 if (!v.flags.maker) {
                     $("#tradeHistoryTable tbody").append("<tr style='background-color: " + (v.flags.bid ? "green" : "red") + "'><td>" + v.price + "</td><td>" + v.quantity + "</td><td>" + v.owner + "</td></tr>");
@@ -168,10 +192,15 @@ Popular Tokens: <a href="#" onClick="loadMarkets('So1111111111111111111111111111
         });
     }
 
-    function loadMarketDetail(marketId) {
+    function loadMarketDetail() {
         let apiUrl = "/api/serum/market/" + activeMarketId;
         $.get( apiUrl, function( data ) {
-            $("#marketIdSpan").text(marketId);
+            $("#baseTokenSpan").text(data.baseName);
+            $("#quoteTokenSpan").text(data.quoteName);
+            $("#baseLogo").attr("src", data.baseLogo);
+            $("#marketHeader").attr("style", "display: inherit;");
+            $("#quoteLogo").attr("src", data.quoteLogo);
+
 
             // bids
             $('#bidsTable tbody').empty();
@@ -199,7 +228,7 @@ Popular Tokens: <a href="#" onClick="loadMarkets('So1111111111111111111111111111
 
     function updateOrderBookLoop() {
         if (activeMarketId) {
-            loadMarketDetail(activeMarketId);
+            loadMarketDetail();
         }
     }
 

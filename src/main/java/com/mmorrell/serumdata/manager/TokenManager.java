@@ -49,7 +49,8 @@ public class TokenManager {
             Token token = new Token(
                     tokenNode.get("name").textValue(),
                     tokenNode.get("address").textValue(),
-                    tokenNode.get("symbol").textValue()
+                    tokenNode.get("symbol").textValue(),
+                    tokenNode.get("logoURI").textValue()
             );
 
             // update cache
@@ -76,6 +77,24 @@ public class TokenManager {
         Token token = tokenCache.get(tokenMint);
         if (token != null) {
             return token.getName();
+        } else {
+            return "";
+        }
+    }
+
+    public String getTokenSymbolByMint(String tokenMint) {
+        Token token = tokenCache.get(tokenMint);
+        if (token != null) {
+            return token.getSymbol();
+        } else {
+            return "";
+        }
+    }
+
+    public String getTokenLogoByMint(String tokenMint) {
+        Token token = tokenCache.get(tokenMint);
+        if (token != null) {
+            return token.getLogoURI();
         } else {
             return "";
         }

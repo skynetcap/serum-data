@@ -82,10 +82,16 @@ public class ApiController {
 
         Market market = marketFromCache.get();
         result.put("id", market.getOwnAddress().toBase58());
+
         result.put("baseName", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
         result.put("baseMint", market.getBaseMint().toBase58());
+        result.put("baseSymbol", tokenManager.getTokenSymbolByMint(market.getBaseMint().toBase58()));
+        result.put("baseLogo", tokenManager.getTokenLogoByMint(market.getBaseMint().toBase58()));
+
         result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
         result.put("quoteMint", market.getQuoteMint().toBase58());
+        result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint().toBase58()));
+        result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint().toBase58()));
 
         List<SerumOrder> bids = marketWithOrderBooks.getBidOrderBook().getOrders().stream()
                 .map(order -> {
