@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Serum Data</title>
+    <title>Openserum Market Data</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- jquery & chartjs -->
@@ -102,15 +102,11 @@
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="fs-4"><img src="static/serum-srm-logo.png" width="32" height="32"
-                                    style="margin-right: 0.5rem!important;">Serum Data</span>
+                                    style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
 
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Home</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Markets</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Tokens</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Statistics</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
         </ul>
     </header>
 </div>
@@ -378,7 +374,7 @@
         }
     }
 
-    setInterval(updateOrderBookLoop, 800);
+    setInterval(updateOrderBookLoop, 1200);
 </script>
 </body>
 </html>
