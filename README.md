@@ -1,8 +1,10 @@
 # serum-data
 A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
 
+![serum-data](https://i.ibb.co/gMZJVX2/ss.png)
+
 ## Building
-### Requirements
+### Requirements (if not using Docker)
 * Java 11
 * Maven
 
