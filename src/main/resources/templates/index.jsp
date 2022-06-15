@@ -328,7 +328,8 @@
 
     function loadMarketDetail() {
         let apiUrl = "/api/serum/market/" + activeMarketId;
-        $.get(apiUrl, function (data) {
+        $.get({url: apiUrl, cache: false})
+        .done(function (data) {
             $("#orderBookHeader").html("Order Book: " +
                 "<img id=\"baseLogo\" class=\"img-icon\"> " +
                 "<span id=\"baseName\"></span> / " +
