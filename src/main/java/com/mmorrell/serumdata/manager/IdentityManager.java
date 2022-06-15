@@ -21,6 +21,9 @@ public class IdentityManager {
 
     {
         knownEntities.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "Alameda Research");
+        knownEntities.put("9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S", "Mango Markets");
+        knownEntities.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "Atrix Finance");
+        knownEntities.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "Raydium");
     }
 
     public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {
