@@ -4,17 +4,19 @@ import java.io.Serializable;
 
 public class Token implements Serializable {
 
-    public Token(String name, String address, String symbol, String logoURI) {
+    public Token(String name, String address, String symbol, String logoURI, int chainId) {
         this.name = name;
         this.address = address;
         this.symbol = symbol;
         this.logoURI = logoURI;
+        this.chainId = chainId;
     }
 
     private String name;
     private String address;
     private String symbol;
     private String logoURI;
+    private int chainId;
 
     public String getSymbol() {
         return symbol;
@@ -48,6 +50,14 @@ public class Token implements Serializable {
         this.logoURI = logoURI;
     }
 
+    public int getChainId() {
+        return chainId;
+    }
+
+    public void setChainId(int chainId) {
+        this.chainId = chainId;
+    }
+
     @Override
     public String toString() {
         return "Token{" +
@@ -55,6 +65,7 @@ public class Token implements Serializable {
                 ", address='" + address + '\'' +
                 ", symbol='" + symbol + '\'' +
                 ", logoURI='" + logoURI + '\'' +
+                ", chainId=" + chainId +
                 '}';
     }
 }

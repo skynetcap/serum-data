@@ -23,6 +23,10 @@ public class MarketManager {
         updateMarkets();
     }
 
+    public Map<String, List<Market>> getMarketMapCache() {
+        return marketMapCache;
+    }
+
     public List<Market> getMarketCache() {
         return marketMapCache.values().stream()
                 .flatMap(List::stream)
@@ -38,7 +42,8 @@ public class MarketManager {
      */
     public void updateMarkets() {
         marketMapCache.clear();
-        RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
+        RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/", 40);
+
         List<ProgramAccount> programAccounts = new ArrayList<>();
         try {
             programAccounts = client.getApi().getProgramAccounts(
@@ -86,5 +91,9 @@ public class MarketManager {
         }
 
         System.out.println("Cached markets.");
+    }
+
+    public int numMarketsByToken(String tokenMint) {
+        return marketMapCache.getOrDefault(tokenMint, new ArrayList<>()).size();
     }
 }

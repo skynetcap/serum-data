@@ -20,6 +20,7 @@ import java.util.*;
 @Component
 public class TokenManager {
 
+    private static final int CHAIN_ID_MAINNET = 101;
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -50,11 +51,14 @@ public class TokenManager {
                     tokenNode.get("name").textValue(),
                     tokenNode.get("address").textValue(),
                     tokenNode.get("symbol").textValue(),
-                    tokenNode.get("logoURI").textValue()
+                    tokenNode.get("logoURI").textValue(),
+                    tokenNode.get("chainId").intValue()
             );
 
-            // update cache
-            tokenCache.put(token.getAddress(), token);
+            // update cache, only mainnet tokens
+            if (token.getChainId() == CHAIN_ID_MAINNET) {
+                tokenCache.put(token.getAddress(), token);
+            }
         }
         System.out.println("Cached tokens.");
     }

@@ -14,7 +14,6 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,10 +26,11 @@ public class ApiController {
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
 
-
     // Called on startup, loads our caches first etc
     // Auto-injected beans created by Component annotation
-    public ApiController(TokenManager tokenManager, MarketManager marketManager, IdentityManager identityManager) {
+    public ApiController(TokenManager tokenManager,
+                         MarketManager marketManager,
+                         IdentityManager identityManager) {
         this.tokenManager = tokenManager;
         this.marketManager = marketManager;
         this.identityManager = identityManager;
@@ -42,7 +42,7 @@ public class ApiController {
      * @throws RpcException
      */
     @GetMapping(value = "/api/serum/allMarkets")
-    public List<String> getSerumMarkets() throws RpcException {
+    public List<String> getSerumMarkets() {
         return marketManager.getMarketCache().stream()
                 .map(Market::getOwnAddress)
                 .map(PublicKey::toBase58)
@@ -81,17 +81,7 @@ public class ApiController {
                 .build();
 
         Market market = marketFromCache.get();
-        result.put("id", market.getOwnAddress().toBase58());
-
-        result.put("baseName", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
-        result.put("baseMint", market.getBaseMint().toBase58());
-        result.put("baseSymbol", tokenManager.getTokenSymbolByMint(market.getBaseMint().toBase58()));
-        result.put("baseLogo", tokenManager.getTokenLogoByMint(market.getBaseMint().toBase58()));
-
-        result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
-        result.put("quoteMint", market.getQuoteMint().toBase58());
-        result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint().toBase58()));
-        result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint().toBase58()));
+        result = convertMarketToMap(market);
 
         List<SerumOrder> bids = marketWithOrderBooks.getBidOrderBook().getOrders().stream()
                 .map(order -> {
@@ -167,20 +157,17 @@ public class ApiController {
         return reverseSortedMap;
     }
 
-    @GetMapping("/")
-    public ModelAndView passParametersWithModelAndView() {
-        ModelAndView modelAndView = new ModelAndView("index");
-        modelAndView.addObject("tokens", tokenManager.getRegistry());
-        return modelAndView;
-    }
-
     private Map<String, Object> convertMarketToMap(Market market) {
         Map<String, Object> result = new HashMap<>();
         result.put("id", market.getOwnAddress().toBase58());
         result.put("baseName", tokenManager.getTokenByMint(market.getBaseMint().toBase58()));
         result.put("baseMint", market.getBaseMint().toBase58());
+        result.put("baseSymbol", tokenManager.getTokenSymbolByMint(market.getBaseMint().toBase58()));
+        result.put("baseLogo", tokenManager.getTokenLogoByMint(market.getBaseMint().toBase58()));
         result.put("quoteName", tokenManager.getTokenByMint(market.getQuoteMint().toBase58()));
         result.put("quoteMint", market.getQuoteMint().toBase58());
+        result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint().toBase58()));
+        result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint().toBase58()));
         return result;
     }
 
@@ -210,7 +197,6 @@ public class ApiController {
             ));
 
             result.add(tradeEventEntry);
-            //System.out.printf("Event: %s%n", tradeEvents.get(i).toString());
         }
 
         return result;

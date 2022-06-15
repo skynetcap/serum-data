@@ -88,7 +88,7 @@ public class IdentityManager {
                         )
                 );
                 ownerReverseLookupCache.put(accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
-                System.out.printf("OOA:%s,Owner:%s%n", accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
+                // System.out.printf("OOA:%s,Owner:%s%n", accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
             }
         } catch (RpcException e) {
             throw new RuntimeException(e);
