@@ -3,6 +3,7 @@ package com.mmorrell.serumdata.manager;
 import ch.openserum.serum.model.OpenOrdersAccount;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
+import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityManager {
 
-    private final RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/");
+    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint());
     private final Map<String, String> ownerReverseLookupCache = new HashMap<>();
     private final Map<String, String> knownEntities = new HashMap<>();
 

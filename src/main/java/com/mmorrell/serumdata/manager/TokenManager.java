@@ -8,6 +8,8 @@ import com.mmorrell.serumdata.model.Token;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,7 +22,10 @@ import java.util.*;
 @Component
 public class TokenManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenManager.class);
+
     private static final int CHAIN_ID_MAINNET = 101;
+
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -60,7 +65,8 @@ public class TokenManager {
                 tokenCache.put(token.getAddress(), token);
             }
         }
-        System.out.println("Cached tokens.");
+
+        LOGGER.info("Cached tokens.");
     }
 
     public Map<String, Token> getRegistry() {

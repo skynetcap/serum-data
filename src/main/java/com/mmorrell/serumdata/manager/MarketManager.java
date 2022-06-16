@@ -2,10 +2,13 @@ package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.Memcmp;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class MarketManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
 
     private final Map<String, List<Market>> marketMapCache = new HashMap<>();
 
@@ -42,7 +47,7 @@ public class MarketManager {
      */
     public void updateMarkets() {
         marketMapCache.clear();
-        RpcClient client = new RpcClient("https://ssc-dao.genesysgo.net/", 40);
+        RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), 40);
 
         List<ProgramAccount> programAccounts = new ArrayList<>();
         try {
@@ -90,7 +95,7 @@ public class MarketManager {
             }
         }
 
-        System.out.println("Cached markets.");
+        LOGGER.info("Cached markets.");
     }
 
     public int numMarketsByToken(String tokenMint) {
