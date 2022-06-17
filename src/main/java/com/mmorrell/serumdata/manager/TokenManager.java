@@ -39,6 +39,7 @@ public class TokenManager {
     }
 
     public void updateRegistry() {
+        LOGGER.info("Caching tokens from solana.tokenlist.json");
         String json = httpGet("https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json");
 
         JsonNode rootNode;
@@ -66,7 +67,7 @@ public class TokenManager {
             }
         }
 
-        LOGGER.info("Cached tokens.");
+        LOGGER.info("Tokens cached.");
     }
 
     public Map<String, Token> getRegistry() {
