@@ -2,9 +2,23 @@ package com.mmorrell.serumdata.util;
 
 public class RpcUtil {
 
-    private static final String GENESYSGO_URL = "https://ssc-dao.genesysgo.net/";
+    private static final PublicCluster DEFAULT_CLUSTER = PublicCluster.GENESYSGO;
+
+    private enum PublicCluster {
+        GENESYSGO ("https://ssc-dao.genesysgo.net/");
+
+        private final String endpoint;
+
+        PublicCluster(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        String getEndpoint() {
+            return endpoint;
+        }
+    }
 
     public static String getPublicEndpoint() {
-        return GENESYSGO_URL;
+        return DEFAULT_CLUSTER.getEndpoint();
     }
 }

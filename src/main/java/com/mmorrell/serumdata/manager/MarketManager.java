@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,29 +58,47 @@ public class MarketManager {
         LOGGER.info(
                 String.format(
                         "Caching markets for quoteMints: %s",
-                        quoteMintsToCache.stream().map(PublicKey::toBase58).collect(Collectors.joining(","))
+                        quoteMintsToCache.stream().map(PublicKey::toBase58).collect(Collectors.joining(", "))
                 )
         );
 
         marketMapCache.clear();
-        final List<ProgramAccount> programAccounts = new ArrayList<>();
+        final Collection<ProgramAccount> programAccounts = new ConcurrentLinkedQueue<>();
+        final List<CompletableFuture<Void>> marketCacheThreads = new ArrayList<>();
 
+        for (PublicKey quoteMint : quoteMintsToCache) {
+            // Create each thread
+            final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
+                LOGGER.info("Caching: " + quoteMint.toBase58());
+                try {
+                    programAccounts.addAll(
+                            client.getApi().getProgramAccounts(
+                                    SerumUtils.SERUM_PROGRAM_ID_V3,
+                                    List.of(
+                                            new Memcmp(
+                                                    SerumUtils.QUOTE_MINT_OFFSET,
+                                                    quoteMint.toBase58()
+                                            )
+                                    ),
+                                    SerumUtils.MARKET_ACCOUNT_SIZE
+                            )
+                    );
+                    LOGGER.info("Cached: " + quoteMint.toBase58());
+                } catch (RpcException e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
+            });
+            marketCacheThreads.add(marketCacheThread);
+        }
+
+        final CompletableFuture<Void> combinedFutures =
+                CompletableFuture.allOf(marketCacheThreads.toArray(new CompletableFuture[0]));
         try {
-            for (PublicKey quoteMint : quoteMintsToCache) {
-                programAccounts.addAll(
-                        client.getApi().getProgramAccounts(
-                                SerumUtils.SERUM_PROGRAM_ID_V3,
-                                List.of(
-                                        new Memcmp(
-                                                SerumUtils.QUOTE_MINT_OFFSET,
-                                                quoteMint.toBase58()
-                                        )
-                                ),
-                                SerumUtils.MARKET_ACCOUNT_SIZE
-                        )
-                );
-            }
-        } catch (RpcException e) {
+            // Wait for all threads to complete.
+            combinedFutures.get();
+            LOGGER.info("Market caching threads complete.");
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
 
@@ -96,7 +117,7 @@ public class MarketManager {
         LOGGER.info(
                 String.format(
                         "Markets cached for quoteMints: %s",
-                        quoteMintsToCache.stream().map(PublicKey::toBase58).collect(Collectors.joining(","))
+                        quoteMintsToCache.stream().map(PublicKey::toBase58).collect(Collectors.joining(", "))
                 )
         );
     }
