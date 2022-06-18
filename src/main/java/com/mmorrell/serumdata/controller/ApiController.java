@@ -2,6 +2,7 @@ package com.mmorrell.serumdata.controller;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.MarketBuilder;
+import ch.openserum.serum.model.Order;
 import ch.openserum.serum.model.TradeEvent;
 import com.google.common.collect.ImmutableMap;
 import com.mmorrell.serumdata.manager.IdentityManager;
@@ -144,6 +145,38 @@ public class ApiController {
 
             result.add(tradeEventEntry);
         }
+
+        return result;
+    }
+
+    /**
+     * Retrieves the best bid and best ask price for the given marketId.
+     *
+     * @param marketId serum market id
+     * @return best bid and best ask
+     */
+    @GetMapping(value = "/api/serum/market/{marketId}/spread")
+    public Map<String, Object> getMarketSpread(@PathVariable String marketId) {
+        final Market market = new MarketBuilder()
+                .setClient(orderBookClient)
+                .setPublicKey(PublicKey.valueOf(marketId))
+                .setRetrieveEventQueue(false)
+                .setRetrieveOrderBooks(true)
+                .build();
+
+        final Map<String, Object> result = new HashMap<>(convertMarketToMap(market));
+
+        final Order bestBid = market.getBidOrderBook().getBestBid();
+        final Order bestAsk = market.getAskOrderBook().getBestAsk();
+
+        result.put("bidPrice", bestBid.getFloatPrice());
+        result.put("bidQuantity", bestBid.getFloatQuantity());
+        result.put("askPrice", bestAsk.getFloatPrice());
+        result.put("askQuantity", bestAsk.getFloatQuantity());
+
+        // Remove logo values for bandwidth efficiency. Client can look up themselves.
+        result.remove("baseLogo");
+        result.remove("quoteLogo");
 
         return result;
     }
