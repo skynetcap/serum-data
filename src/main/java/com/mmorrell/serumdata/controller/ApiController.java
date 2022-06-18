@@ -178,7 +178,8 @@ public class ApiController {
         result.remove("baseLogo");
         result.remove("quoteLogo");
 
-        return result;
+        // Treemap for alphabetical sorting.
+        return new TreeMap<>(result);
     }
 
     private Map<String, Object> convertMarketToMap(Market market) {
