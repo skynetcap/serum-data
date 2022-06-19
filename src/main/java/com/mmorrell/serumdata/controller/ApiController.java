@@ -1,9 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
-import ch.openserum.serum.model.Market;
-import ch.openserum.serum.model.MarketBuilder;
-import ch.openserum.serum.model.Order;
-import ch.openserum.serum.model.TradeEvent;
+import ch.openserum.serum.model.*;
 import com.google.common.collect.ImmutableMap;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
@@ -83,33 +80,40 @@ public class ApiController {
                 .build();
 
         Market market = marketFromCache.get();
-        result = convertMarketToMap(market);
+        return convertOrdersAndLookup(market, marketWithOrderBooks.getBidOrderBook(), marketWithOrderBooks.getAskOrderBook());
+    }
 
-        List<SerumOrder> bids = marketWithOrderBooks.getBidOrderBook().getOrders().stream()
-                .map(order -> {
-                            SerumOrder serumOrder = new SerumOrder();
-                            serumOrder.setPrice(order.getFloatPrice());
-                            serumOrder.setQuantity(order.getFloatQuantity());
-                            serumOrder.setOwner(order.getOwner().toBase58());
-                            return serumOrder;
-                })
-                .sorted((o1, o2) -> Float.compare(o2.getPrice(), o1.getPrice()))
-                .collect(Collectors.toList());
+    @GetMapping(value = "/api/serum/market/{marketId}/cached")
+    public Map<String, Object> getMarketCached(@PathVariable String marketId) {
+        MarketBuilder builder;
+        Market market;
 
-        List<SerumOrder> asks = marketWithOrderBooks.getAskOrderBook().getOrders().stream()
-                .map(order -> {
-                    SerumOrder serumOrder = new SerumOrder();
-                    serumOrder.setPrice(order.getFloatPrice());
-                    serumOrder.setQuantity(order.getFloatQuantity());
-                    serumOrder.setOwner(order.getOwner().toBase58());
-                    return serumOrder;
-                })
-                .sorted((o1, o2) -> Float.compare(o1.getPrice(), o2.getPrice()))
-                .collect(Collectors.toList());
+        // check builder map
+        boolean isBuilderCached = marketManager.isBuilderCached(marketId);
+        if (isBuilderCached) {
+            builder = marketManager.getBuilderFromCache(marketId);
+            market = builder.reload();
+        } else {
+            builder = new MarketBuilder()
+                    .setClient(orderBookClient)
+                    .setPublicKey(PublicKey.valueOf(marketId))
+                    .setRetrieveOrderBooks(true)
+                    .setOrderBookCacheEnabled(true);
+            market = builder.build();
 
-        // process the bids and asks objects, replace each "owner" with a reverse looked up owner if we have it.
-        // otherwise, add it to a list, lookup all the missing owners on list, cache it,
-        // and update the field with the new info
+            // add to cache, saves decimal cache and initial account poll
+            marketManager.addBuilderToCache(builder);
+        }
+
+        return convertOrdersAndLookup(market, market.getBidOrderBook(), market.getAskOrderBook());
+    }
+
+    private Map<String, Object> convertOrdersAndLookup(Market market, OrderBook bidOrderBook, OrderBook askOrderBook) {
+        Map<String, Object> result = convertMarketToMap(market);
+
+        List<SerumOrder> bids = convertOrderBookToSerumOrders(bidOrderBook);
+        List<SerumOrder> asks = convertOrderBookToSerumOrders(bidOrderBook);
+
         identityManager.reverseOwnerLookup(bids, asks);
 
         result.put("bids", bids);
@@ -155,6 +159,7 @@ public class ApiController {
      * @param marketId serum market id
      * @return best bid and best ask
      */
+    // TODO - cache these builders with different params somehow
     @GetMapping(value = "/api/serum/market/{marketId}/spread")
     public Map<String, Object> getMarketSpread(@PathVariable String marketId) {
         final Market market = new MarketBuilder()
@@ -194,5 +199,18 @@ public class ApiController {
         result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint().toBase58()));
         result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint().toBase58()));
         return result;
+    }
+
+    private List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook) {
+        return orderBook.getOrders().stream()
+                .map(order -> {
+                    SerumOrder serumOrder = new SerumOrder();
+                    serumOrder.setPrice(order.getFloatPrice());
+                    serumOrder.setQuantity(order.getFloatQuantity());
+                    serumOrder.setOwner(order.getOwner().toBase58());
+                    return serumOrder;
+                })
+                .sorted((o1, o2) -> Float.compare(o1.getPrice(), o2.getPrice()))
+                .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,7 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
+import ch.openserum.serum.model.MarketBuilder;
 import ch.openserum.serum.model.SerumUtils;
 import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
@@ -25,6 +26,7 @@ public class MarketManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 40;
     private final Map<String, List<Market>> marketMapCache = new HashMap<>();
+    private final Map<String, MarketBuilder> marketBuilderCache = new HashMap<>();
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
 
     // Cache USDC and SOL quoted markets.
@@ -49,6 +51,18 @@ public class MarketManager {
 
     public List<Market> getMarketsByMint(String tokenMint) {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
+    }
+
+    public void addBuilderToCache(MarketBuilder marketBuilder) {
+        marketBuilderCache.put(marketBuilder.getPublicKey().toBase58(), marketBuilder);
+    }
+
+    public boolean isBuilderCached(String marketId) {
+        return marketBuilderCache.containsKey(marketId);
+    }
+
+    public MarketBuilder getBuilderFromCache(String marketId) {
+        return marketBuilderCache.get(marketId);
     }
 
     /**
