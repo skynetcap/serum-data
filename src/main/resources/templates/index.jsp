@@ -399,6 +399,10 @@
 
     setInterval(updateOrderBookLoop, 1200);
     setInterval(updateSales, 3000);
+
+    loadMarkets('So11111111111111111111111111111111111111112');
+    setMarket('9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT');
+
 </script>
 </body>
 </html>
