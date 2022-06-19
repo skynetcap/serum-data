@@ -111,8 +111,8 @@ public class ApiController {
     private Map<String, Object> convertOrdersAndLookup(Market market, OrderBook bidOrderBook, OrderBook askOrderBook) {
         Map<String, Object> result = convertMarketToMap(market);
 
-        List<SerumOrder> bids = convertOrderBookToSerumOrders(bidOrderBook);
-        List<SerumOrder> asks = convertOrderBookToSerumOrders(bidOrderBook);
+        List<SerumOrder> bids = convertOrderBookToSerumOrders(bidOrderBook, true);
+        List<SerumOrder> asks = convertOrderBookToSerumOrders(askOrderBook, false);
 
         identityManager.reverseOwnerLookup(bids, asks);
 
@@ -201,7 +201,7 @@ public class ApiController {
         return result;
     }
 
-    private List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook) {
+    private List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook, boolean isBid) {
         return orderBook.getOrders().stream()
                 .map(order -> {
                     SerumOrder serumOrder = new SerumOrder();
@@ -210,7 +210,12 @@ public class ApiController {
                     serumOrder.setOwner(order.getOwner().toBase58());
                     return serumOrder;
                 })
-                .sorted((o1, o2) -> Float.compare(o1.getPrice(), o2.getPrice()))
+                .sorted((o1, o2) -> {
+                    if (isBid) {
+                        return Float.compare(o2.getPrice(), o1.getPrice());
+                    }
+                    return Float.compare(o1.getPrice(), o2.getPrice());
+                })
                 .collect(Collectors.toList());
     }
 }

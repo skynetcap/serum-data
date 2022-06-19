@@ -164,7 +164,9 @@
         <div class="row">
             <div class="card col-sm-8">
                 <div class="card-body">
-                    <div style="font-size: 1.25rem; font-weight: 500; display: inline" id="orderBookHeader">Order Book:</div>
+                    <div style="font-size: 1.25rem; font-weight: 500; display: inline" id="orderBookHeader">Order
+                        Book:
+                    </div>
                     <hr>
                     <div class="row">
                         <div class="column">
@@ -323,49 +325,49 @@
     }
 
     function loadMarketDetail() {
-        let apiUrl = "/api/serum/market/" + activeMarketId;
+        let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
         $.get({url: apiUrl, cache: false})
-        .done(function (data) {
-            $("#orderBookHeader").html("Order Book: " +
-                "<img id=\"baseLogo\" class=\"img-icon\"> " +
-                "<span id=\"baseName\"></span> / " +
-                "<img id=\"quoteLogo\" class=\"img-icon\"> " +
-                "<span id=\"quoteName\"></span> " +
-                "<span id=\"ownerName\"></span>"
-            );
-            $("#baseName").text(data.baseSymbol);
-            $("#priceChartTitle").text(data.baseSymbol + "/" + data.quoteSymbol + " Price Chart")
-            $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
-            $("#quoteName").text(data.quoteSymbol);
-            $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
-            $("#baseLogo").attr("src", data.baseLogo);
-            $("#quoteLogo").attr("src", data.quoteLogo);
-
-
-            // bids
-            $('#bidsTable tbody').empty();
-            $.each(data.bids, function (k, v) {
-                $("#bidsTable tbody").append(
-                    "<tr>" +
-                    "<td>" + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" + v.quantity + "</td>" +
-                    "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
-                    "</tr>"
+            .done(function (data) {
+                $("#orderBookHeader").html("Order Book: " +
+                    "<img id=\"baseLogo\" class=\"img-icon\"> " +
+                    "<span id=\"baseName\"></span> / " +
+                    "<img id=\"quoteLogo\" class=\"img-icon\"> " +
+                    "<span id=\"quoteName\"></span> " +
+                    "<span id=\"ownerName\"></span>"
                 );
-            })
+                $("#baseName").text(data.baseSymbol);
+                $("#priceChartTitle").text(data.baseSymbol + "/" + data.quoteSymbol + " Price Chart")
+                $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
+                $("#quoteName").text(data.quoteSymbol);
+                $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
+                $("#baseLogo").attr("src", data.baseLogo);
+                $("#quoteLogo").attr("src", data.quoteLogo);
 
-            // asks
-            $('#asksTable tbody').empty();
-            $.each(data.asks, function (k, v) {
-                $("#asksTable tbody").append(
-                    "<tr>" +
-                    "<td>" + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" + v.quantity + "</td>" +
-                    "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
-                    "</tr>"
-                );
-            })
-        });
+
+                // bids
+                $('#bidsTable tbody').empty();
+                $.each(data.bids, function (k, v) {
+                    $("#bidsTable tbody").append(
+                        "<tr>" +
+                        "<td>" + v.price + "</td>" +
+                        "<td style=\"text-align: right\">" + v.quantity + "</td>" +
+                        "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                        "</tr>"
+                    );
+                })
+
+                // asks
+                $('#asksTable tbody').empty();
+                $.each(data.asks, function (k, v) {
+                    $("#asksTable tbody").append(
+                        "<tr>" +
+                        "<td>" + v.price + "</td>" +
+                        "<td style=\"text-align: right\">" + v.quantity + "</td>" +
+                        "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                        "</tr>"
+                    );
+                })
+            });
     }
 
     function updateOrderBookLoop() {
@@ -374,7 +376,29 @@
         }
     }
 
+    function updateSales() {
+        if (activeMarketId) {
+            let apiUrl = "/api/serum/market/" + activeMarketId + "/tradeHistory";
+            $.get({url: apiUrl, cache: false})
+                .done(function (data) {
+                    $('#tradeHistoryTable tbody').empty();
+                    $.each(data, function (k, v) {
+                        if (!v.flags.maker) {
+                            $("#tradeHistoryTable tbody").append(
+                                "<tr class='" + (v.flags.bid ? "table-success" : "table-danger") + "'>" +
+                                "<td>" + v.price + "</td>" +
+                                "<td style=\"text-align: right\">" + v.quantity + "</td>" +
+                                "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                                "</tr>"
+                            );
+                        }
+                    })
+                });
+        }
+    }
+
     setInterval(updateOrderBookLoop, 1200);
+    setInterval(updateSales, 3000);
 </script>
 </body>
 </html>
