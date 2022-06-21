@@ -56,6 +56,11 @@ public class IdentityManager {
             }
 
             final AccountInfo accountInfo = client.getApi().getAccountInfo(openOrdersAccount);
+            if (accountInfo.getValue() == null) {
+                ownerReverseLookupCache.put(openOrdersAccount.toBase58(), openOrdersAccount.toBase58());
+                return openOrdersAccount;
+            }
+
             final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
                     Base64.getDecoder().decode(
                             accountInfo.getValue().getData().get(0).getBytes()

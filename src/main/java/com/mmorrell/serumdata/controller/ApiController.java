@@ -152,7 +152,7 @@ public class ApiController {
                             "maker", event.getEventQueueFlags().isMaker()
                     )
             );
-            tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(identityManager.lookupAndAddOwnerToCache(event.getOpenOrders())));
+            tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(taker));
 
             result.add(tradeEventEntry);
         }
