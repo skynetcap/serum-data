@@ -14,13 +14,11 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 public class IndexController {
@@ -39,9 +37,7 @@ public class IndexController {
     }
 
     @RequestMapping("/")
-    public ModelAndView index() {
-        ModelAndView modelAndView = new ModelAndView("index");
-
+    public String index(Model model) {
         Map<String, Token> tokenMap = new HashMap<>();
         tokenManager.getRegistry().forEach((tokenMint, token) -> {
             // only show tokens which have a serum market
@@ -50,12 +46,12 @@ public class IndexController {
             }
         });
 
-        modelAndView.addObject(
+        model.addAttribute(
                 "tokens",
                 tokenMap
         );
-        modelAndView.addObject(marketRankManager);
-        return modelAndView;
+        model.addAttribute(marketRankManager);
+        return "index";
     }
 
     @RequestMapping("/chart")

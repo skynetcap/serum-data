@@ -14,6 +14,9 @@
             integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    <!-- depth -->
+    <script src="static/charting.js"></script>
+    <script src="static/plugin.js"></script>
 
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -64,6 +67,13 @@
             padding: 5px;
         }
 
+        #container {
+            min-width: 100px;
+            max-width: 650px;
+            height: 175px;
+            margin: 0 auto;
+        }
+
     </style>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -95,8 +105,10 @@
                 templateSelection: formatToken
             });
 
+            // todo - async?
             loadMarkets('So11111111111111111111111111111111111111112');
             setMarket('9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT');
+            updateDepthChart();
         });
     </script>
 </head>
@@ -171,6 +183,7 @@
                         Book:
                     </div>
                     <hr>
+                    <div id="container"></div>
                     <div class="row">
                         <div class="column">
                             <table id="bidsTable" class="table table-striped table-hover table-bordered"
@@ -402,6 +415,101 @@
 
     setInterval(updateOrderBookLoop, 1200);
     setInterval(updateSales, 3000);
+
+</script>
+<script th:inline="javascript">
+    var depthChart = Highcharts.chart('container', {
+        chart: {
+            type: 'area',
+            zoomType: 'xy'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            minPadding: 0,
+            maxPadding: 0,
+            min: 0,
+            max: 0,
+            plotLines: [{
+                color: '#888',
+                value: 0,
+                width: 1,
+                label: {
+                    text: '',
+                    rotation: 90
+                }
+            }]
+        },
+        yAxis: [{
+            lineWidth: 1,
+            gridLineWidth: 1,
+            title: null,
+            tickWidth: 1,
+            tickLength: 5,
+            tickPosition: 'inside',
+            labels: {
+                align: 'left',
+                x: 8
+            }
+        }, {
+            opposite: true,
+            linkedTo: 0,
+            lineWidth: 1,
+            gridLineWidth: 0,
+            title: null,
+            tickWidth: 1,
+            tickLength: 5,
+            tickPosition: 'inside',
+            labels: {
+                align: 'right',
+                x: -8
+            }
+        }],
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            area: {
+                fillOpacity: 0.2,
+                lineWidth: 1,
+                step: 'center'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size=10px;">Price: {point.key}</span><br/>',
+            valueDecimals: 2
+        },
+        series: [{
+            name: 'Total Quantity',
+            data: [],
+            color: '#03a7a8'
+        }, {
+            name: 'Total Quantity',
+            data: [],
+            color: '#fc5857'
+        }]
+    });
+
+    function updateDepthChart() {
+        if (activeMarketId) {
+            let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
+            // bids
+            $.get({url: apiUrl, cache: false})
+                .done(function (newData) {
+                    depthChart.series[0].setData(newData.bids);
+                    depthChart.series[1].setData(newData.asks);
+                    depthChart.xAxis[0].options.plotLines[0].value = newData.midpoint;
+                    depthChart.xAxis[0].setExtremes(newData.midpoint - (newData.midpoint / 10), newData.midpoint + (newData.midpoint / 10));
+                    depthChart.xAxis[0].update();
+
+                    depthChart.redraw();
+                    depthChart.hideLoading();
+                });
+        }
+    }
+
+    setInterval(updateDepthChart, 1200);
 
 </script>
 </body>
