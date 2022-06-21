@@ -6,6 +6,7 @@ import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
 import com.mmorrell.serumdata.model.SerumOrder;
+import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -111,8 +112,8 @@ public class ApiController {
     private Map<String, Object> convertOrdersAndLookup(Market market, OrderBook bidOrderBook, OrderBook askOrderBook) {
         Map<String, Object> result = convertMarketToMap(market);
 
-        List<SerumOrder> bids = convertOrderBookToSerumOrders(bidOrderBook, true);
-        List<SerumOrder> asks = convertOrderBookToSerumOrders(askOrderBook, false);
+        List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook, true);
+        List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook, false);
 
         identityManager.reverseOwnerLookup(bids, asks);
 
@@ -201,21 +202,4 @@ public class ApiController {
         return result;
     }
 
-    private List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook, boolean isBid) {
-        return orderBook.getOrders().stream()
-                .map(order -> {
-                    SerumOrder serumOrder = new SerumOrder();
-                    serumOrder.setPrice(order.getFloatPrice());
-                    serumOrder.setQuantity(order.getFloatQuantity());
-                    serumOrder.setOwner(order.getOwner().toBase58());
-                    return serumOrder;
-                })
-                .sorted((o1, o2) -> {
-                    if (isBid) {
-                        return Float.compare(o2.getPrice(), o1.getPrice());
-                    }
-                    return Float.compare(o1.getPrice(), o2.getPrice());
-                })
-                .collect(Collectors.toList());
-    }
 }

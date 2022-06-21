@@ -1,5 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
+import ch.openserum.serum.model.Market;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -109,5 +110,14 @@ public class TokenManager {
         } else {
             return "";
         }
+    }
+
+    public String getMarketNameByMarket(Market market) {
+        // result = "SOL / USDC"
+        return String.format(
+                "%s / %s",
+                getTokenSymbolByMint(market.getBaseMint().toBase58()),
+                getTokenSymbolByMint(market.getQuoteMint().toBase58())
+        );
     }
 }
