@@ -96,7 +96,7 @@ public class IndexController {
         final List<float[]> bidList = new ArrayList<>();
         for (SerumOrder bid : bids) {
             // outlier removal: bid price must be greater than 1/3 of the best bid
-            if (bid.getPrice() >= bestBid / 3.0) {
+            if (bid.getPrice() >= bestBid / 2.0) {
                 bidList.add(new float[]{bid.getPrice(), aggregateBidQuantity});
             }
             aggregateBidQuantity -= bid.getQuantity();
@@ -108,7 +108,7 @@ public class IndexController {
         final List<float[]> askList = new ArrayList<>();
         for (SerumOrder ask : asks) {
             aggregateAskQuantity += ask.getQuantity();
-            if (ask.getPrice() <= bestAsk * 3.0) {
+            if (ask.getPrice() <= bestAsk * 2.0) {
                 askList.add(new float[]{ask.getPrice(), aggregateAskQuantity});
             }
         }

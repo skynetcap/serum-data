@@ -188,6 +188,85 @@ public class ApiController {
         return new TreeMap<>(result);
     }
 
+    // todo - refactor + dedupe
+    @GetMapping(value = "/api/serum/market/{marketId}/depth")
+    public Map<String, Object> getMarketDepth(@PathVariable String marketId) {
+        final Map<String, Object> result = new HashMap<>();
+        MarketBuilder builder;
+        Market market;
+
+        // check builder map
+        boolean isBuilderCached = marketManager.isBuilderCached(marketId);
+        if (isBuilderCached) {
+            builder = marketManager.getBuilderFromCache(marketId);
+            market = builder.reload();
+        } else {
+            builder = new MarketBuilder()
+                    .setClient(orderBookClient)
+                    .setPublicKey(PublicKey.valueOf(marketId))
+                    .setRetrieveOrderBooks(true)
+                    .setOrderBookCacheEnabled(true);
+            market = builder.build();
+
+            // add to cache, saves decimal cache and initial account poll
+            marketManager.addBuilderToCache(builder);
+        }
+
+        List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(market.getBidOrderBook(), false);
+        List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(market.getAskOrderBook(), false);
+        float bestBid = market.getBidOrderBook().getBestBid().getFloatPrice();
+        float bestAsk = market.getAskOrderBook().getBestAsk().getFloatPrice();
+        float midPoint = (bestBid + bestAsk) / 2;
+        float aggregateBidQuantity = 0.0f, aggregateAskQuantity = 0.0f;
+
+        for (SerumOrder bid : bids) {
+            aggregateBidQuantity += bid.getQuantity();
+        }
+
+        final List<float[]> bidList = new ArrayList<>();
+        for (SerumOrder bid : bids) {
+            // outlier removal: bid price must be greater than 1/3 of the best bid
+            if (bid.getPrice() >= bestBid / 2.0) {
+                bidList.add(new float[]{bid.getPrice(), aggregateBidQuantity});
+            }
+            aggregateBidQuantity -= bid.getQuantity();
+        }
+
+        float[][] floatBids = bidList.toArray(new float[0][0]);
+
+        // outlier removal: ask price must be less than 3 times the best ask
+        final List<float[]> askList = new ArrayList<>();
+        for (SerumOrder ask : asks) {
+            aggregateAskQuantity += ask.getQuantity();
+            if (ask.getPrice() <= bestAsk * 2.0) {
+                askList.add(new float[]{ask.getPrice(), aggregateAskQuantity});
+            }
+        }
+
+        float[][] floatAsks = askList.toArray(new float[0][0]);
+
+        result.put(
+                "chartTitle",
+                tokenManager.getMarketNameByMarket(market) + " Price"
+        );
+        result.put(
+                "bids",
+                floatBids
+        );
+        result.put(
+                "asks",
+                floatAsks
+        );
+        result.put(
+                "midpoint",
+                midPoint
+        );
+
+        return result;
+    }
+
+
+
     private Map<String, Object> convertMarketToMap(Market market) {
         Map<String, Object> result = new HashMap<>();
         result.put("id", market.getOwnAddress().toBase58());
