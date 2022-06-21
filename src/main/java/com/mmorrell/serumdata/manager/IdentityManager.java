@@ -26,12 +26,14 @@ public class IdentityManager {
         knownEntities.put("9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S", "Mango Markets");
         knownEntities.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "Atrix Finance");
         knownEntities.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "Raydium");
+        knownEntities.put("5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp", "Jump Trading");
 
         // refactor this better
         knownEntitiesIcons.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "alameda");
         knownEntitiesIcons.put("9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S", "mango");
         knownEntitiesIcons.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "atrix");
         knownEntitiesIcons.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "raydium");
+        knownEntitiesIcons.put("5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp", "jump");
     }
 
     public String getEntityNameByOwner(PublicKey owner) {
