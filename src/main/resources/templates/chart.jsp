@@ -4,9 +4,9 @@
     <title>Chart Test</title>
     <style>
         #container {
-            min-width: 310px;
-            max-width: 700px;
-            height: 400px;
+            min-width: 100px;
+            max-width: 650px;
+            height: 225px;
             margin: 0 auto;
         }
     </style>
