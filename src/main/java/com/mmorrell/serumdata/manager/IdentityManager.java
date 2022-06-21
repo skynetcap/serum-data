@@ -19,42 +19,27 @@ public class IdentityManager {
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint());
     private final Map<String, String> ownerReverseLookupCache = new HashMap<>();
     private final Map<String, String> knownEntities = new HashMap<>();
+    private final Map<String, String> knownEntitiesIcons = new HashMap<>();
 
     {
         knownEntities.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "Alameda Research");
         knownEntities.put("9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S", "Mango Markets");
         knownEntities.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "Atrix Finance");
         knownEntities.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "Raydium");
+
+        // refactor this better
+        knownEntitiesIcons.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "alameda");
+        knownEntitiesIcons.put("9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S", "mango");
+        knownEntitiesIcons.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "atrix");
+        knownEntitiesIcons.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "raydium");
     }
 
-    public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {
-        try {
-            // first check if we need to look it up...
-            if (ownerReverseLookupCache.get(openOrdersAccount.toBase58()) != null) {
-                return PublicKey.valueOf(ownerReverseLookupCache.get(openOrdersAccount.toBase58()));
-            }
-
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(openOrdersAccount);
-            final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
-                    Base64.getDecoder().decode(
-                            accountInfo.getValue().getData().get(0).getBytes()
-                    )
-            );
-            ownerReverseLookupCache.put(openOrdersAccount.toBase58(), ooa.getOwner().toBase58());
-
-            try {
-                Thread.sleep(20L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            return ooa.getOwner();
-        } catch (RpcException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getNameByOwner(PublicKey owner) {
+    public String getEntityNameByOwner(PublicKey owner) {
         return knownEntities.get(owner.toBase58());
+    }
+
+    public String getEntityIconByOwner(PublicKey owner) {
+        return knownEntitiesIcons.get(owner.toBase58());
     }
 
     public void reverseOwnerLookup(List<SerumOrder> bids, List<SerumOrder> asks) {
@@ -106,6 +91,11 @@ public class IdentityManager {
                 String owner = ownerReverseLookupCache.get(order.getOwner());
                 // use human-readable name if we have it
                 order.setOwner(knownEntities.getOrDefault(owner, owner));
+
+                // icon and other metadata
+                if (knownEntitiesIcons.containsKey(owner)) {
+                    order.addMetadata("icon", knownEntitiesIcons.get(owner));
+                }
             } else {
                 // add to list for later processing
                 unknownOwnerOrders.add(order);

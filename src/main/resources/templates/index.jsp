@@ -366,8 +366,13 @@
                     $("#bidsTable tbody").append(
                         "<tr>" +
                         "<td>" + v.price + "</td>" +
-                        "<td style=\"text-align: right\">" + v.quantity + "</td>" +
-                        "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                        "<td style=\"text-align: right\">" +
+                        v.quantity +
+                        "</td>" +
+                        "<td style=\"text-align: left\">" +
+                        (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
+                        (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) +
+                        "</td>" +
                         "</tr>"
                     );
                 })
@@ -378,8 +383,13 @@
                     $("#asksTable tbody").append(
                         "<tr>" +
                         "<td>" + v.price + "</td>" +
-                        "<td style=\"text-align: right\">" + v.quantity + "</td>" +
-                        "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                        "<td style=\"text-align: right\">" +
+                        v.quantity +
+                        "</td>" +
+                        "<td style=\"text-align: left\">" +
+                        (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
+                        (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) +
+                        "</td>" +
                         "</tr>"
                     );
                 })
@@ -500,7 +510,7 @@
                     depthChart.series[0].setData(newData.bids);
                     depthChart.series[1].setData(newData.asks);
                     depthChart.xAxis[0].options.plotLines[0].value = newData.midpoint;
-                    depthChart.xAxis[0].setExtremes(newData.midpoint - (newData.midpoint / 10), newData.midpoint + (newData.midpoint / 10));
+                    depthChart.xAxis[0].setExtremes(newData.midpoint - (newData.midpoint / 3), newData.midpoint + (newData.midpoint / 3));
                     depthChart.xAxis[0].update();
 
                     depthChart.redraw();
