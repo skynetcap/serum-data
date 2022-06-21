@@ -119,7 +119,7 @@
             });
     }
 
-    setInterval(updateDepthChart, 1200);
+    setInterval(updateDepthChart, 1100);
 
 </script>
 </body>
