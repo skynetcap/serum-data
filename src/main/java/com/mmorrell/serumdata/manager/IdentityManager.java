@@ -36,12 +36,37 @@ public class IdentityManager {
         knownEntitiesIcons.put("5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp", "jump");
     }
 
+    public boolean hasReverseLookup(PublicKey publicKey) {
+        return knownEntities.containsKey(publicKey.toBase58());
+    }
+
     public String getEntityNameByOwner(PublicKey owner) {
         return knownEntities.get(owner.toBase58());
     }
 
     public String getEntityIconByOwner(PublicKey owner) {
         return knownEntitiesIcons.get(owner.toBase58());
+    }
+
+    public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {
+        try {
+            // first check if we need to look it up...
+            if (ownerReverseLookupCache.get(openOrdersAccount.toBase58()) != null) {
+                return PublicKey.valueOf(ownerReverseLookupCache.get(openOrdersAccount.toBase58()));
+            }
+
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(openOrdersAccount);
+            final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
+                    Base64.getDecoder().decode(
+                            accountInfo.getValue().getData().get(0).getBytes()
+                    )
+            );
+
+            ownerReverseLookupCache.put(openOrdersAccount.toBase58(), ooa.getOwner().toBase58());
+            return ooa.getOwner();
+        } catch (RpcException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reverseOwnerLookup(List<SerumOrder> bids, List<SerumOrder> asks) {

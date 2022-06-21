@@ -225,7 +225,7 @@
                         <tr>
                             <th scope="col">Price</th>
                             <th scope="col">Quantity</th>
-                            <th scope="col">Owner</th>
+                            <th scope="col">Taker</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -242,6 +242,7 @@
         crossorigin="anonymous"></script>
 <script>
     var activeMarketId;
+    var marketCurrencySymbol;
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
@@ -341,7 +342,7 @@
     }
 
     function loadMarketDetail() {
-        let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
+        let apiUrl = "/api/serum/market/" + activeMarketId/* + "/cached"*/;
         $.get({url: apiUrl, cache: false})
             .done(function (data) {
                 $("#orderBookHeader").html("Order Book: " +
@@ -359,13 +360,19 @@
                 $("#baseLogo").attr("src", data.baseLogo);
                 $("#quoteLogo").attr("src", data.quoteLogo);
 
+                if (data.quoteSymbol === 'USDC') {
+                    marketCurrencySymbol = '$';
+                } else {
+                    marketCurrencySymbol = '';
+                }
+
 
                 // bids
                 $('#bidsTable tbody').empty();
                 $.each(data.bids, function (k, v) {
                     $("#bidsTable tbody").append(
                         "<tr>" +
-                        "<td>" + v.price + "</td>" +
+                        "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
                         "<td style=\"text-align: right\">" +
                         v.quantity +
                         "</td>" +
@@ -382,7 +389,7 @@
                 $.each(data.asks, function (k, v) {
                     $("#asksTable tbody").append(
                         "<tr>" +
-                        "<td>" + v.price + "</td>" +
+                        "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
                         "<td style=\"text-align: right\">" +
                         v.quantity +
                         "</td>" +
@@ -412,9 +419,14 @@
                         if (!v.flags.maker) {
                             $("#tradeHistoryTable tbody").append(
                                 "<tr class='" + (v.flags.bid ? "table-success" : "table-danger") + "'>" +
-                                "<td>" + v.price + "</td>" +
-                                "<td style=\"text-align: right\">" + v.quantity + "</td>" +
-                                "<td>" + (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) + "</td>" +
+                                "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
+                                "<td style=\"text-align: right\">" +
+                                v.quantity +
+                                "</td>" +
+                                "<td style=\"text-align: left\">" +
+                                (v.icon ? "<img src=\"static/entities/" + v.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
+                                (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) +
+                                "</td>" +
                                 "</tr>"
                             );
                         }
@@ -423,7 +435,7 @@
         }
     }
 
-    setInterval(updateOrderBookLoop, 1200);
+    setInterval(updateOrderBookLoop, 1100);
     setInterval(updateSales, 3000);
 
 </script>

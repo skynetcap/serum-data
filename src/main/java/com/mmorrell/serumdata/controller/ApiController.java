@@ -37,7 +37,6 @@ public class ApiController {
     }
 
     /**
-     *
      * @return
      * @throws RpcException
      */
@@ -137,16 +136,23 @@ public class ApiController {
             Map<String, Object> tradeEventEntry = new HashMap<>();
             TradeEvent event = tradeEvents.get(i);
 
+            PublicKey taker = identityManager.lookupAndAddOwnerToCache(event.getOpenOrders());
+            String owner = identityManager.hasReverseLookup(taker) ?
+                    identityManager.getEntityNameByOwner(taker) :
+                    taker.toBase58();
+
             tradeEventEntry.put("index", i);
             tradeEventEntry.put("price", event.getFloatPrice());
             tradeEventEntry.put("quantity", event.getFloatQuantity());
-            tradeEventEntry.put("owner", event.getOpenOrders().toBase58());
+            tradeEventEntry.put("owner", owner);
             tradeEventEntry.put("flags", ImmutableMap.of(
-                    "fill", event.getEventQueueFlags().isFill(),
-                    "out", event.getEventQueueFlags().isOut(),
-                    "bid", event.getEventQueueFlags().isBid(),
-                    "maker", event.getEventQueueFlags().isMaker()
-            ));
+                            "fill", event.getEventQueueFlags().isFill(),
+                            "out", event.getEventQueueFlags().isOut(),
+                            "bid", event.getEventQueueFlags().isBid(),
+                            "maker", event.getEventQueueFlags().isMaker()
+                    )
+            );
+            tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(identityManager.lookupAndAddOwnerToCache(event.getOpenOrders())));
 
             result.add(tradeEventEntry);
         }
@@ -264,7 +270,6 @@ public class ApiController {
 
         return result;
     }
-
 
 
     private Map<String, Object> convertMarketToMap(Market market) {
