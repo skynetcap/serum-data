@@ -342,7 +342,7 @@
     }
 
     function loadMarketDetail() {
-        let apiUrl = "/api/serum/market/" + activeMarketId/* + "/cached"*/;
+        let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
         $.get({url: apiUrl, cache: false})
             .done(function (data) {
                 $("#orderBookHeader").html("Order Book: " +
