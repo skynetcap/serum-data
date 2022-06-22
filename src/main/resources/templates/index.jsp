@@ -247,7 +247,7 @@
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
 <script>
-    var activeMarketId;
+    var activeMarketId, lastLoadedMarketId;
     var marketCurrencySymbol;
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
@@ -352,20 +352,25 @@
         let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
         $.get({url: apiUrl, cache: false})
             .done(function (data) {
-                $("#orderBookHeader").html("Order Book: " +
-                    "<img id=\"baseLogo\" class=\"img-icon\"> " +
-                    "<span id=\"baseName\"></span> / " +
-                    "<img id=\"quoteLogo\" class=\"img-icon\"> " +
-                    "<span id=\"quoteName\"></span> " +
-                    "<span id=\"ownerName\"></span>"
-                );
-                $("#baseName").text(data.baseSymbol);
-                $("#priceChartTitle").text(data.baseSymbol + "/" + data.quoteSymbol + " Price Chart")
-                $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
-                $("#quoteName").text(data.quoteSymbol);
-                $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
-                $("#baseLogo").attr("src", data.baseLogo);
-                $("#quoteLogo").attr("src", data.quoteLogo);
+                // only update html if the refresh is a new market
+                if (data.id !== lastLoadedMarketId) {
+                    $("#orderBookHeader").html("Order Book: " +
+                        "<img class=\"baseLogo img-icon\"> " +
+                        "<span id=\"baseName\"></span> / " +
+                        "<img class=\"quoteLogo img-icon\"> " +
+                        "<span id=\"quoteName\"></span> " +
+                        "<span id=\"ownerName\"></span>"
+                    );
+                    $("#baseName").text(data.baseSymbol);
+                    $("#priceChartTitle").text(" " + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
+                    $("#priceChartTitle").before("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">");
+                    $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
+                    $("#quoteName").text(data.quoteSymbol);
+                    $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
+                    $(".baseLogo").attr("src", data.baseLogo);
+                    $(".quoteLogo").attr("src", data.quoteLogo);
+                    lastLoadedMarketId = data.id;
+                }
 
                 if (data.quoteSymbol === 'USDC') {
                     marketCurrencySymbol = '$';
@@ -534,6 +539,9 @@
 
                     depthChart.redraw();
                     depthChart.hideLoading();
+                    $(document).attr("title",
+                        (newData.chartTitle.includes("USDC Price") ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
+                    );
                 });
         }
     }
