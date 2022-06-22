@@ -362,8 +362,7 @@
                         "<span id=\"ownerName\"></span>"
                     );
                     $("#baseName").text(data.baseSymbol);
-                    $("#priceChartTitle").text(" " + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
-                    $("#priceChartTitle").before("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">");
+                    $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " " + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
                     $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
                     $("#quoteName").text(data.quoteSymbol);
                     $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
