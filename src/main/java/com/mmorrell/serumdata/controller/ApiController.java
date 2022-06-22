@@ -220,8 +220,8 @@ public class ApiController {
 
         List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(market.getBidOrderBook(), false);
         List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(market.getAskOrderBook(), false);
-        float bestBid = market.getBidOrderBook().getBestBid().getFloatPrice();
-        float bestAsk = market.getAskOrderBook().getBestAsk().getFloatPrice();
+        float bestBid = bids.size() > 0 ? market.getBidOrderBook().getBestBid().getFloatPrice() : 0.0f;
+        float bestAsk = asks.size() > 0 ? market.getAskOrderBook().getBestAsk().getFloatPrice() : 0.0f;
         float midPoint = (bestBid + bestAsk) / 2;
         float aggregateBidQuantity = 0.0f, aggregateAskQuantity = 0.0f;
 
