@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 public class Token implements Serializable {
 
-    public Token(String name, String address, String symbol, String logoURI, int chainId) {
+    public Token(String name, String address, String symbol, String logoURI, int chainId, int decimals) {
         this.name = name;
         this.address = address;
         this.symbol = symbol;
         this.logoURI = logoURI;
         this.chainId = chainId;
+        this.decimals = decimals;
     }
 
     private String name;
@@ -17,6 +18,7 @@ public class Token implements Serializable {
     private String symbol;
     private String logoURI;
     private int chainId;
+    private int decimals;
 
     public String getSymbol() {
         return symbol;
@@ -58,14 +60,11 @@ public class Token implements Serializable {
         this.chainId = chainId;
     }
 
-    @Override
-    public String toString() {
-        return "Token{" +
-                "name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", symbol='" + symbol + '\'' +
-                ", logoURI='" + logoURI + '\'' +
-                ", chainId=" + chainId +
-                '}';
+    public int getDecimals() {
+        return decimals;
+    }
+
+    public void setDecimals(int decimals) {
+        this.decimals = decimals;
     }
 }

@@ -289,8 +289,9 @@
                     "<li>" +
                     "<img src=" + v.baseLogo + " class=\"img-icon\" style=\"float: left\"/> " +
                     "<a href=\"#\" onClick=\"setMarket('" + v.id + "');\">" +
-                    v.baseSymbol + " / " + v.quoteSymbol + " / " + v.id.substring(0, 3) + ".." + v.id.substring(v.id.length - 3)
-                    + "</a></li>"
+                    v.baseSymbol + " / " + v.quoteSymbol + " / " + v.id.substring(0, 3) + ".." + v.id.substring(v.id.length - 3) +
+                    " (" + (v.percentage * 100).toFixed(0) + "%)" +
+                    "</a></li>"
                 );
             })
         });

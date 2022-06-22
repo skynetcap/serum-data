@@ -54,8 +54,18 @@ public class ApiController {
         List<Map<String, Object>> results = new ArrayList<>();
         List<Market> markets = marketManager.getMarketsByMint(tokenId);
 
+        // get total base deposits, for percentage ranking
+        long totalBaseDeposits = 0;
+        for(Market market : markets) {
+            totalBaseDeposits += market.getBaseDepositsTotal();
+        }
+
+        // sort by base deposits
+        markets.sort(Comparator.comparingLong(Market::getBaseDepositsTotal).reversed());
         for (Market market : markets) {
-            results.add(convertMarketToMap(market));
+            Map<String, Object> marketMap = convertMarketToMap(market);
+            marketMap.put("percentage", (float) market.getBaseDepositsTotal() / (float) totalBaseDeposits);
+            results.add(marketMap);
         }
 
         return results;

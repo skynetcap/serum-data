@@ -59,7 +59,8 @@ public class TokenManager {
                     tokenNode.get("address").textValue(),
                     tokenNode.get("symbol").textValue(),
                     tokenNode.get("logoURI").textValue(),
-                    tokenNode.get("chainId").intValue()
+                    tokenNode.get("chainId").intValue(),
+                    tokenNode.get("decimals").intValue()
             );
 
             // update cache, only mainnet tokens
