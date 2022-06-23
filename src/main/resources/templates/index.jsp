@@ -374,10 +374,11 @@
                         "<span id=\"baseName\"></span> / " +
                         "<img class=\"quoteLogo img-icon\"> " +
                         "<span id=\"quoteName\"></span> " +
-                        "<span id=\"ownerName\"></span>"
+                        "<span id=\"ownerName\"></span> " +
+                        "<span class=\"livePrice\"></span>"
                     );
                     $("#baseName").text(data.baseSymbol);
-                    $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span id=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
+                    $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
                     $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
                     $("#quoteName").text(data.quoteSymbol);
                     $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
@@ -554,7 +555,7 @@
                     depthChart.redraw();
                     depthChart.hideLoading();
 
-                    $("#livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
+                    $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
 
                     $(document).attr("title",
                         (newData.chartTitle.includes("USDC Price") ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
