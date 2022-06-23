@@ -387,7 +387,7 @@
                     lastLoadedMarketId = data.id;
                 }
 
-                if (data.quoteSymbol === 'USDC') {
+                if (data.quoteSymbol === 'USDC' || data.quoteSymbol === 'USDT') {
                     marketCurrencySymbol = '$';
                 } else {
                     marketCurrencySymbol = '';
@@ -558,7 +558,7 @@
                     $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
 
                     $(document).attr("title",
-                        (newData.chartTitle.includes("USDC Price") ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
+                        ((newData.chartTitle.includes("USDC Price") || newData.chartTitle.includes("USDT Price")) ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
                     );
                 });
         }

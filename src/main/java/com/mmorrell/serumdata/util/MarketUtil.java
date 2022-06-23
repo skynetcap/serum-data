@@ -12,6 +12,8 @@ public class MarketUtil {
     // For initial market caching
     public static final PublicKey USDC_MINT =
             PublicKey.valueOf("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    public static final PublicKey USDT_MINT =
+            PublicKey.valueOf("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
 
     public static List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook, boolean isBid) {
         return orderBook.getOrders().stream()

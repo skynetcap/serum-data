@@ -135,6 +135,8 @@ public class TokenManager {
             return Optional.ofNullable(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
         } else if (symbol.equalsIgnoreCase("SOL")) {
             return Optional.ofNullable(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
+        } else if (symbol.equalsIgnoreCase("USDT")) {
+            return Optional.ofNullable(getTokenByMint(MarketUtil.USDT_MINT.toBase58()));
         } else {
             // return symbol if we have it
             return tokenCache.values().stream()
@@ -153,7 +155,9 @@ public class TokenManager {
         String symbol = tokenSymbol.toUpperCase();
         if (symbol.equalsIgnoreCase("USDC")) {
             return List.of(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
-        } else if (symbol.equalsIgnoreCase("SOL")) {
+        } else if (symbol.equalsIgnoreCase("USDT")) {
+            return List.of(getTokenByMint(MarketUtil.USDT_MINT.toBase58()));
+        }  else if (symbol.equalsIgnoreCase("SOL")) {
             return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
         } else {
             // return symbol if we have it

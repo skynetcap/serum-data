@@ -34,6 +34,7 @@ public class MarketManager {
     // Cache USDC and SOL quoted markets.
     public final Set<PublicKey> quoteMintsToCache = Set.of(
             MarketUtil.USDC_MINT,
+            MarketUtil.USDT_MINT,
             SerumUtils.WRAPPED_SOL_MINT
     );
 

@@ -93,6 +93,8 @@ public class MarketRankManager {
             return Optional.of(new Token(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
         } else if (symbol.equalsIgnoreCase("USDC")) {
             return Optional.of(new Token(MarketUtil.USDC_MINT.toBase58()));
+        } else if (symbol.equalsIgnoreCase("USDT")) {
+            return Optional.of(new Token(MarketUtil.USDT_MINT.toBase58()));
         }
 
         List<Token> possibleBaseTokens = tokenManager.getTokensBySymbol(symbol);
