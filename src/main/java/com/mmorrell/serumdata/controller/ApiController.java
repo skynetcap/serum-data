@@ -277,6 +277,10 @@ public class ApiController {
                 "midpoint",
                 midPoint
         );
+        result.put(
+                "marketId",
+                market.getOwnAddress().toBase58()
+        );
 
         return result;
     }

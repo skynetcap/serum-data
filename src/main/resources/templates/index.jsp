@@ -262,7 +262,7 @@
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
 <script>
-    var activeMarketId, lastLoadedMarketId;
+    var activeMarketId, lastLoadedMarketId, lastLoadedChartId;
     var marketCurrencySymbol;
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
@@ -283,16 +283,20 @@
                     beginAtZero: false
                 }
             },
+            animation: false,
             responsive: true,
             maintainAspectRatio: false
         }
     });
 
-    function addData(label, data) {
+    function addData(label, data, update) {
         myChart.data.labels.push(label);
         myChart.data.datasets.forEach((dataset) => {
             dataset.data.push(data);
         });
+        if (update) {
+            myChart.update();
+        }
         //myChart.update();
     }
 
@@ -353,13 +357,15 @@
                         "</tr>"
                     );
                 }
-                addData(k, v.price);
+                addData(k, v.price, false);
             })
 
             myChart.data.datasets.forEach((dataset) => {
                 dataset.data.reverse();
             });
             myChart.update();
+
+            lastLoadedChartId = marketId;
         });
     }
 
@@ -555,7 +561,27 @@
                     depthChart.redraw();
                     depthChart.hideLoading();
 
+                    // update ticker spans
                     $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
+
+                    // update price chart with a midpoint tick, if it has changed.
+                    if (parseFloat(myChart.data.datasets[0].data[myChart.data.labels.length - 1]).toFixed(8) !== parseFloat(newData.midpoint).toFixed(8)) {
+                        // only update it if the midpoint changes
+
+                        if (newData.marketId !== lastLoadedChartId) {
+                            return;
+                        }
+
+                        addData(parseInt(myChart.data.labels[myChart.data.labels.length - 1]) + 1, newData.midpoint, true);
+
+                        // if over 1000 data points, start popping from the front
+                        if (myChart.data.labels.length >= 100) {
+                            myChart.data.datasets[0].data.shift();
+                            myChart.data.labels.shift();
+                            myChart.update();
+                        }
+
+                    }
 
                     $(document).attr("title",
                         ((newData.chartTitle.includes("USDC Price") || newData.chartTitle.includes("USDT Price")) ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
