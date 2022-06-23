@@ -59,6 +59,7 @@ public class MarketRankManager {
             if (!firstMarket.getQuoteMint().toBase58().equalsIgnoreCase(MarketUtil.USDC_MINT.toBase58()) &&
                     secondMarket.getQuoteMint().toBase58().equalsIgnoreCase(MarketUtil.USDC_MINT.toBase58())) {
                 markets.set(0, secondMarket);
+                markets.set(1, firstMarket);
             }
         }
 
