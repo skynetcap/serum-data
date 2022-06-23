@@ -100,6 +100,16 @@ public class IndexController {
                 model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, sanitizedMarket.get().getBaseMint().toBase58());
                 model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, sanitizedMarket.get().getOwnAddress().toBase58());
             }
+
+            // check if it's a token mint.
+            Token token = tokenManager.getTokenByMint(sanitized);
+            if (token != null) {
+                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.getAddress());
+                if (optionalMarket.isPresent()) {
+                    model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.getAddress());
+                    model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, optionalMarket.get().getOwnAddress().toBase58());
+                }
+            }
         } else {
             // try to match it to a symbol e.g. "SRM", choose best market with that base
             String sanitized = market.replaceAll("[^a-zA-Z\\d]", "").toUpperCase();
