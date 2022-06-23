@@ -1,11 +1,13 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
+import ch.openserum.serum.model.SerumUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mmorrell.serumdata.model.Token;
+import com.mmorrell.serumdata.util.MarketUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -86,7 +89,11 @@ public class TokenManager {
         }
     }
 
-    public String getTokenByMint(String tokenMint) {
+    public Token getTokenByMint(String tokenMint) {
+        return tokenCache.get(tokenMint);
+    }
+
+    public String getTokenNameByMint(String tokenMint) {
         Token token = tokenCache.get(tokenMint);
         if (token != null) {
             return token.getName();
@@ -120,5 +127,39 @@ public class TokenManager {
                 getTokenSymbolByMint(market.getBaseMint().toBase58()),
                 getTokenSymbolByMint(market.getQuoteMint().toBase58())
         );
+    }
+
+    public Optional<Token> getTokenBySymbol(String tokenSymbol) {
+        String symbol = tokenSymbol.toUpperCase();
+        if (symbol.equalsIgnoreCase("USDC")) {
+            return Optional.ofNullable(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
+        } else if (symbol.equalsIgnoreCase("SOL")) {
+            return Optional.ofNullable(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
+        } else {
+            // return symbol if we have it
+            return tokenCache.values().stream()
+                    .filter(token -> token.getSymbol().equalsIgnoreCase(tokenSymbol))
+                    .findFirst();
+        }
+    }
+
+    /**
+     * Finds all tokens with the given symbol.
+     * In case of duplicate symbol entries as with tokenlist.json, although that is being deprecated.
+     * @param tokenSymbol symbol e.g. SRM
+     * @return list of possible tokens
+     */
+    public List<Token> getTokensBySymbol(String tokenSymbol) {
+        String symbol = tokenSymbol.toUpperCase();
+        if (symbol.equalsIgnoreCase("USDC")) {
+            return List.of(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
+        } else if (symbol.equalsIgnoreCase("SOL")) {
+            return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
+        } else {
+            // return symbol if we have it
+            return tokenCache.values().stream()
+                    .filter(token -> token.getSymbol().equalsIgnoreCase(tokenSymbol))
+                    .collect(Collectors.toList());
+        }
     }
 }

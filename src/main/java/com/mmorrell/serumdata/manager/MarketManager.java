@@ -25,7 +25,9 @@ public class MarketManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 40;
+    // <tokenMint, List<Market>>
     private final Map<String, List<Market>> marketMapCache = new HashMap<>();
+    // <marketId, Builder>
     private final Map<String, MarketBuilder> marketBuilderCache = new HashMap<>();
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
 
@@ -138,5 +140,12 @@ public class MarketManager {
 
     public int numMarketsByToken(String tokenMint) {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>()).size();
+    }
+
+    public Optional<Market> getMarketById(String marketId) {
+        return marketMapCache.values().stream()
+                .flatMap(Collection::stream)
+                .filter(market -> market.getOwnAddress().toBase58().equals(marketId))
+                .findAny();
     }
 }

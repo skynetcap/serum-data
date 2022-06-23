@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class Token implements Serializable {
 
+    public Token(String address) {
+        this.address = address;
+    }
+
     public Token(String name, String address, String symbol, String logoURI, int chainId, int decimals) {
         this.name = name;
         this.address = address;
