@@ -27,6 +27,7 @@ public class IdentityManager {
         knownEntities.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "Atrix Finance");
         knownEntities.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "Raydium");
         knownEntities.put("5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp", "Jump Trading");
+        knownEntities.put("CwyQtt6xGptR7PaxrrksgqBSRCZ3Zb2GjUYjKD9jH3tf", "Wintermute");
 
         // refactor this better
         knownEntitiesIcons.put("CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq", "alameda");
@@ -34,6 +35,7 @@ public class IdentityManager {
         knownEntitiesIcons.put("3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC", "atrix");
         knownEntitiesIcons.put("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "raydium");
         knownEntitiesIcons.put("5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp", "jump");
+        knownEntitiesIcons.put("CwyQtt6xGptR7PaxrrksgqBSRCZ3Zb2GjUYjKD9jH3tf", "wintermute");
     }
 
     public boolean hasReverseLookup(PublicKey publicKey) {
