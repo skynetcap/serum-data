@@ -241,22 +241,16 @@ public class ApiController {
 
         final List<float[]> bidList = new ArrayList<>();
         for (SerumOrder bid : bids) {
-            // outlier removal: bid price must be greater than 1/3 of the best bid
-            if (bid.getPrice() >= bestBid / 2.0) {
-                bidList.add(new float[]{bid.getPrice(), aggregateBidQuantity});
-            }
+            bidList.add(new float[]{bid.getPrice(), aggregateBidQuantity, bid.getQuantity()});
             aggregateBidQuantity -= bid.getQuantity();
         }
 
         float[][] floatBids = bidList.toArray(new float[0][0]);
 
-        // outlier removal: ask price must be less than 3 times the best ask
         final List<float[]> askList = new ArrayList<>();
         for (SerumOrder ask : asks) {
             aggregateAskQuantity += ask.getQuantity();
-            if (ask.getPrice() <= bestAsk * 2.0) {
-                askList.add(new float[]{ask.getPrice(), aggregateAskQuantity});
-            }
+            askList.add(new float[]{ask.getPrice(), aggregateAskQuantity, ask.getQuantity()});
         }
 
         float[][] floatAsks = askList.toArray(new float[0][0]);

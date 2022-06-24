@@ -264,6 +264,7 @@
 <script>
     var activeMarketId, lastLoadedMarketId, lastLoadedChartId;
     var marketCurrencySymbol;
+    var totalBids, totalAsks;
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
@@ -473,6 +474,12 @@
 
 </script>
 <script th:inline="javascript">
+    var bidTotal, askTotal;
+    var formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+    });
+
     var depthChart = Highcharts.chart('container', {
         chart: {
             type: 'area',
@@ -552,11 +559,52 @@
             // bids
             $.get({url: apiUrl, cache: false})
                 .done(function (newData) {
+                    // loop total bids, total each level, total all that
+                    totalBids = newData.bids.reduce(
+                        (previousValue, currentValue) => {
+                            return previousValue + (currentValue[0] * currentValue[2]);
+                        },
+                        0
+                    );
+
+                    var totalBidsString = formatter.format(totalBids);
+                    if (marketCurrencySymbol !== '$') {
+                        // trim $ if not a usdc pair, since formatter assumes money
+                        totalBidsString = totalBidsString.substring(1);
+                    }
+
+
+                    totalAsks = newData.asks[newData.asks.length - 1][1].toFixed(2);
+
                     depthChart.series[0].setData(newData.bids);
                     depthChart.series[1].setData(newData.asks);
                     depthChart.xAxis[0].options.plotLines[0].value = newData.midpoint;
                     depthChart.xAxis[0].setExtremes(newData.midpoint - (newData.midpoint / 3), newData.midpoint + (newData.midpoint / 3));
                     depthChart.xAxis[0].update();
+
+                    // text for agg totals
+                    bidTotal ? bidTotal.destroy() : null;
+                    bidTotal = depthChart.renderer.text(totalBidsString + " " + $("#quoteName").text(), 50, 133)
+                        .attr({
+                            zIndex: 5
+                        })
+                        .css({
+                            fontSize: '12px'
+                        })
+                        .add();
+
+                    var totalAsksString = formatter.format(totalAsks).substring(1);
+
+                    askTotal ? askTotal.destroy() : null;
+                    var xAskTotal = $("#container").width() * 0.75;
+                    askTotal = depthChart.renderer.text(totalAsksString + " " + $("#baseName").text(), xAskTotal, 133)
+                        .attr({
+                            zIndex: 5
+                        })
+                        .css({
+                            fontSize: '12px'
+                        })
+                        .add();
 
                     depthChart.redraw();
                     depthChart.hideLoading();
@@ -590,7 +638,7 @@
         }
     }
 
-    setInterval(updateDepthChart, 1200);
+    setInterval(updateDepthChart, 550);
 
 </script>
 </body>
