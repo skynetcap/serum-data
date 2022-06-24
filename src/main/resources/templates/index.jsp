@@ -91,6 +91,20 @@
             overflow: hidden;
         }
 
+        th {
+            background: white !important;
+            position: sticky;
+            top: 0; /* Don't forget this, required for the stickiness */
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+        }
+
+        .orderBook {
+            height: 100%;
+            max-height: 400px;
+            overflow-y: scroll;
+            padding-top: 0 !important;
+        }
+
     </style>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -141,8 +155,10 @@
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="#" aria-current="page" class="nav-link">Market List</a></li>
             <li class="nav-item"><a href="#" aria-current="page" class="nav-link">API</a></li>
-            <li class="nav-item"><a href="https://github.com/skynetcap/serum-data" aria-current="page" class="nav-link" target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
-            <li class="nav-item"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li class="nav-item"><a href="https://github.com/skynetcap/serum-data" aria-current="page" class="nav-link"
+                                    target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
+            <li class="nav-item"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
+                                    target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
         </ul>
     </header>
 </div>
@@ -206,7 +222,7 @@
                     <hr>
                     <div id="container"></div>
                     <div class="row">
-                        <div class="column">
+                        <div class="column orderBook">
                             <table id="bidsTable" class="table table-striped table-hover table-bordered"
                                    style="width: 100%">
                                 <thead>
@@ -220,7 +236,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="column">
+                        <div class="column orderBook">
                             <table id="asksTable" class="table table-striped table-hover table-bordered"
                                    style="width: 100%">
                                 <thead>
@@ -241,17 +257,19 @@
                 <div class="card-body">
                     <h5 id="tradeHistoryTitle" class="card-title">Trade History</h5>
                     <hr>
-                    <table id="tradeHistoryTable" class="table table-hover table-bordered" style="width: 100%">
-                        <thead>
-                        <tr>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Taker</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <div class="orderBook" style="height: 100% !important; max-height: 600px;">
+                        <table id="tradeHistoryTable" class="table table-hover table-bordered" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Taker</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
