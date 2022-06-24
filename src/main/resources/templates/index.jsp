@@ -100,7 +100,7 @@
 
         .orderBook {
             height: 100%;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: scroll;
             padding-top: 0 !important;
         }
@@ -257,7 +257,7 @@
                 <div class="card-body">
                     <h5 id="tradeHistoryTitle" class="card-title">Trade History</h5>
                     <hr>
-                    <div class="orderBook" style="height: 100% !important; max-height: 600px;">
+                    <div class="orderBook" style="height: 100% !important; max-height: 650px;">
                         <table id="tradeHistoryTable" class="table table-hover table-bordered" style="width: 100%">
                             <thead>
                             <tr>
