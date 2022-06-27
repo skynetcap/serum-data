@@ -37,9 +37,12 @@ public class MarketManager {
 
     // <concat(marketId, ooa, owner), jupiterTx>
     private final Map<String, Optional<String>> jupiterTxMap = new HashMap<>();
+    private final Map<String, Optional<String>> nonJupiterTxMap = new HashMap<>();
 
     // Jupiter
-    private static final PublicKey JUPITER_PROGRAM_ID =
+    private static final PublicKey JUPITER_PROGRAM_ID_V2 =
+            PublicKey.valueOf("JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo");
+    private static final PublicKey JUPITER_PROGRAM_ID_V3 =
             PublicKey.valueOf("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph");
     private static final PublicKey JUPITER_USDC_WALLET =
             PublicKey.valueOf("H5sizxhR6ssXrX2YNDoYaUv93PU34VzyRaVaUHuo5eFk");
@@ -167,12 +170,14 @@ public class MarketManager {
                 .findAny();
     }
 
-    public Optional<String> getJupiterTxForMarketAndOoa(String marketId, String ooa, String owner, float price, float quantity) {
+    public Optional<String> getTxForMarketAndOoa(String marketId, String ooa, String owner, float price, float quantity) {
         String uniqueKey = marketId.concat(ooa).concat(owner).concat(String.valueOf(price)).concat(String.valueOf(quantity));
         // bail out if its cached
         if (jupiterTxMap.containsKey(uniqueKey)) {
             // LOGGER.info("HAVE ANSWER: " + uniqueKey);
             return jupiterTxMap.get(uniqueKey);
+        } else if (nonJupiterTxMap.containsKey(uniqueKey)) {
+            return nonJupiterTxMap.get(uniqueKey);
         }
 
         // bail if were already working on it
@@ -188,8 +193,8 @@ public class MarketManager {
             List<SignatureInformation> confirmedSignatures;
             try {
                 confirmedSignatures = client.getApi().getSignaturesForAddress(
-                        PublicKey.valueOf(owner),
-                        10,
+                        PublicKey.valueOf(ooa),
+                        15,
                         Commitment.CONFIRMED
                 );
             } catch (RpcException e) {
@@ -208,31 +213,36 @@ public class MarketManager {
                 }
                 for (ConfirmedTransaction.Instruction instruction : confirmedTransaction.getTransaction().getMessage().getInstructions()) {
                     String programId = confirmedTransaction.getTransaction().getMessage().getAccountKeys().get((int) instruction.getProgramIdIndex());
-                    if (programId.equalsIgnoreCase(JUPITER_PROGRAM_ID.toBase58())) {
-                        // if it has OOA and Jup's referrer quote wallet, gg
-                        // better to lookup the token account owner, hardcoding top 3 token types for now tho
-                        boolean hasReferrer = false, hasOoa = false, hasSrm = false, hasMarket = false;
-                        for (long accountIndex : instruction.getAccounts()) {
-                            int index = (int) accountIndex;
-                            String account = confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(index);
-                            if (account.equalsIgnoreCase(SerumUtils.SERUM_PROGRAM_ID_V3.toBase58())) {
-                                hasSrm = true;
-                            } else if (account.equalsIgnoreCase(ooa)) {
-                                hasOoa = true;
-                            } else if (account.equalsIgnoreCase(JUPITER_USDC_WALLET.toBase58()) ||
-                                    account.equalsIgnoreCase(JUPITER_USDT_WALLET.toBase58()) ||
-                                    account.equalsIgnoreCase(JUPITER_WSOL_WALLET.toBase58())) {
-                                hasReferrer = true;
-                            } else if (account.equalsIgnoreCase(marketId)) {
-                                hasMarket = true;
-                            }
-                        }
+                    boolean isJupiterInstruction = programId.equalsIgnoreCase(JUPITER_PROGRAM_ID_V3.toBase58()) ||
+                            programId.equalsIgnoreCase(JUPITER_PROGRAM_ID_V2.toBase58());
 
-                        if (hasOoa && hasReferrer && hasSrm && hasMarket) {
-                            // LOGGER.info("FOUND->JUP: " + uniqueKey);
-                            jupiterTxMap.put(uniqueKey, Optional.of(signatureInformation.getSignature()));
-                            return;
+                    // if it has OOA and Jup's referrer quote wallet, gg
+                    // better to lookup the token account owner, hardcoding top 3 token types for now tho
+                    boolean hasReferrer = false, hasOoa = false, hasSrm = false, hasMarket = false;
+                    for (long accountIndex : instruction.getAccounts()) {
+                        int index = (int) accountIndex;
+                        String account = confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(index);
+                        if (account.equalsIgnoreCase(SerumUtils.SERUM_PROGRAM_ID_V3.toBase58())) {
+                            hasSrm = true;
+                        } else if (account.equalsIgnoreCase(ooa)) {
+                            hasOoa = true;
+                        } else if (account.equalsIgnoreCase(JUPITER_USDC_WALLET.toBase58()) ||
+                                account.equalsIgnoreCase(JUPITER_USDT_WALLET.toBase58()) ||
+                                account.equalsIgnoreCase(JUPITER_WSOL_WALLET.toBase58())) {
+                            hasReferrer = true;
+                        } else if (account.equalsIgnoreCase(marketId)) {
+                            hasMarket = true;
                         }
+                    }
+
+                    if (hasOoa && hasReferrer && hasSrm && hasMarket && isJupiterInstruction) {
+                        // LOGGER.info("FOUND->JUP: " + uniqueKey);
+                        jupiterTxMap.put(uniqueKey, Optional.of(signatureInformation.getSignature()));
+                        return;
+                    } else if (hasOoa && !hasReferrer && hasSrm && hasMarket && !isJupiterInstruction) {
+                        // Found Serum order tx, not jupiter, still give it to trade history
+                        nonJupiterTxMap.put(uniqueKey, Optional.of(signatureInformation.getSignature()));
+                        return;
                     }
                 }
 
@@ -240,10 +250,16 @@ public class MarketManager {
 
             // LOGGER.info("FOUND->NOT-JUP: " + uniqueKey);
             jupiterTxMap.put(uniqueKey, Optional.empty());
+            nonJupiterTxMap.put(uniqueKey, Optional.empty());
         });
         tradeHistoryKeyToFutureMap.put(uniqueKey, future);
         // LOGGER.info("THREAD START: " + uniqueKey);
 
         return Optional.empty();
+    }
+
+    public boolean isJupiterTx(String marketId, String ooa, String owner, float price, float quantity) {
+        String uniqueKey = marketId.concat(ooa).concat(owner).concat(String.valueOf(price)).concat(String.valueOf(quantity));
+        return jupiterTxMap.containsKey(uniqueKey);
     }
 }
