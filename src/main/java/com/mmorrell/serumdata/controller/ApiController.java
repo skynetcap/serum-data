@@ -56,7 +56,7 @@ public class ApiController {
 
         // get total base deposits, for percentage ranking
         long totalBaseDeposits = 0;
-        for(Market market : markets) {
+        for (Market market : markets) {
             totalBaseDeposits += market.getBaseDepositsTotal();
         }
 
@@ -279,6 +279,36 @@ public class ApiController {
         return result;
     }
 
+    @GetMapping(value = "/api/serum/wallet/openOrders/{accountId}")
+    public Map<String, Object> getOpenOrdersOwner(@PathVariable String accountId) {
+        Map<String, Object> result;
+        try {
+            result = Map.of(
+                    "owner",
+                    OpenOrdersAccount.readOpenOrdersAccount(
+                                    Base64.getDecoder().decode(
+                                            orderBookClient.getApi().getAccountInfo(
+                                                            PublicKey.valueOf(accountId)
+                                                    )
+                                                    .getValue()
+                                                    .getData()
+                                                    .get(0)
+                                                    .getBytes()
+                                    )
+                            )
+                            .getOwner()
+                            .toBase58()
+            );
+        } catch (RpcException e) {
+            throw new RuntimeException(e);
+        }
+
+//        // get their txs
+//        orderBookClient.getApi().getsig
+
+
+        return result;
+    }
 
     private Map<String, Object> convertMarketToMap(Market market) {
         Map<String, Object> result = new HashMap<>();
