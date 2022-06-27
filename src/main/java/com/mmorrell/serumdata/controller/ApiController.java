@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RestController
@@ -163,6 +164,18 @@ public class ApiController {
                     )
             );
             tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(taker));
+
+            // Jupiter TX handling, only lookup unknown entities
+            if (owner.equalsIgnoreCase(taker.toBase58())) {
+                Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
+                        marketId,
+                        event.getOpenOrders().toBase58(),
+                        taker.toBase58(),
+                        event.getFloatPrice(),
+                        event.getFloatQuantity()
+                );
+                jupiterTx.ifPresent(txId -> tradeEventEntry.put("jupiterTx", txId));
+            }
 
             result.add(tradeEventEntry);
         }

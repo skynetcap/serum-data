@@ -4,9 +4,9 @@
 FROM maven:3.6.0-jdk-11-slim AS build
 
 # solanaj (dependency, not in a public registry)
-ADD https://github.com/skynetcap/solanaj/archive/refs/tags/v1.8.zip /home/solanaj/solanaj.zip
+ADD https://github.com/skynetcap/solanaj/archive/refs/heads/main.zip /home/solanaj/solanaj.zip
 RUN unzip /home/solanaj/solanaj.zip -d /home/solanaj/
-RUN mvn -f /home/solanaj/solanaj-1.8/pom.xml clean install -DskipTests
+RUN mvn -f /home/solanaj/solanaj-main/pom.xml clean install -DskipTests
 
 # solanaj-programs (dependency, not in a public registry)
 ADD https://github.com/skynetcap/solanaj-programs/archive/refs/heads/master.zip /home/solanaj-programs/solanaj-programs.zip
