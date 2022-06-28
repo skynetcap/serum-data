@@ -46,8 +46,8 @@ public class IdentityManager {
         return knownEntities.get(owner.toBase58());
     }
 
-    public String getEntityIconByOwner(PublicKey owner) {
-        return knownEntitiesIcons.getOrDefault(owner.toBase58(), "");
+    public Optional<String> getEntityIconByOwner(PublicKey owner) {
+        return Optional.ofNullable(knownEntitiesIcons.get(owner.toBase58()));
     }
 
     public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {

@@ -162,7 +162,9 @@ public class ApiController {
                             "maker", event.getEventQueueFlags().isMaker()
                     )
             );
-            tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(taker));
+
+            Optional<String> icon = identityManager.getEntityIconByOwner(taker);
+            icon.ifPresent(iconUri -> tradeEventEntry.put("icon", iconUri));
 
             // Jupiter TX handling, only lookup unknown entities
             if (owner.equalsIgnoreCase(taker.toBase58())) {
@@ -173,7 +175,9 @@ public class ApiController {
                         event.getFloatPrice(),
                         event.getFloatQuantity()
                 );
+
                 foundTx.ifPresent(txId -> {
+                    // have a TX, either jupiter or normal
                     boolean isJupiterTx = marketManager.isJupiterTx(
                             marketId,
                             event.getOpenOrders().toBase58(),
