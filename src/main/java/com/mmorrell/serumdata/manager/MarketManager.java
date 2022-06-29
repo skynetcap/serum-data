@@ -52,7 +52,18 @@ public class MarketManager {
     public final Set<PublicKey> quoteMintsToCache = Set.of(
             MarketUtil.USDC_MINT,
             MarketUtil.USDT_MINT,
-            SerumUtils.WRAPPED_SOL_MINT
+            SerumUtils.WRAPPED_SOL_MINT,
+            PublicKey.valueOf("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"), // MSOL
+            PublicKey.valueOf("A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM"), // USDCet
+            PublicKey.valueOf("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"), // stSOL
+            PublicKey.valueOf("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"), // RAY
+            PublicKey.valueOf("7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs"), // ETH (Portal)
+            PublicKey.valueOf("7kbnvuGBxxj8AG9qp8Scn56muWGaRaFqxg1FsRp3PaFT"), // UXD
+            PublicKey.valueOf("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"), // soETH
+            PublicKey.valueOf("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"), // BTC (Sollet)
+            PublicKey.valueOf("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"), // SRM
+            PublicKey.valueOf("BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4"), // soUSDT
+            PublicKey.valueOf("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx") // ATLAS
     );
 
     public MarketManager() {
@@ -103,7 +114,17 @@ public class MarketManager {
         for (PublicKey quoteMint : quoteMintsToCache) {
             // Create each thread
             final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
-                LOGGER.info("Caching: " + quoteMint.toBase58());
+                LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
+                int delay = new Random().nextInt(12000);
+
+                // Random delay to not get rate limited.
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                LOGGER.info("Random delay complete, requesting: " + quoteMint.toBase58());
                 try {
                     programAccounts.addAll(
                             client.getApi().getProgramAccounts(
