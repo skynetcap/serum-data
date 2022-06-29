@@ -22,14 +22,12 @@ Use the Spring Boot Run Configuration included with IntelliJ.
 ## Running in Docker container (pre-built image)
 ```dockerfile
 docker pull mmorrell/serum-data:latest
-# Starts serum-data Docker image on port 8080
 docker run -p 8080:8080 serum-data
 ```
 
 ## Running in Docker container (self-build)
 ```dockerfile
 docker build -t serum-data .
-# Starts serum-data Docker image on port 8080
 docker run -p 8080:8080 serum-data
 ```
 
@@ -38,7 +36,6 @@ Full setup flow for a new Ubuntu server. This example is for the `staging.opense
 
 ### Install Docker
 ```shell
-# install docker
 sudo apt-get update
 sudo apt-get install \
 ca-certificates \
@@ -104,7 +101,7 @@ sudo ufw enable
 ### Pull latest + Start Openserum server
 ```shell
 # Initiate startup, App will be live at: http://IP_ADDRESS/
-./staging_start.sh
+./home/staging_start.sh
 # Follow logs (optional)
 sudo docker logs -f staging
 ```
