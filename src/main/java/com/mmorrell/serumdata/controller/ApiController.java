@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,6 +26,16 @@ public class ApiController {
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
+
+    // Cache headers
+    private final static String CACHE_HEADER_NAME = "Cloudflare-CDN-Cache-Control";
+    private final static String CACHE_HEADER_VALUE = "max-age=";
+    private final static int CACHE_MAX_DURATION_SECONDS = 1;
+    private final static String CACHE_HEADER_VALUE_FORMATTED = String.format(
+            "%s%d",
+            CACHE_HEADER_VALUE,
+            CACHE_MAX_DURATION_SECONDS
+    );
 
     // Called on startup, loads our caches first etc
     // Auto-injected beans created by Component annotation
@@ -95,7 +105,8 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/cached")
-    public Map<String, Object> getMarketCached(@PathVariable String marketId) {
+    public Map<String, Object> getMarketCached(@PathVariable String marketId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         MarketBuilder builder;
         Market market;
 
@@ -134,7 +145,8 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
-    public List<Map<String, Object>> getMarketTradeHistory(@PathVariable String marketId) {
+    public List<Map<String, Object>> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         final ArrayList<Map<String, Object>> result = new ArrayList<>();
         final Market marketWithEventQueue = new MarketBuilder()
                 .setClient(orderBookClient)
@@ -220,7 +232,8 @@ public class ApiController {
 
     // todo - refactor + dedupe
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
-    public Map<String, Object> getMarketDepth(@PathVariable String marketId) {
+    public Map<String, Object> getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         final Map<String, Object> result = new HashMap<>();
         MarketBuilder builder;
         Market market;
@@ -316,11 +329,7 @@ public class ApiController {
         } catch (RpcException e) {
             throw new RuntimeException(e);
         }
-
-//        // get their txs
-//        orderBookClient.getApi().getsig
-
-
+        
         return result;
     }
 
