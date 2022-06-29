@@ -601,7 +601,7 @@
     function updateDepthChart() {
         if (activeMarketId) {
             let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
-            // bids
+            // bids + asks
             $.get({url: apiUrl, cache: false})
                 .done(function (newData) {
                     // loop total bids, total each level, total all that
@@ -618,8 +618,11 @@
                         totalBidsString = totalBidsString.substring(1);
                     }
 
-
-                    totalAsks = newData.asks[newData.asks.length - 1][1].toFixed(2);
+                    if (newData.asks.length === 0) {
+                        totalAsks = 0;
+                    } else {
+                        totalAsks = newData.asks[newData.asks.length - 1][1].toFixed(2);
+                    }
 
                     depthChart.series[0].setData(newData.bids);
                     depthChart.series[1].setData(newData.asks);
@@ -676,6 +679,14 @@
                             myChart.update();
                         }
 
+                    }
+
+                    // paint midpoint once if no other data exists
+                    if (isNaN(myChart.data.labels[0])) {
+                        myChart.data.labels.pop();
+                        myChart.data.datasets[0].data.pop();
+                        addData(0, newData.midpoint, true);
+                        addData(1, newData.midpoint, true); // 2 entries to draw a straight line
                     }
 
                     $(document).attr("title",
