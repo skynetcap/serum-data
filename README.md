@@ -35,7 +35,8 @@ docker run -p 8080:8080 serum-data
 
 ## Hosting - Ubuntu 20.04 (Docker, Nginx, UFW)
 Full setup flow for a new Ubuntu server. This example is for the `staging.openserum.io` subdomain, but will work with any A/CNAME DNS record.
-### Docker
+
+### Install Docker
 ```shell
 # install docker
 sudo apt-get update
@@ -44,24 +45,29 @@ ca-certificates \
 curl \
 gnupg \
 lsb-release
+
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo \
 "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
 $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
 
-# create update/startup/restart script
+### Create update + start/restart script
+```shell
 sudo cat > /home/staging_start.sh <<EOF
 sudo docker pull mmorrell/serum-data
 sudo docker stop staging
 sudo docker container prune -f
 sudo docker run --name staging -d -p 8080:8080 mmorrell/serum-data:latest
 EOF
+
 sudo chmod +x /home/staging_start.sh
 ```
-### Nginx
+### Install Nginx (optional)
 ```shell
 # subdomain is staging.openserum.io
 # proxies port 80 to 8080 (spring is running on 8080)
@@ -88,17 +94,19 @@ sudo echo "openserum" > /var/www/staging.openserum.io/index.html
 sudo systemctl reload nginx
 ```
 
-### Firewall/UFW (extra)
+### Firewall/UFW (optional)
 ```shell
 sudo ufw allow 80
 sudo ufw allow 22
 sudo ufw enable
 ```
 
-### Start Openserum server
+### Pull latest + Start Openserum server
 ```shell
+# Initiate startup, App will be live at: http://IP_ADDRESS/
 ./staging_start.sh
-# Startup complete, App live at: http://IP_ADDRESS/
+# Follow logs (optional)
+sudo docker logs -f staging
 ```
 
 ## Contributing
