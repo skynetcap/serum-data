@@ -602,7 +602,7 @@
         if (activeMarketId) {
             let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
             // bids + asks
-            $.get({url: apiUrl, cache: false})
+            $.get({url: apiUrl, cache: true})
                 .done(function (newData) {
                     // loop total bids, total each level, total all that
                     totalBids = newData.bids.reduce(
