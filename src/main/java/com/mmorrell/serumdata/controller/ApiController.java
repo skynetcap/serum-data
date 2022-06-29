@@ -165,8 +165,9 @@ public class ApiController {
             );
             tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(taker));
 
-            // Jupiter TX handling, only lookup unknown entities
-            if (owner.equalsIgnoreCase(taker.toBase58())) {
+            // Jupiter TX handling, only lookup unknown entities, only top 100 in history
+            int maxRowsToJupiterSearch = 50;
+            if (owner.equalsIgnoreCase(taker.toBase58()) && i < maxRowsToJupiterSearch) {
                 Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
                         marketId,
                         event.getOpenOrders().toBase58(),
