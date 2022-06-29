@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,9 +26,12 @@
         /*]]>*/
     </script>
 
-    <!-- CSS only -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <!-- DARK MODE -->
+    <meta name="color-scheme" content="dark">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-nightshade.min.css" rel="stylesheet">
+    <!-- end dark mode -->
+
+    <!-- github/twitter icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
@@ -92,7 +95,7 @@
         }
 
         th {
-            background: white !important;
+            /*background: white !important;*/
             position: sticky;
             top: 0; /* Don't forget this, required for the stickiness */
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
@@ -105,8 +108,29 @@
             padding-top: 0 !important;
         }
 
+        canvas#myChart {
+            background-color: #2e2e2e;
+        }
+
+        .select2-search { background-color: #2e2e2e; }
+
+        .select2-search input { background-color: #2e2e2e; }
+
+        .select2-results { background-color: #2e2e2e; }
+
+        .select2-container--default .select2-results__option--selected {
+            background-color: #3f3f3f !important;
+        }
+
+        html.dark .table>:not(:first-child) {
+            border-top: 0;
+        }
+
     </style>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
@@ -143,11 +167,11 @@
         });
     </script>
 </head>
-<body class="bg-light">
+<body class="dark">
 <div class="container">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-            <span class="fs-4"><img src="static/serum-srm-logo.png" width="32" height="32"
+            <span class="fs-4" style="color: rgb(225, 225, 225);"><img src="static/serum-srm-logo.png" width="32" height="32"
                                     style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
 
@@ -502,7 +526,8 @@
     var depthChart = Highcharts.chart('container', {
         chart: {
             type: 'area',
-            zoomType: 'xy'
+            zoomType: 'xy',
+            backgroundColor: '#222222'
         },
         title: {
             text: ''
@@ -524,7 +549,7 @@
         },
         yAxis: [{
             lineWidth: 1,
-            gridLineWidth: 1,
+            gridLineWidth: 0,
             title: null,
             tickWidth: 1,
             tickLength: 5,
@@ -534,6 +559,7 @@
                 x: 8
             }
         }, {
+            color: '#ffffff',
             opposite: true,
             linkedTo: 0,
             lineWidth: 1,
@@ -608,7 +634,8 @@
                             zIndex: 5
                         })
                         .css({
-                            fontSize: '12px'
+                            fontSize: '12px',
+                            color: '#00ff08'
                         })
                         .add();
 
@@ -621,7 +648,8 @@
                             zIndex: 5
                         })
                         .css({
-                            fontSize: '12px'
+                            fontSize: '12px',
+                            color: '#ff0000'
                         })
                         .add();
 
@@ -660,5 +688,6 @@
     setInterval(updateDepthChart, 550);
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/js/darkmode.min.js"></script>
 </body>
 </html>
