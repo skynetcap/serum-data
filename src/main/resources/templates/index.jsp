@@ -501,7 +501,7 @@
                                 "</td>" +
                                 "<td style=\"text-align: left\">" +
                                 (v.jupiterTx ? "<a href=\"https://explorer.solana.com/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
-                                ((!v.jupiterTx && v.icon) !== '' ? "<img src=\"static/entities/" + v.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
+                                ((!v.jupiterTx && v.icon!== '') ? "<img src=\"static/entities/" + v.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
                                 (!v.jupiterTx ? (v.owner.toString().length > 32 ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.owner) : "") +
                                 "</td>" +
                                 "</tr>"
