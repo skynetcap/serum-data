@@ -100,7 +100,7 @@ sudo ufw enable
 
 ### Pull latest + Start Openserum server
 ```shell
-# Initiate startup, App will be live at: http://IP_ADDRESS/
+# Initiate startup, App will be at: http://IP_ADDRESS/ (or http://IP_ADDRESS:8080/ (if no nginx))
 ./home/staging_start.sh
 # Follow logs (optional)
 sudo docker logs -f staging
