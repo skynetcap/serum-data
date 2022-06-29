@@ -414,7 +414,7 @@
 
     function loadMarketDetail() {
         let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
-        $.get({url: apiUrl, cache: false})
+        $.get({url: apiUrl, cache: true})
             .done(function (data) {
                 // only update html if the refresh is a new market
                 if (data.id !== lastLoadedMarketId) {
@@ -488,7 +488,7 @@
     function updateSales() {
         if (activeMarketId) {
             let apiUrl = "/api/serum/market/" + activeMarketId + "/tradeHistory";
-            $.get({url: apiUrl, cache: false})
+            $.get({url: apiUrl, cache: true})
                 .done(function (data) {
                     $('#tradeHistoryTable tbody').empty();
                     $.each(data, function (k, v) {
