@@ -21,7 +21,7 @@ public class MarketUtil {
                     SerumOrder serumOrder = new SerumOrder();
                     serumOrder.setPrice(order.getFloatPrice());
                     serumOrder.setQuantity(order.getFloatQuantity());
-                    serumOrder.setOwner(order.getOwner().toBase58());
+                    serumOrder.setOwner(order.getOwner());
                     return serumOrder;
                 })
                 .sorted((o1, o2) -> {

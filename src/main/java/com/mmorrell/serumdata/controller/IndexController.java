@@ -37,7 +37,7 @@ public class IndexController {
 
     @RequestMapping("/")
     public String index(Model model) {
-        Map<String, Token> tokenMap = new HashMap<>();
+        Map<PublicKey, Token> tokenMap = new HashMap<>();
         tokenManager.getRegistry().forEach((tokenMint, token) -> {
             // only show tokens which have a serum market
             if (marketManager.numMarketsByToken(tokenMint) > 0) {
@@ -80,8 +80,8 @@ public class IndexController {
 
                 if (baseToken.isPresent() && quoteToken.isPresent()) {
                     Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(
-                            baseToken.get().getAddress(),
-                            quoteToken.get().getAddress()
+                            baseToken.get().getPublicKey(),
+                            quoteToken.get().getPublicKey()
                     );
 
                     // put it's id into the model
@@ -102,9 +102,9 @@ public class IndexController {
             }
 
             // check if it's a token mint.
-            Token token = tokenManager.getTokenByMint(sanitized);
+            Token token = tokenManager.getTokenByMint(PublicKey.valueOf(sanitized));
             if (token != null) {
-                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.getAddress());
+                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.getPublicKey());
                 if (optionalMarket.isPresent()) {
                     model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.getAddress());
                     model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, optionalMarket.get().getOwnAddress().toBase58());
@@ -117,7 +117,7 @@ public class IndexController {
             List<Market> activeMarkets = new ArrayList<>();
             for (Token baseToken : possibleBaseTokens) {
                 // compile list of markets, return one with most fees accrued.
-                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(baseToken.getAddress());
+                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(baseToken.getPublicKey());
                 optionalMarket.ifPresent(activeMarkets::add);
 
             }
@@ -129,7 +129,7 @@ public class IndexController {
             }
         }
 
-        Map<String, Token> tokenMap = new HashMap<>();
+        Map<PublicKey, Token> tokenMap = new HashMap<>();
         tokenManager.getRegistry().forEach((tokenMint, token) -> {
             // only show tokens which have a serum market
             if (marketManager.numMarketsByToken(tokenMint) > 0) {

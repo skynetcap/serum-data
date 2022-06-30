@@ -29,9 +29,9 @@ public class MarketManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 40;
     // <tokenMint, List<Market>>
-    private final Map<String, List<Market>> marketMapCache = new HashMap<>();
+    private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
     // <marketId, Builder>
-    private final Map<String, MarketBuilder> marketBuilderCache = new HashMap<>();
+    private final Map<PublicKey, MarketBuilder> marketBuilderCache = new HashMap<>();
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
 
@@ -70,7 +70,7 @@ public class MarketManager {
         updateMarkets();
     }
 
-    public Map<String, List<Market>> getMarketMapCache() {
+    public Map<PublicKey, List<Market>> getMarketMapCache() {
         return marketMapCache;
     }
 
@@ -80,19 +80,19 @@ public class MarketManager {
                 .collect(Collectors.toList());
     }
 
-    public List<Market> getMarketsByMint(String tokenMint) {
+    public List<Market> getMarketsByMint(PublicKey tokenMint) {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
     }
 
     public void addBuilderToCache(MarketBuilder marketBuilder) {
-        marketBuilderCache.put(marketBuilder.getPublicKey().toBase58(), marketBuilder);
+        marketBuilderCache.put(marketBuilder.getPublicKey(), marketBuilder);
     }
 
-    public boolean isBuilderCached(String marketId) {
+    public boolean isBuilderCached(PublicKey marketId) {
         return marketBuilderCache.containsKey(marketId);
     }
 
-    public MarketBuilder getBuilderFromCache(String marketId) {
+    public MarketBuilder getBuilderFromCache(PublicKey marketId) {
         return marketBuilderCache.get(marketId);
     }
 
@@ -161,11 +161,11 @@ public class MarketManager {
             Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
 
             // Get list of existing markets for this base mint. otherwise create a new list and put it there.
-            List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint().toBase58(), new ArrayList<>());
+            List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint(), new ArrayList<>());
             existingMarketList.add(market);
 
             if (existingMarketList.size() == 1) {
-                marketMapCache.put(market.getBaseMint().toBase58(), existingMarketList);
+                marketMapCache.put(market.getBaseMint(), existingMarketList);
             }
         }
 
@@ -177,10 +177,11 @@ public class MarketManager {
         );
     }
 
-    public int numMarketsByToken(String tokenMint) {
+    public int numMarketsByToken(PublicKey tokenMint) {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>()).size();
     }
 
+    // Takes sanitized user input
     public Optional<Market> getMarketById(String marketId) {
         return marketMapCache.values().stream()
                 .flatMap(Collection::stream)
