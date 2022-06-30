@@ -64,7 +64,8 @@ public class ApiController {
     public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
-        List<Market> markets = marketManager.getMarketsByMint(tokenId);
+        PublicKey tokenKey = new PublicKey(tokenId);
+        List<Market> markets = marketManager.getMarketsByMint(tokenKey);
 
         // get total base deposits, for percentage ranking
         long totalBaseDeposits = 0;
@@ -86,8 +87,9 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}")
     public Map<String, Object> getMarket(@PathVariable String marketId) {
         Map<String, Object> result = new HashMap<>();
+        PublicKey marketKey = new PublicKey(marketId);
         Optional<Market> marketFromCache = marketManager.getMarketCache().stream()
-                .filter(market -> market.getOwnAddress().toBase58().equalsIgnoreCase(marketId))
+                .filter(market -> market.getOwnAddress().equals(marketKey))
                 .findFirst();
 
         if (marketFromCache.isEmpty()) {
@@ -97,7 +99,7 @@ public class ApiController {
 
         final Market marketWithOrderBooks = new MarketBuilder()
                 .setClient(orderBookClient)
-                .setPublicKey(PublicKey.valueOf(marketId))
+                .setPublicKey(marketKey)
                 .setRetrieveOrderBooks(true)
                 .build();
 
@@ -112,16 +114,17 @@ public class ApiController {
 
         MarketBuilder builder;
         Market market;
+        PublicKey marketKey = new PublicKey(marketId);
 
         // check builder map
-        boolean isBuilderCached = marketManager.isBuilderCached(marketId);
+        boolean isBuilderCached = marketManager.isBuilderCached(marketKey);
         if (isBuilderCached) {
-            builder = marketManager.getBuilderFromCache(marketId);
+            builder = marketManager.getBuilderFromCache(marketKey);
             market = builder.reload();
         } else {
             builder = new MarketBuilder()
                     .setClient(orderBookClient)
-                    .setPublicKey(PublicKey.valueOf(marketId))
+                    .setPublicKey(marketKey)
                     .setRetrieveOrderBooks(true)
                     .setOrderBookCacheEnabled(true);
             market = builder.build();
@@ -152,6 +155,7 @@ public class ApiController {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
+        // TODO - make a POJO for trade history results
         final ArrayList<Map<String, Object>> result = new ArrayList<>();
         final Market marketWithEventQueue = new MarketBuilder()
                 .setClient(orderBookClient)
@@ -172,7 +176,14 @@ public class ApiController {
             tradeEventEntry.put("index", i);
             tradeEventEntry.put("price", event.getFloatPrice());
             tradeEventEntry.put("quantity", event.getFloatQuantity());
-            tradeEventEntry.put("owner", owner);
+            tradeEventEntry.put("owner", taker.toBase58()); // todo: use pojo
+
+            // Known entity e.g. Wintermute
+            if (identityManager.hasReverseLookup(taker)) {
+                tradeEventEntry.put("entityName", identityManager.getEntityNameByOwner(taker));
+                tradeEventEntry.put("entityIcon", identityManager.getEntityIconByOwner(taker));
+            }
+
             tradeEventEntry.put("flags", ImmutableMap.of(
                             "fill", event.getEventQueueFlags().isFill(),
                             "out", event.getEventQueueFlags().isOut(),
@@ -180,7 +191,6 @@ public class ApiController {
                             "maker", event.getEventQueueFlags().isMaker()
                     )
             );
-            tradeEventEntry.put("icon", identityManager.getEntityIconByOwner(taker));
 
             // Jupiter TX handling, only lookup unknown entities, only top 100 in history
             int maxRowsToJupiterSearch = 50;
@@ -244,16 +254,17 @@ public class ApiController {
         final Map<String, Object> result = new HashMap<>();
         MarketBuilder builder;
         Market market;
+        PublicKey marketKey = new PublicKey(marketId);
 
         // check builder map
-        boolean isBuilderCached = marketManager.isBuilderCached(marketId);
+        boolean isBuilderCached = marketManager.isBuilderCached(marketKey);
         if (isBuilderCached) {
-            builder = marketManager.getBuilderFromCache(marketId);
+            builder = marketManager.getBuilderFromCache(marketKey);
             market = builder.reload();
         } else {
             builder = new MarketBuilder()
                     .setClient(orderBookClient)
-                    .setPublicKey(PublicKey.valueOf(marketId))
+                    .setPublicKey(marketKey)
                     .setRetrieveOrderBooks(true)
                     .setOrderBookCacheEnabled(true);
             market = builder.build();
@@ -343,14 +354,14 @@ public class ApiController {
     private Map<String, Object> convertMarketToMap(Market market) {
         Map<String, Object> result = new HashMap<>();
         result.put("id", market.getOwnAddress().toBase58());
-        result.put("baseName", tokenManager.getTokenNameByMint(market.getBaseMint().toBase58()));
+        result.put("baseName", tokenManager.getTokenNameByMint(market.getBaseMint()));
         result.put("baseMint", market.getBaseMint().toBase58());
-        result.put("baseSymbol", tokenManager.getTokenSymbolByMint(market.getBaseMint().toBase58()));
-        result.put("baseLogo", tokenManager.getTokenLogoByMint(market.getBaseMint().toBase58()));
-        result.put("quoteName", tokenManager.getTokenNameByMint(market.getQuoteMint().toBase58()));
+        result.put("baseSymbol", tokenManager.getTokenSymbolByMint(market.getBaseMint()));
+        result.put("baseLogo", tokenManager.getTokenLogoByMint(market.getBaseMint()));
+        result.put("quoteName", tokenManager.getTokenNameByMint(market.getQuoteMint()));
         result.put("quoteMint", market.getQuoteMint().toBase58());
-        result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint().toBase58()));
-        result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint().toBase58()));
+        result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint()));
+        result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint()));
         return result;
     }
 

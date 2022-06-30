@@ -11,6 +11,7 @@ import com.mmorrell.serumdata.util.MarketUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.p2p.solanaj.core.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class TokenManager {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // <tokenMint string, token>
-    private final Map<String, Token> tokenCache = new HashMap<>();
+    private final Map<PublicKey, Token> tokenCache = new HashMap<>();
 
     // Loads tokens from github repo into memory when this constructor is called. (e.g. during Bean creation)
     public TokenManager() {
@@ -68,14 +69,17 @@ public class TokenManager {
 
             // update cache, only mainnet tokens
             if (token.getChainId() == CHAIN_ID_MAINNET) {
-                tokenCache.put(token.getAddress(), token);
+                tokenCache.put(
+                        token.getPublicKey(),
+                        token
+                );
             }
         }
 
         LOGGER.info("Tokens cached.");
     }
 
-    public Map<String, Token> getRegistry() {
+    public Map<PublicKey, Token> getRegistry() {
         return tokenCache;
     }
 
@@ -89,11 +93,11 @@ public class TokenManager {
         }
     }
 
-    public Token getTokenByMint(String tokenMint) {
+    public Token getTokenByMint(PublicKey tokenMint) {
         return tokenCache.get(tokenMint);
     }
 
-    public String getTokenNameByMint(String tokenMint) {
+    public String getTokenNameByMint(PublicKey tokenMint) {
         Token token = tokenCache.get(tokenMint);
         if (token != null) {
             return token.getName();
@@ -102,7 +106,7 @@ public class TokenManager {
         }
     }
 
-    public String getTokenSymbolByMint(String tokenMint) {
+    public String getTokenSymbolByMint(PublicKey tokenMint) {
         Token token = tokenCache.get(tokenMint);
         if (token != null) {
             return token.getSymbol();
@@ -111,7 +115,7 @@ public class TokenManager {
         }
     }
 
-    public String getTokenLogoByMint(String tokenMint) {
+    public String getTokenLogoByMint(PublicKey tokenMint) {
         Token token = tokenCache.get(tokenMint);
         if (token != null) {
             return token.getLogoURI();
@@ -124,25 +128,9 @@ public class TokenManager {
         // result = "SOL / USDC"
         return String.format(
                 "%s / %s",
-                getTokenSymbolByMint(market.getBaseMint().toBase58()),
-                getTokenSymbolByMint(market.getQuoteMint().toBase58())
+                getTokenSymbolByMint(market.getBaseMint()),
+                getTokenSymbolByMint(market.getQuoteMint())
         );
-    }
-
-    public Optional<Token> getTokenBySymbol(String tokenSymbol) {
-        String symbol = tokenSymbol.toUpperCase();
-        if (symbol.equalsIgnoreCase("USDC")) {
-            return Optional.ofNullable(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
-        } else if (symbol.equalsIgnoreCase("SOL")) {
-            return Optional.ofNullable(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
-        } else if (symbol.equalsIgnoreCase("USDT")) {
-            return Optional.ofNullable(getTokenByMint(MarketUtil.USDT_MINT.toBase58()));
-        } else {
-            // return symbol if we have it
-            return tokenCache.values().stream()
-                    .filter(token -> token.getSymbol().equalsIgnoreCase(tokenSymbol))
-                    .findFirst();
-        }
     }
 
     /**
@@ -154,11 +142,11 @@ public class TokenManager {
     public List<Token> getTokensBySymbol(String tokenSymbol) {
         String symbol = tokenSymbol.toUpperCase();
         if (symbol.equalsIgnoreCase("USDC")) {
-            return List.of(getTokenByMint(MarketUtil.USDC_MINT.toBase58()));
+            return List.of(getTokenByMint(MarketUtil.USDC_MINT));
         } else if (symbol.equalsIgnoreCase("USDT")) {
-            return List.of(getTokenByMint(MarketUtil.USDT_MINT.toBase58()));
+            return List.of(getTokenByMint(MarketUtil.USDT_MINT));
         }  else if (symbol.equalsIgnoreCase("SOL")) {
-            return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
+            return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT));
         } else {
             // return symbol if we have it
             return tokenCache.values().stream()

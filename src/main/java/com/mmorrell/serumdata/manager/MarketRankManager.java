@@ -4,6 +4,7 @@ import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
+import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -25,15 +26,15 @@ public class MarketRankManager {
      * @param tokenMint mint to rank based on # of serum markets
      * @return serum market rank for the given token
      */
-    public int getMarketRankOfToken(String tokenMint) {
-        Map<String, Integer> marketCounts = new HashMap<>();
+    public int getMarketRankOfToken(PublicKey tokenMint) {
+        Map<PublicKey, Integer> marketCounts = new HashMap<>();
 
         marketManager.getMarketMapCache().forEach((token, markets) -> marketCounts.put(token, markets.size()));
 
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(marketCounts.entrySet());
+        List<Map.Entry<PublicKey, Integer>> list = new ArrayList<>(marketCounts.entrySet());
         list.sort(Map.Entry.comparingByValue((o1, o2) -> o2 - o1));
 
-        Map<String, Integer> marketRanks = new HashMap<>();
+        Map<PublicKey, Integer> marketRanks = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             marketRanks.put(list.get(i).getKey(), i + 1);
         }
@@ -41,7 +42,7 @@ public class MarketRankManager {
         return marketRanks.getOrDefault(tokenMint, RANK_PLACEHOLDER);
     }
 
-    public Optional<Market> getMostActiveMarket(String baseMint) {
+    public Optional<Market> getMostActiveMarket(PublicKey baseMint) {
         List<Market> markets = marketManager.getMarketsByMint(baseMint);
         if (markets.size() < 1) {
             return Optional.empty();
@@ -66,7 +67,7 @@ public class MarketRankManager {
         return Optional.ofNullable(markets.get(0));
     }
 
-    public Optional<Market> getMostActiveMarket(String baseMint, String quoteMint) {
+    public Optional<Market> getMostActiveMarket(PublicKey baseMint, PublicKey quoteMint) {
         List<Market> markets = marketManager.getMarketsByMint(baseMint);
         if (markets.size() < 1) {
             return Optional.empty();
@@ -75,7 +76,7 @@ public class MarketRankManager {
         // sort by base deposits
         markets.sort(Comparator.comparingLong(Market::getBaseDepositsTotal).reversed());
         for (Market market : markets) {
-            if (market.getQuoteMint().toBase58().equalsIgnoreCase(quoteMint)) {
+            if (market.getQuoteMint().equals(quoteMint)) {
                 return Optional.of(market);
             }
         }
@@ -100,15 +101,15 @@ public class MarketRankManager {
         List<Token> possibleBaseTokens = tokenManager.getTokensBySymbol(symbol);
         List<Market> activeMarkets = new ArrayList<>();
 
-        for(Token baseToken : possibleBaseTokens) {
+        for (Token baseToken : possibleBaseTokens) {
             // compile list of markets, return one with most fees accrued.
-            Optional<Market> optionalMarket = getMostActiveMarket(baseToken.getAddress());
+            Optional<Market> optionalMarket = getMostActiveMarket(baseToken.getPublicKey());
             optionalMarket.ifPresent(activeMarkets::add);
         }
         activeMarkets.sort(Comparator.comparingLong(Market::getQuoteFeesAccrued).reversed());
 
         if (activeMarkets.size() > 0) {
-            return Optional.ofNullable(tokenManager.getTokenByMint(activeMarkets.get(0).getBaseMint().toBase58()));
+            return Optional.ofNullable(tokenManager.getTokenByMint(activeMarkets.get(0).getBaseMint()));
         } else {
             return Optional.empty();
         }

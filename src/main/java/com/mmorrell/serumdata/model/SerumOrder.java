@@ -1,5 +1,9 @@
 package com.mmorrell.serumdata.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mmorrell.serumdata.util.PublicKeySerializer;
+import org.p2p.solanaj.core.PublicKey;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,7 +12,11 @@ public class SerumOrder {
 
     private float price;
     private float quantity;
-    private String owner;
+
+    @JsonSerialize(using = PublicKeySerializer.class)
+    private PublicKey owner;
+
+    // Possible keys: "entityName", "entityIcon" (for the known entity)
     private final Map<String, String> metadata = new HashMap<>();
 
     public float getPrice() {
@@ -27,11 +35,11 @@ public class SerumOrder {
         this.quantity = quantity;
     }
 
-    public String getOwner() {
+    public PublicKey getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(PublicKey owner) {
         this.owner = owner;
     }
 

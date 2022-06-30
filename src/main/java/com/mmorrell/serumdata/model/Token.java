@@ -1,16 +1,20 @@
 package com.mmorrell.serumdata.model;
 
+import org.p2p.solanaj.core.PublicKey;
+
 import java.io.Serializable;
 
 public class Token implements Serializable {
 
     public Token(String address) {
         this.address = address;
+        this.publicKey = PublicKey.valueOf(address);
     }
 
     public Token(String name, String address, String symbol, String logoURI, int chainId, int decimals) {
         this.name = name;
         this.address = address;
+        this.publicKey = PublicKey.valueOf(address);
         this.symbol = symbol;
         this.logoURI = logoURI;
         this.chainId = chainId;
@@ -23,6 +27,15 @@ public class Token implements Serializable {
     private String logoURI;
     private int chainId;
     private int decimals;
+    private PublicKey publicKey;
+
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
 
     public String getSymbol() {
         return symbol;
