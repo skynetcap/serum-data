@@ -672,7 +672,7 @@
                     if (parseFloat(myChart.data.datasets[0].data[myChart.data.labels.length - 1]).toFixed(8) !== parseFloat(newData.midpoint).toFixed(8)) {
                         // only update it if the midpoint changes
 
-                        if (newData.marketId !== lastLoadedChartId) {
+                        if (newData.marketId.publicKey !== lastLoadedChartId) {
                             return;
                         }
 

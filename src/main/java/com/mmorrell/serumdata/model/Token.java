@@ -6,6 +6,11 @@ import java.io.Serializable;
 
 public class Token implements Serializable {
 
+    public Token(PublicKey publicKey) {
+        this.address = publicKey.toBase58();
+        this.publicKey = publicKey;
+    }
+
     public Token(String address) {
         this.address = address;
         this.publicKey = PublicKey.valueOf(address);

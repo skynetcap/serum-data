@@ -13,6 +13,14 @@ import java.util.*;
 public class MarketRankManager {
 
     private static final int RANK_PLACEHOLDER = 9999999;
+
+    // Top tokens list, for quicker resolution from symbol.
+    private static final Map<String, Token> TOP_TOKENS = Map.of(
+            "SOL", new Token(SerumUtils.WRAPPED_SOL_MINT),
+            "USDC", new Token(MarketUtil.USDC_MINT),
+            "USDT", new Token(MarketUtil.USDT_MINT)
+    );
+
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
 
@@ -57,8 +65,8 @@ public class MarketRankManager {
             Market secondMarket = markets.get(1);
 
             // if first pair isn't USDC quoted, and second pair is, move it to first place
-            if (!firstMarket.getQuoteMint().toBase58().equalsIgnoreCase(MarketUtil.USDC_MINT.toBase58()) &&
-                    secondMarket.getQuoteMint().toBase58().equalsIgnoreCase(MarketUtil.USDC_MINT.toBase58())) {
+            if (!firstMarket.getQuoteMint().equals(MarketUtil.USDC_MINT) &&
+                    secondMarket.getQuoteMint().equals(MarketUtil.USDC_MINT)) {
                 markets.set(0, secondMarket);
                 markets.set(1, firstMarket);
             }
@@ -90,12 +98,8 @@ public class MarketRankManager {
      * @return most active token for given symbol
      */
     public Optional<Token> getMostSerumActiveTokenBySymbol(String symbol) {
-        if (symbol.equalsIgnoreCase("SOL")) {
-            return Optional.of(new Token(SerumUtils.WRAPPED_SOL_MINT.toBase58()));
-        } else if (symbol.equalsIgnoreCase("USDC")) {
-            return Optional.of(new Token(MarketUtil.USDC_MINT.toBase58()));
-        } else if (symbol.equalsIgnoreCase("USDT")) {
-            return Optional.of(new Token(MarketUtil.USDT_MINT.toBase58()));
+        if (TOP_TOKENS.containsKey(symbol)) {
+            return Optional.of(TOP_TOKENS.get(symbol));
         }
 
         List<Token> possibleBaseTokens = tokenManager.getTokensBySymbol(symbol);
