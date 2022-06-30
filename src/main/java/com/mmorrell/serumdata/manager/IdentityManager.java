@@ -150,9 +150,6 @@ public class IdentityManager {
 
                 if (knownEntities.containsKey(owner)) {
                     order.addMetadata("name", knownEntities.get(owner));
-                }
-
-                if (knownEntitiesIcons.containsKey(owner)) {
                     order.addMetadata("icon", knownEntitiesIcons.get(owner));
                 }
             } else {
