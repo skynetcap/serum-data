@@ -26,6 +26,7 @@ public class IndexController {
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final MarketRankManager marketRankManager;
+    private final Map<PublicKey, Token> activeTokenMap = new HashMap<>();
 
     public IndexController(TokenManager tokenManager,
                            MarketManager marketManager,
@@ -33,30 +34,27 @@ public class IndexController {
         this.tokenManager = tokenManager;
         this.marketManager = marketManager;
         this.marketRankManager = marketRankManager;
+
+        // Only list Tokens with an active Serum market.
+        tokenManager.getRegistry().forEach((tokenMint, token) -> {
+            if (marketManager.numMarketsByToken(tokenMint) > 0) {
+                activeTokenMap.put(tokenMint, token);
+            }
+        });
     }
 
     @RequestMapping("/")
     public String index(Model model) {
-        Map<PublicKey, Token> tokenMap = new HashMap<>();
-        tokenManager.getRegistry().forEach((tokenMint, token) -> {
-            // only show tokens which have a serum market
-            if (marketManager.numMarketsByToken(tokenMint) > 0) {
-                tokenMap.put(tokenMint, token);
-            }
-        });
-
         model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, DEFAULT_TOKEN_SEARCH.toBase58());
         model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, DEFAULT_MARKET.toBase58());
-        model.addAttribute(
-                "tokens",
-                tokenMap
-        );
+
+        model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
+
         return "index";
     }
 
     // for now, return index with the market determined.
-    // todo - return the market detail page, doesn't have the search windows (more detail in their place)
     @RequestMapping("/{market}")
     public String market(Model model, @PathVariable String market) {
         // pass default to model in case lookup fails
@@ -129,19 +127,9 @@ public class IndexController {
             }
         }
 
-        Map<PublicKey, Token> tokenMap = new HashMap<>();
-        tokenManager.getRegistry().forEach((tokenMint, token) -> {
-            // only show tokens which have a serum market
-            if (marketManager.numMarketsByToken(tokenMint) > 0) {
-                tokenMap.put(tokenMint, token);
-            }
-        });
-
-        model.addAttribute(
-                "tokens",
-                tokenMap
-        );
+        model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
+
         return "index";
     }
 }
