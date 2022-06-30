@@ -48,18 +48,6 @@ public class ApiController {
         this.identityManager = identityManager;
     }
 
-    /**
-     * @return
-     * @throws RpcException
-     */
-    @GetMapping(value = "/api/serum/allMarkets")
-    public List<String> getSerumMarkets() {
-        return marketManager.getMarketCache().stream()
-                .map(Market::getOwnAddress)
-                .map(PublicKey::toBase58)
-                .collect(Collectors.toList());
-    }
-
     @GetMapping(value = "/api/serum/token/{tokenId}")
     public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
@@ -155,31 +143,31 @@ public class ApiController {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
+        PublicKey marketKey = new PublicKey(marketId);
+
         // TODO - make a POJO for trade history results
         final ArrayList<Map<String, Object>> result = new ArrayList<>();
         final Market marketWithEventQueue = new MarketBuilder()
                 .setClient(orderBookClient)
-                .setPublicKey(PublicKey.valueOf(marketId))
+                .setPublicKey(marketKey)
                 .setRetrieveEventQueue(true)
                 .build();
 
         List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
         for (int i = 0; i < tradeEvents.size(); i++) {
             Map<String, Object> tradeEventEntry = new HashMap<>();
-            TradeEvent event = tradeEvents.get(i);
 
+            TradeEvent event = tradeEvents.get(i);
             PublicKey taker = identityManager.lookupAndAddOwnerToCache(event.getOpenOrders());
-            String owner = identityManager.hasReverseLookup(taker) ?
-                    identityManager.getEntityNameByOwner(taker) :
-                    taker.toBase58();
 
             tradeEventEntry.put("index", i);
             tradeEventEntry.put("price", event.getFloatPrice());
             tradeEventEntry.put("quantity", event.getFloatQuantity());
-            tradeEventEntry.put("owner", taker.toBase58()); // todo: use pojo
+            tradeEventEntry.put("owner", taker.toBase58()); // TODO: POJO-ify
 
             // Known entity e.g. Wintermute
-            if (identityManager.hasReverseLookup(taker)) {
+            boolean isKnownTaker = identityManager.hasReverseLookup(taker);
+            if (isKnownTaker) {
                 tradeEventEntry.put("entityName", identityManager.getEntityNameByOwner(taker));
                 tradeEventEntry.put("entityIcon", identityManager.getEntityIconByOwner(taker));
             }
@@ -192,13 +180,13 @@ public class ApiController {
                     )
             );
 
-            // Jupiter TX handling, only lookup unknown entities, only top 100 in history
+            // Jupiter TX handling, only lookup unknown entities, only top 50 in history
             int maxRowsToJupiterSearch = 50;
-            if (owner.equalsIgnoreCase(taker.toBase58()) && i < maxRowsToJupiterSearch) {
+            if (!isKnownTaker && i < maxRowsToJupiterSearch) {
                 Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
-                        marketId,
-                        event.getOpenOrders().toBase58(),
-                        taker.toBase58(),
+                        marketKey,
+                        event.getOpenOrders(),
+                        taker,
                         event.getFloatPrice(),
                         event.getFloatQuantity()
                 );
@@ -318,36 +306,9 @@ public class ApiController {
         );
         result.put(
                 "marketId",
-                market.getOwnAddress().toBase58()
+                market.getOwnAddress()
         );
 
-        return result;
-    }
-
-    @GetMapping(value = "/api/serum/wallet/openOrders/{accountId}")
-    public Map<String, Object> getOpenOrdersOwner(@PathVariable String accountId) {
-        Map<String, Object> result;
-        try {
-            result = Map.of(
-                    "owner",
-                    OpenOrdersAccount.readOpenOrdersAccount(
-                                    Base64.getDecoder().decode(
-                                            orderBookClient.getApi().getAccountInfo(
-                                                            PublicKey.valueOf(accountId)
-                                                    )
-                                                    .getValue()
-                                                    .getData()
-                                                    .get(0)
-                                                    .getBytes()
-                                    )
-                            )
-                            .getOwner()
-                            .toBase58()
-            );
-        } catch (RpcException e) {
-            throw new RuntimeException(e);
-        }
-        
         return result;
     }
 

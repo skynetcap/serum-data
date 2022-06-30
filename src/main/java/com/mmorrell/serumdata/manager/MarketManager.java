@@ -189,8 +189,15 @@ public class MarketManager {
                 .findAny();
     }
 
-    public Optional<String> getJupiterTxForMarketAndOoa(String marketId, String ooa, String owner, float price, float quantity) {
-        String uniqueKey = marketId.concat(ooa).concat(owner).concat(String.valueOf(price)).concat(String.valueOf(quantity));
+    public Optional<String> getJupiterTxForMarketAndOoa(
+            PublicKey marketId,
+            PublicKey ooa,
+            PublicKey owner,
+            float price,
+            float quantity
+    ) {
+        String uniqueKey = marketId.toString().concat(ooa.toString()).concat(owner.toString()).concat(String.valueOf(price)).concat(String.valueOf(quantity));
+
         // bail out if its cached
         if (jupiterTxMap.containsKey(uniqueKey)) {
             // LOGGER.info("HAVE ANSWER: " + uniqueKey);
@@ -210,7 +217,7 @@ public class MarketManager {
             List<SignatureInformation> confirmedSignatures;
             try {
                 confirmedSignatures = client.getApi().getSignaturesForAddress(
-                        PublicKey.valueOf(owner),
+                        owner,
                         10,
                         Commitment.CONFIRMED
                 );
@@ -229,23 +236,31 @@ public class MarketManager {
                     break;
                 }
                 for (ConfirmedTransaction.Instruction instruction : confirmedTransaction.getTransaction().getMessage().getInstructions()) {
-                    String programId = confirmedTransaction.getTransaction().getMessage().getAccountKeys().get((int) instruction.getProgramIdIndex());
-                    if (programId.equalsIgnoreCase(JUPITER_PROGRAM_ID.toBase58())) {
+                    final PublicKey programId = new PublicKey(
+                            confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(
+                                    (int) instruction.getProgramIdIndex()
+                            )
+                    );
+
+                    if (programId.equals(JUPITER_PROGRAM_ID)) {
                         // if it has OOA and Jup's referrer quote wallet, gg
                         // better to lookup the token account owner, hardcoding top 3 token types for now tho
                         boolean hasReferrer = false, hasOoa = false, hasSrm = false, hasMarket = false;
                         for (long accountIndex : instruction.getAccounts()) {
                             int index = (int) accountIndex;
-                            String account = confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(index);
-                            if (account.equalsIgnoreCase(SerumUtils.SERUM_PROGRAM_ID_V3.toBase58())) {
+                            PublicKey account = new PublicKey(
+                                    confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(index)
+                            );
+
+                            if (account.equals(SerumUtils.SERUM_PROGRAM_ID_V3)) {
                                 hasSrm = true;
-                            } else if (account.equalsIgnoreCase(ooa)) {
+                            } else if (account.equals(ooa)) {
                                 hasOoa = true;
-                            } else if (account.equalsIgnoreCase(JUPITER_USDC_WALLET.toBase58()) ||
-                                    account.equalsIgnoreCase(JUPITER_USDT_WALLET.toBase58()) ||
-                                    account.equalsIgnoreCase(JUPITER_WSOL_WALLET.toBase58())) {
+                            } else if (account.equals(JUPITER_USDC_WALLET) ||
+                                    account.equals(JUPITER_USDT_WALLET) ||
+                                    account.equals(JUPITER_WSOL_WALLET)) {
                                 hasReferrer = true;
-                            } else if (account.equalsIgnoreCase(marketId)) {
+                            } else if (account.equals(marketId)) {
                                 hasMarket = true;
                             }
                         }

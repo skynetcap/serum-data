@@ -69,8 +69,8 @@ public class IndexController {
 
             if (parts.length == 2) {
                 // "sanitization" even though there is no DB to hack
-                String baseSymbol = parts[0].replaceAll("[^a-zA-Z]", "");
-                String quoteSymbol = parts[1].replaceAll("[^a-zA-Z]", "");
+                String baseSymbol = parts[0].replaceAll("[^a-zA-Z]", "").toUpperCase();
+                String quoteSymbol = parts[1].replaceAll("[^a-zA-Z]", "").toUpperCase();
 
                 // todo - bestMostActiveTokenBySymbol in marketrankamanger
                 Optional<Token> baseToken = marketRankManager.getMostSerumActiveTokenBySymbol(baseSymbol);
