@@ -304,7 +304,7 @@ public class ApiController {
         );
         result.put(
                 "marketId",
-                market.getOwnAddress()
+                market.getOwnAddress().toBase58()
         );
 
         return result;
