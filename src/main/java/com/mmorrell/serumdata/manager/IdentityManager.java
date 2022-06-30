@@ -121,7 +121,7 @@ public class IdentityManager {
 
         try {
             List<AccountInfo.Value> accountData = new ArrayList<>();
-            List<List<PublicKey>> accountsToSearchList  = Lists.partition(accountsToSearch, 100);
+            List<List<PublicKey>> accountsToSearchList = Lists.partition(accountsToSearch, 100);
 
             for (int i = 0; i < accountsToSearchList.size(); i++) {
                 accountData.addAll(client.getApi().getMultipleAccounts(accountsToSearchList.get(i)));
@@ -134,7 +134,6 @@ public class IdentityManager {
                         )
                 );
                 ownerReverseLookupCache.put(accountsToSearch.get(i), ooa.getOwner());
-                // System.out.printf("OOA:%s,Owner:%s%n", accountsToSearch.get(i).toBase58(), ooa.getOwner().toBase58());
             }
         } catch (RpcException e) {
             throw new RuntimeException(e);
