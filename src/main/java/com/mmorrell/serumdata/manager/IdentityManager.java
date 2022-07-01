@@ -154,7 +154,7 @@ public class IdentityManager {
                 // LOGGER.info("hasOwner (not searching): " + ooa.toBase58() + ", " + ownerReverseLookupCache.get(ooa));
                 resultMap.put(ooa, Optional.of(ownerReverseLookupCache.get(ooa)));
             } else {
-                LOGGER.info("Going to search: " + ooa.toBase58());
+                // LOGGER.info("Going to search: " + ooa.toBase58());
                 resultMap.put(ooa, Optional.empty());
             }
         }
@@ -170,7 +170,7 @@ public class IdentityManager {
         for (int i = 0; i < accountsToSearchList.size(); i++) {
             try {
                 List<PublicKey> partitionedList = accountsToSearchList.get(i);
-                LOGGER.info("Querying: " + partitionedList.stream().map(PublicKey::toBase58).collect(Collectors.joining(",")));
+                // LOGGER.info("Querying: " + partitionedList.stream().map(PublicKey::toBase58).collect(Collectors.joining(",")));
 
                 List<AccountInfo.Value> accountDataList = client.getApi().getMultipleAccounts(partitionedList);
 
@@ -186,7 +186,7 @@ public class IdentityManager {
 
                     resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
                     ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
-                    LOGGER.info("Fully cached: " + ooaKey.toBase58() + ", " + ooa.getOwner().toBase58());
+                    // LOGGER.info("Fully cached: " + ooaKey.toBase58() + ", " + ooa.getOwner().toBase58());
                 }
             } catch (RpcException e) {
                 throw new RuntimeException(e);
