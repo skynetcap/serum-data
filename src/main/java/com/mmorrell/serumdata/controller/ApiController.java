@@ -10,6 +10,8 @@ import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 public class ApiController {
 
     private final RpcClient orderBookClient = new RpcClient(RpcUtil.getPublicEndpoint());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
+
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
@@ -142,14 +146,24 @@ public class ApiController {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
+        final List<TradeHistoryEvent> result = new ArrayList<>();
+
+        MarketBuilder builder;
+        Market marketWithEventQueue;
         PublicKey marketKey = new PublicKey(marketId);
 
-        final List<TradeHistoryEvent> result = new ArrayList<>();
-        final Market marketWithEventQueue = new MarketBuilder()
-                .setClient(orderBookClient)
-                .setPublicKey(marketKey)
-                .setRetrieveEventQueue(true)
-                .build();
+        boolean isBuilderCached = marketManager.isEventQueueBuilderCached(marketKey);
+        if (isBuilderCached) {
+            builder = marketManager.getEventQueueBuilderFromCache(marketKey);
+            marketWithEventQueue = builder.reload();
+        } else {
+            builder = new MarketBuilder()
+                    .setClient(orderBookClient)
+                    .setPublicKey(marketKey)
+                    .setRetrieveEventQueue(true);
+            marketWithEventQueue = builder.build();
+            marketManager.addEventQueueBuilderToCache(builder);
+        }
 
         List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
         Map<PublicKey, Optional<PublicKey>> takers = identityManager.lookupAndAddOwnersToCache(
