@@ -128,6 +128,11 @@ public class IdentityManager {
             }
 
             for (int i = 0; i < accountsToSearch.size(); i++) {
+                List<String> accountDataStrings = accountData.get(i).getData();
+                if (accountDataStrings.size() < 1) {
+                    break;
+                }
+
                 final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
                         Base64.getDecoder().decode(
                                 accountData.get(i).getData().get(0).getBytes()

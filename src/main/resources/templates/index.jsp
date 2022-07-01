@@ -399,9 +399,11 @@
                         v.quantity +
                         "</td>" +
                         "<td style=\"text-align: left\">" +
-                        (v.jupiterTx ? "<a href=\"https://explorer.solana.com/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
+                        (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
                         ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.jupiterTx ? (!v.entityName ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.entityName) : "") +
+                        (!v.jupiterTx ?
+                            (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner + "\">" + v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) + "</a>" : v.entityName)
+                            : "") +
                         "</td>" +
                         "</tr>"
                     );
@@ -460,7 +462,9 @@
                         "</td>" +
                         "<td style=\"text-align: left\">" +
                         (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.metadata.name ? v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) : v.metadata.name) +
+                        (!v.metadata.name ?
+                            "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
+                            : v.metadata.name) +
                         "</td>" +
                         "</tr>"
                     );
@@ -477,7 +481,9 @@
                         "</td>" +
                         "<td style=\"text-align: left\">" +
                         (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.metadata.name ? v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) : v.metadata.name) +
+                        (!v.metadata.name ?
+                            "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
+                            : v.metadata.name) +
                         "</td>" +
                         "</tr>"
                     );
@@ -506,9 +512,11 @@
                                 v.quantity +
                                 "</td>" +
                                 "<td style=\"text-align: left\">" +
-                                (v.jupiterTx ? "<a href=\"https://explorer.solana.com/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
+                                (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
                                 ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                                (!v.jupiterTx ? (!v.entityName ? v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) : v.entityName) : "") +
+                                (!v.jupiterTx ?
+                                    (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner + "\">" + v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) + "</a>" : v.entityName)
+                                    : "") +
                                 "</td>" +
                                 "</tr>"
                             );
