@@ -1,7 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
 import ch.openserum.serum.model.*;
-import com.google.common.collect.ImmutableMap;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class ApiController {
@@ -152,9 +152,16 @@ public class ApiController {
                 .build();
 
         List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
+        Map<PublicKey, Optional<PublicKey>> takers = identityManager.lookupAndAddOwnersToCache(
+                tradeEvents.stream()
+                        .map(TradeEvent::getOpenOrders)
+                        .collect(Collectors.toList())
+        );
+
         for (int i = 0; i < tradeEvents.size(); i++) {
             TradeEvent event = tradeEvents.get(i);
-            PublicKey taker = identityManager.lookupAndAddOwnerToCache(event.getOpenOrders()); // TODO: use getMultiple
+            Optional<PublicKey> owner = takers.getOrDefault(event.getOpenOrders(), Optional.empty());
+            PublicKey taker = owner.orElseGet(event::getOpenOrders);
 
             final TradeHistoryEvent tradeHistoryEvent = new TradeHistoryEvent(
                     i,
@@ -175,8 +182,8 @@ public class ApiController {
             tradeHistoryEvent.setBid(event.getEventQueueFlags().isBid());
             tradeHistoryEvent.setMaker(event.getEventQueueFlags().isMaker());
 
-            // Jupiter TX handling, only lookup unknown entities, only top 50 in history
-            int maxRowsToJupiterSearch = 50;
+            // Jupiter TX handling, only lookup unknown entities, only top 12 in history
+            int maxRowsToJupiterSearch = 12;
             if (!isKnownTaker && i < maxRowsToJupiterSearch) {
                 Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
                         marketKey,
