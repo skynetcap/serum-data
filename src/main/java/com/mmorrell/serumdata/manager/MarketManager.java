@@ -32,6 +32,7 @@ public class MarketManager {
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
     // <marketId, Builder>
     private final Map<PublicKey, MarketBuilder> marketBuilderCache = new HashMap<>();
+    private final Map<PublicKey, MarketBuilder> marketEventQueueBuilderCache = new HashMap<>();
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
 
@@ -95,6 +96,18 @@ public class MarketManager {
 
     public MarketBuilder getBuilderFromCache(PublicKey marketId) {
         return marketBuilderCache.get(marketId);
+    }
+
+    public void addEventQueueBuilderToCache(MarketBuilder marketBuilder) {
+        marketEventQueueBuilderCache.put(marketBuilder.getPublicKey(), marketBuilder);
+    }
+
+    public boolean isEventQueueBuilderCached(PublicKey marketId) {
+        return marketEventQueueBuilderCache.containsKey(marketId);
+    }
+
+    public MarketBuilder getEventQueueBuilderFromCache(PublicKey marketId) {
+        return marketEventQueueBuilderCache.get(marketId);
     }
 
     /**
