@@ -85,6 +85,8 @@ proxy_set_header HOST $http_host;
 }
 EOF
 
+sudo ln -s /etc/nginx/sites-available/staging.openserum.io /etc/nginx/sites-enabled/
+
 # blank index page
 sudo mkdir /var/www/staging.openserum.io/
 sudo echo "openserum" > /var/www/staging.openserum.io/index.html
