@@ -63,7 +63,8 @@ public class MarketManager {
             PublicKey.valueOf("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"), // BTC (Sollet)
             PublicKey.valueOf("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"), // SRM
             PublicKey.valueOf("BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4"), // soUSDT
-            PublicKey.valueOf("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx") // ATLAS
+            PublicKey.valueOf("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx"), // ATLAS
+            PublicKey.valueOf("9vMJfxuKxXBoEa7rM12mYLMwTacLMLDJqHozw96WQL8i") // UST (Portal)
     );
 
     public MarketManager() {
