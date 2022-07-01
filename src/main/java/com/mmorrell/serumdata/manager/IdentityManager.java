@@ -167,26 +167,27 @@ public class IdentityManager {
 
         List<List<PublicKey>> accountsToSearchList = Lists.partition(keysToSearch, 100);
 
-        for (int i = 0; i < accountsToSearchList.size(); i++) {
+        for (List<PublicKey> publicKeys : accountsToSearchList) {
             try {
-                List<PublicKey> partitionedList = accountsToSearchList.get(i);
-                // LOGGER.info("Querying: " + partitionedList.stream().map(PublicKey::toBase58).collect(Collectors.joining(",")));
+                Map<PublicKey, Optional<AccountInfo.Value>> accountDataList = client.getApi().getMultipleAccountsMap(publicKeys);
+                for (PublicKey ooaKey : publicKeys) {
+                    Optional<AccountInfo.Value> ooaAccountData = accountDataList.get(ooaKey);
 
-                List<AccountInfo.Value> accountDataList = client.getApi().getMultipleAccounts(partitionedList);
+                    if (ooaAccountData.isPresent()) {
+                        final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
+                                Base64.getDecoder().decode(
+                                        ooaAccountData.get().getData().get(0)
+                                )
+                        );
 
-                for (int j = 0; j < partitionedList.size(); j++) {
-                    PublicKey ooaKey = partitionedList.get(j);
-                    AccountInfo.Value ooaAccountData = accountDataList.get(j);
+                        resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
+                        ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
+                    } else {
+                        // OOA was closed or otherwise deleted (rare).
+                        resultMap.put(ooaKey, Optional.of(ooaKey));
+                        ownerReverseLookupCache.put(ooaKey, ooaKey);
+                    }
 
-                    final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
-                            Base64.getDecoder().decode(
-                                    ooaAccountData.getData().get(0).getBytes()
-                            )
-                    );
-
-                    resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
-                    ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
-                    // LOGGER.info("Fully cached: " + ooaKey.toBase58() + ", " + ooa.getOwner().toBase58());
                 }
             } catch (RpcException e) {
                 throw new RuntimeException(e);
