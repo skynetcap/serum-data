@@ -4,10 +4,13 @@ import ch.openserum.serum.model.OpenOrdersAccount;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.util.RpcUtil;
+import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 public class IdentityManager {
 
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint());
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdentityManager.class);
+
     // <ooa, owner>
     private final Map<PublicKey, PublicKey> ownerReverseLookupCache = new HashMap<>();
     private final Map<PublicKey, String> knownEntities = new HashMap<>();
@@ -71,32 +76,6 @@ public class IdentityManager {
 
     public String getEntityIconByOwner(PublicKey owner) {
         return knownEntitiesIcons.get(owner);
-    }
-
-    public PublicKey lookupAndAddOwnerToCache(PublicKey openOrdersAccount) {
-        try {
-            // first check if we need to look it up...
-            if (ownerReverseLookupCache.get(openOrdersAccount) != null) {
-                return ownerReverseLookupCache.get(openOrdersAccount);
-            }
-
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(openOrdersAccount);
-            if (accountInfo.getValue() == null) {
-                ownerReverseLookupCache.put(openOrdersAccount, openOrdersAccount);
-                return openOrdersAccount;
-            }
-
-            final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
-                    Base64.getDecoder().decode(
-                            accountInfo.getValue().getData().get(0).getBytes()
-                    )
-            );
-
-            ownerReverseLookupCache.put(openOrdersAccount, ooa.getOwner());
-            return ooa.getOwner();
-        } catch (RpcException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void reverseOwnerLookup(List<SerumOrder> bids, List<SerumOrder> asks) {
@@ -161,5 +140,59 @@ public class IdentityManager {
                 unknownOwnerOrders.add(order);
             }
         }
+    }
+
+    // TODO: Refactor/dedupe similar function above.
+    public Map<PublicKey, Optional<PublicKey>> lookupAndAddOwnersToCache(@NotNull List<PublicKey> openOrdersAccounts) {
+        // <ooa, owner>
+        Map<PublicKey, Optional<PublicKey>> resultMap = new HashMap<>();
+
+        // Build map of keys to search
+        for (PublicKey ooa : openOrdersAccounts) {
+            boolean hasOwner = ownerReverseLookupCache.containsKey(ooa);
+            if (hasOwner) {
+                // LOGGER.info("hasOwner (not searching): " + ooa.toBase58() + ", " + ownerReverseLookupCache.get(ooa));
+                resultMap.put(ooa, Optional.of(ownerReverseLookupCache.get(ooa)));
+            } else {
+                LOGGER.info("Going to search: " + ooa.toBase58());
+                resultMap.put(ooa, Optional.empty());
+            }
+        }
+
+        // Craft list to pass to getMultipleAccounts
+        List<PublicKey> keysToSearch = resultMap.entrySet().stream()
+                .filter(entry -> entry.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<List<PublicKey>> accountsToSearchList = Lists.partition(keysToSearch, 100);
+
+        for (int i = 0; i < accountsToSearchList.size(); i++) {
+            try {
+                List<PublicKey> partitionedList = accountsToSearchList.get(i);
+                LOGGER.info("Querying: " + partitionedList.stream().map(PublicKey::toBase58).collect(Collectors.joining(",")));
+
+                List<AccountInfo.Value> accountDataList = client.getApi().getMultipleAccounts(partitionedList);
+
+                for (int j = 0; j < partitionedList.size(); j++) {
+                    PublicKey ooaKey = partitionedList.get(j);
+                    AccountInfo.Value ooaAccountData = accountDataList.get(j);
+
+                    final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
+                            Base64.getDecoder().decode(
+                                    ooaAccountData.getData().get(0).getBytes()
+                            )
+                    );
+
+                    resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
+                    ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
+                    LOGGER.info("Fully cached: " + ooaKey.toBase58() + ", " + ooa.getOwner().toBase58());
+                }
+            } catch (RpcException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return resultMap;
     }
 }
