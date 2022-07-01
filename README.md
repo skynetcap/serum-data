@@ -77,15 +77,18 @@ root /var/www/staging.openserum.io;
 index index.html index.htm index.nginx-debian.html;
 server_name staging.openserum.io;
 location / {
-#try_files $uri $uri/ =404;
-proxy_pass http://127.0.0.1:8080/;
-proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header HOST $http_host;
-}
+                proxy_pass http://127.0.0.1:8080/;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header HOST $http_host;
+                # try_files $uri $uri/ =404;
+        }
 }
 EOF
 
 sudo ln -s /etc/nginx/sites-available/staging.openserum.io /etc/nginx/sites-enabled/
+
+sudo rm /etc/nginx/sites-enabled/default
+sudo rm /etc/nginx/sites-available/default
 
 # blank index page
 sudo mkdir /var/www/staging.openserum.io/
