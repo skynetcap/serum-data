@@ -6,6 +6,7 @@ import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
 import com.mmorrell.serumdata.model.SerumOrder;
+import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
@@ -137,14 +138,13 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
-    public List<Map<String, Object>> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
+    public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
         PublicKey marketKey = new PublicKey(marketId);
 
-        // TODO - make a POJO for trade history results
-        final ArrayList<Map<String, Object>> result = new ArrayList<>();
+        final List<TradeHistoryEvent> result = new ArrayList<>();
         final Market marketWithEventQueue = new MarketBuilder()
                 .setClient(orderBookClient)
                 .setPublicKey(marketKey)
@@ -153,30 +153,27 @@ public class ApiController {
 
         List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
         for (int i = 0; i < tradeEvents.size(); i++) {
-            Map<String, Object> tradeEventEntry = new HashMap<>();
-
             TradeEvent event = tradeEvents.get(i);
-            PublicKey taker = identityManager.lookupAndAddOwnerToCache(event.getOpenOrders());
+            PublicKey taker = identityManager.lookupAndAddOwnerToCache(event.getOpenOrders()); // TODO: use getMultiple
 
-            tradeEventEntry.put("index", i);
-            tradeEventEntry.put("price", event.getFloatPrice());
-            tradeEventEntry.put("quantity", event.getFloatQuantity());
-            tradeEventEntry.put("owner", taker.toBase58()); // TODO: POJO-ify
+            final TradeHistoryEvent tradeHistoryEvent = new TradeHistoryEvent(
+                    i,
+                    event.getFloatPrice(),
+                    event.getFloatQuantity(),
+                    taker
+            );
 
             // Known entity e.g. Wintermute
             boolean isKnownTaker = identityManager.hasReverseLookup(taker);
             if (isKnownTaker) {
-                tradeEventEntry.put("entityName", identityManager.getEntityNameByOwner(taker));
-                tradeEventEntry.put("entityIcon", identityManager.getEntityIconByOwner(taker));
+                tradeHistoryEvent.setEntityName(identityManager.getEntityNameByOwner(taker));
+                tradeHistoryEvent.setEntityIcon(identityManager.getEntityIconByOwner(taker));
             }
 
-            tradeEventEntry.put("flags", ImmutableMap.of(
-                            "fill", event.getEventQueueFlags().isFill(),
-                            "out", event.getEventQueueFlags().isOut(),
-                            "bid", event.getEventQueueFlags().isBid(),
-                            "maker", event.getEventQueueFlags().isMaker()
-                    )
-            );
+            tradeHistoryEvent.setFill(event.getEventQueueFlags().isFill());
+            tradeHistoryEvent.setOut(event.getEventQueueFlags().isOut());
+            tradeHistoryEvent.setBid(event.getEventQueueFlags().isBid());
+            tradeHistoryEvent.setMaker(event.getEventQueueFlags().isMaker());
 
             // Jupiter TX handling, only lookup unknown entities, only top 50 in history
             int maxRowsToJupiterSearch = 50;
@@ -188,10 +185,11 @@ public class ApiController {
                         event.getFloatPrice(),
                         event.getFloatQuantity()
                 );
-                jupiterTx.ifPresent(txId -> tradeEventEntry.put("jupiterTx", txId));
+
+                jupiterTx.ifPresent(tradeHistoryEvent::setJupiterTx);
             }
 
-            result.add(tradeEventEntry);
+            result.add(tradeHistoryEvent);
         }
 
         return result;

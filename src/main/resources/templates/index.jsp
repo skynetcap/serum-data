@@ -391,18 +391,18 @@
             myChart.update();
 
             $.each(data, function (k, v) {
-                if (!v.flags.maker) {
+                if (!v.maker) {
                     $("#tradeHistoryTable tbody").append(
-                        "<tr class='" + (v.flags.bid ? "table-success" : "table-danger") + "'>" +
+                        "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
                         "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
                         "<td style=\"text-align: right\">" +
                         v.quantity +
                         "</td>" +
                         "<td style=\"text-align: left\">" +
-                        (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
+                        (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
                         ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
                         (!v.jupiterTx ?
-                            (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner + "\">" + v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) + "</a>" : v.entityName)
+                            (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
                             : "") +
                         "</td>" +
                         "</tr>"
@@ -504,18 +504,18 @@
                 .done(function (data) {
                     $('#tradeHistoryTable tbody').empty();
                     $.each(data, function (k, v) {
-                        if (!v.flags.maker) {
+                        if (!v.maker) {
                             $("#tradeHistoryTable tbody").append(
-                                "<tr class='" + (v.flags.bid ? "table-success" : "table-danger") + "'>" +
+                                "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
                                 "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
                                 "<td style=\"text-align: right\">" +
                                 v.quantity +
                                 "</td>" +
                                 "<td style=\"text-align: left\">" +
-                                (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.substring(0, 3) + "..)" : "") +
+                                (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
                                 ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
                                 (!v.jupiterTx ?
-                                    (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner + "\">" + v.owner.substring(0, 3) + ".." + v.owner.substring(v.owner.toString().length - 3) + "</a>" : v.entityName)
+                                    (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
                                     : "") +
                                 "</td>" +
                                 "</tr>"
