@@ -55,27 +55,27 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 ### Create update + start/restart script
 ```shell
-sudo cat > /home/staging_start.sh <<EOF
+sudo cat > /home/prod_start.sh <<EOF
 sudo docker pull mmorrell/serum-data
-sudo docker stop staging
+sudo docker stop production
 sudo docker container prune -f
-sudo docker run --name staging -d -p 8080:8080 mmorrell/serum-data:latest
+sudo docker run --name production -d -p 8080:8080 mmorrell/serum-data:latest
 EOF
 
-sudo chmod +x /home/staging_start.sh
+sudo chmod +x /home/prod_start.sh
 ```
 ### Install Nginx (optional)
 ```shell
 # subdomain is staging.openserum.io
 # proxies port 80 to 8080 (spring is running on 8080)
 sudo apt install nginx
-sudo cat > /etc/nginx/sites-available/staging.openserum.io <<EOF
+sudo cat > /etc/nginx/sites-available/openserum.io <<EOF
 server {
 listen 80;
 listen [::]:80;
-root /var/www/staging.openserum.io;
+root /var/www/openserum.io;
 index index.html index.htm index.nginx-debian.html;
-server_name staging.openserum.io;
+server_name openserum.io;
 location / {
                 proxy_pass http://127.0.0.1:8080/;
                 proxy_set_header X-Real-IP $remote_addr;
@@ -85,14 +85,14 @@ location / {
 }
 EOF
 
-sudo ln -s /etc/nginx/sites-available/staging.openserum.io /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/openserum.io /etc/nginx/sites-enabled/
 
 sudo rm /etc/nginx/sites-enabled/default
 sudo rm /etc/nginx/sites-available/default
 
 # blank index page
-sudo mkdir /var/www/staging.openserum.io/
-sudo echo "openserum" > /var/www/staging.openserum.io/index.html
+sudo mkdir /var/www/openserum.io/
+sudo echo "" > /var/www/openserum.io/index.html
 sudo systemctl reload nginx
 ```
 
@@ -106,9 +106,9 @@ sudo ufw enable
 ### Pull latest + Start Openserum server
 ```shell
 # Initiate startup, App will be at: http://IP_ADDRESS/ (or http://IP_ADDRESS:8080/ (if no nginx))
-./home/staging_start.sh
+./home/prod_start.sh
 # Follow logs (optional)
-sudo docker logs -f staging
+sudo docker logs -f production
 ```
 
 ## Contributing
