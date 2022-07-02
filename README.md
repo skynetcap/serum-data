@@ -32,7 +32,7 @@ docker run -p 8080:8080 serum-data
 ```
 
 ## Hosting - Ubuntu 20.04 (Docker, Nginx, UFW)
-Full setup flow for a new Ubuntu server. This example is for the `staging.openserum.io` subdomain, but will work with any A/CNAME DNS record.
+Full setup flow for a new Ubuntu server. This example is for the `openserum.io` domain, but will work with any A/CNAME DNS record.
 
 ### Install Docker
 ```shell
@@ -66,7 +66,7 @@ sudo chmod +x /home/prod_start.sh
 ```
 ### Install Nginx (optional)
 ```shell
-# subdomain is staging.openserum.io
+# subdomain is openserum.io
 # proxies port 80 to 8080 (spring is running on 8080)
 sudo apt install nginx
 sudo cat > /etc/nginx/sites-available/openserum.io <<EOF
