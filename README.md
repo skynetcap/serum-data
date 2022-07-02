@@ -78,9 +78,9 @@ index index.html index.htm index.nginx-debian.html;
 server_name openserum.io;
 location / {
                 proxy_pass http://127.0.0.1:8080/;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header HOST $http_host;
-                # try_files $uri $uri/ =404;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header HOST \$http_host;
+                # try_files \$uri \$uri/ =404;
         }
 }
 EOF
