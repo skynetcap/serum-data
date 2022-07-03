@@ -31,6 +31,18 @@ docker build -t serum-data .
 docker run -p 8080:8080 serum-data
 ```
 
+With custom Solana RPC:
+```dockerfile
+docker build -t serum-data .
+docker run -e OPENSERUM_ENDPOINT="http://localhost:8899/" -p 8080:8080 serum-data
+```
+
+With one of the preset RPC validators (GENESYSGO, PROJECT_SERUM). Default is GENEYSGO:
+```dockerfile
+docker build -t serum-data .
+docker run -e OPENSERUM_ENDPOINT=PROJECT_SERUM -p 8080:8080 serum-data
+```
+
 ## Hosting - Ubuntu 20.04 (Docker, Nginx, UFW)
 Full setup flow for a new Ubuntu server. This example is for the `openserum.io` domain, but will work with any A/CNAME DNS record.
 
