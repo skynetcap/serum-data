@@ -35,6 +35,7 @@ public class MarketManager {
     private final Map<PublicKey, MarketBuilder> marketEventQueueBuilderCache = new HashMap<>();
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
+    private static final Boolean SKIP_CACHE_DELAY = System.getenv("SKIP_CACHE_DELAY") != null && Boolean.parseBoolean(System.getenv("SKIP_CACHE_DELAY"));
 
     // <concat(marketId, ooa, owner), jupiterTx>
     private final Map<String, Optional<String>> jupiterTxMap = new HashMap<>();
@@ -128,17 +129,20 @@ public class MarketManager {
         for (PublicKey quoteMint : quoteMintsToCache) {
             // Create each thread
             final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
-                LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
-                int delay = new Random().nextInt(12000);
+                if (!SKIP_CACHE_DELAY) {
+                    LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
+                    int delay = new Random().nextInt(12000);
 
-                // Random delay to not get rate limited.
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    // Random delay to not get rate limited.
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    LOGGER.info("Random delay complete, requesting: " + quoteMint.toBase58());
                 }
 
-                LOGGER.info("Random delay complete, requesting: " + quoteMint.toBase58());
                 try {
                     programAccounts.addAll(
                             client.getApi().getProgramAccounts(
