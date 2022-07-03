@@ -131,7 +131,7 @@ public class MarketManager {
             final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
                 if (!SKIP_CACHE_DELAY) {
                     LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
-                    int delay = new Random().nextInt(10000);
+                    int delay = new Random().nextInt(12000);
 
                     // Random delay to not get rate limited.
                     try {
@@ -300,5 +300,36 @@ public class MarketManager {
         // LOGGER.info("THREAD START: " + uniqueKey);
 
         return Optional.empty();
+    }
+
+    public float getNotional(Market market) {
+        float price = getQuoteMintPrice(market.getQuoteMint());
+        float totalQuantity = (float)((double)market.getQuoteDepositsTotal() / SerumUtils.getBaseSplTokenMultiplier(market.getQuoteDecimals()));
+        return price * totalQuantity;
+    }
+
+    // TODO: get real price, for now just use for *rough* sorting of the top markets
+    private float getQuoteMintPrice(PublicKey quoteMint) {
+        if (quoteMint.equals(MarketUtil.USDC_MINT) || quoteMint.equals(MarketUtil.USDT_MINT)) {
+            return 1.0f;
+        }
+
+        if (quoteMint.equals(SerumUtils.WRAPPED_SOL_MINT) ||
+                quoteMint.equals(PublicKey.valueOf("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So")) ||
+                quoteMint.equals(PublicKey.valueOf("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"))
+        ) {
+            return 34f;
+        }
+
+        if (quoteMint.equals(PublicKey.valueOf("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"))) {
+            // ray
+            return 0.65f;
+        }
+
+        if (quoteMint.equals(PublicKey.valueOf("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"))) {
+            return 0.76f;
+        }
+
+        return 0;
     }
 }
