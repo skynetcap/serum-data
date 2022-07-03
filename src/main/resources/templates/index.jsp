@@ -18,7 +18,7 @@
     <link href="static/css/select2.min.css" rel="stylesheet"/>
 
     <!-- jquery & chartjs -->
-    <script src="static/js/jquery-3.6.0.min.js"></script>
+    <script async src="static/js/jquery-3.6.0.min.js"></script>
     <script src="static/js/chart.min.js"></script>
 
     <!-- depth -->
@@ -38,9 +38,6 @@
         var initialMarketId = /*[[${marketId}]]*/ '';
         var defaultTokenId = /*[[${defaultTokenId}]]*/ '';
         /*]]>*/
-    </script>
-
-    <script>
 
 
         $(document).ready(function () {
@@ -322,6 +319,6 @@
     setInterval(updateDepthChart, 550);
 
 </script>
-<script src="static/js/darkmode.min.js"></script>
+<script async src="static/js/darkmode.min.js"></script>
 </body>
 </html>

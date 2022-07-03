@@ -131,7 +131,7 @@ public class MarketManager {
             final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
                 if (!SKIP_CACHE_DELAY) {
                     LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
-                    int delay = new Random().nextInt(12000);
+                    int delay = new Random().nextInt(10000);
 
                     // Random delay to not get rate limited.
                     try {
