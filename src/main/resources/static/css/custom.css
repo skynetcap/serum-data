@@ -1,0 +1,89 @@
+.chart-container {
+    height: 400px;
+    width: 100%;
+}
+
+.nav-scroller .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    padding-bottom: 1rem;
+    margin-top: -1px;
+    overflow-x: auto;
+    text-align: center;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* sticky footer */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+img.img-icon {
+    margin: 0 !important;
+    display: inherit !important;
+    height: 18px;
+    width: 18px
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.row {
+    display: flex;
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.column {
+    flex: 50%;
+    padding: 5px;
+}
+
+#container {
+    min-width: 100px;
+    max-width: 650px;
+    height: 175px;
+    margin: 0 auto;
+}
+
+#priceChartTitle {
+    text-overflow: ellipsis;
+    width: 450px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+th {
+    /*background: white !important;*/
+    position: sticky;
+    top: 0; /* Don't forget this, required for the stickiness */
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+}
+
+.orderBook {
+    height: 100%;
+    max-height: 450px;
+    overflow-y: scroll;
+    padding-top: 0 !important;
+}
+
+canvas#myChart {
+    background-color: #2e2e2e;
+}
+
+.select2-search { background-color: #2e2e2e; }
+
+.select2-search input { background-color: #2e2e2e; }
+
+.select2-results { background-color: #2e2e2e; }
+
+.select2-container--default .select2-results__option--selected {
+    background-color: #3f3f3f !important;
+}
+
+html.dark .table>:not(:first-child) {
+    border-top: 0;
+}

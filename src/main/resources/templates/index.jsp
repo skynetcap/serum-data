@@ -7,16 +7,30 @@
     <title>Openserum Market Data</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
+    <!-- DARK MODE -->
+    <meta name="color-scheme" content="dark">
+    <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
+    <link href="static/css/custom.css" rel="stylesheet">
+
+    <!-- end dark mode -->
+    <!-- github/twitter icons -->
+    <link rel="stylesheet" href="static/css/font-awesome.min.css">
+    <link href="static/css/select2.min.css" rel="stylesheet"/>
+
     <!-- jquery & chartjs -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"
-            integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="static/js/jquery-3.6.0.min.js"></script>
+    <script src="static/js/chart.min.js"></script>
 
     <!-- depth -->
     <script src="static/charting.js"></script>
     <script src="static/plugin.js"></script>
+
+    <script src="static/js/select2.min.js"></script>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+
+    <script src="static/js/custom.js"></script>
+
 
     <!-- inlined vars from controller -->
     <script th:inline="javascript">
@@ -26,123 +40,8 @@
         /*]]>*/
     </script>
 
-    <!-- DARK MODE -->
-    <meta name="color-scheme" content="dark">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-nightshade.min.css" rel="stylesheet">
-    <!-- end dark mode -->
-
-    <!-- github/twitter icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-
-    <style>
-        .chart-container {
-            height: 400px;
-            width: 100%;
-        }
-
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* sticky footer */
-        html {
-            position: relative;
-            min-height: 100%;
-        }
-
-        img.img-icon {
-            margin: 0 !important;
-            display: inherit !important;
-            height: 18px;
-            width: 18px
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        .row {
-            display: flex;
-            margin-left: -5px;
-            margin-right: -5px;
-        }
-
-        .column {
-            flex: 50%;
-            padding: 5px;
-        }
-
-        #container {
-            min-width: 100px;
-            max-width: 650px;
-            height: 175px;
-            margin: 0 auto;
-        }
-
-        #priceChartTitle {
-            text-overflow: ellipsis;
-            width: 450px;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        th {
-            /*background: white !important;*/
-            position: sticky;
-            top: 0; /* Don't forget this, required for the stickiness */
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
-        }
-
-        .orderBook {
-            height: 100%;
-            max-height: 450px;
-            overflow-y: scroll;
-            padding-top: 0 !important;
-        }
-
-        canvas#myChart {
-            background-color: #2e2e2e;
-        }
-
-        .select2-search { background-color: #2e2e2e; }
-
-        .select2-search input { background-color: #2e2e2e; }
-
-        .select2-results { background-color: #2e2e2e; }
-
-        .select2-container--default .select2-results__option--selected {
-            background-color: #3f3f3f !important;
-        }
-
-        html.dark .table>:not(:first-child) {
-            border-top: 0;
-        }
-
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-    <style>
-
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <script>
-        function formatToken(token) {
-            // only load top 100 icons
-            if (!token.id || token.element.dataset.rank > 100) {
-                return token.text;
-            }
-            return $(
-                '<span><img src="' + token.element.dataset.icon + '" class="img-icon" /> ' + token.text + '</span>'
-            );
-        };
+
 
         $(document).ready(function () {
             var options = $("#tokenSelect option");                    // Collect options
@@ -171,8 +70,9 @@
 <div class="container">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-            <span class="fs-4" style="color: rgb(225, 225, 225);"><img src="static/serum-srm-logo.png" width="32" height="32"
-                                    style="margin-right: 0.5rem!important;">Openserum Market Data</span>
+            <span class="fs-4" style="color: rgb(225, 225, 225);"><img src="static/serum-srm-logo.png" width="32"
+                                                                       height="32"
+                                                                       style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
 
         <ul class="nav nav-pills">
@@ -299,14 +199,11 @@
         </div>
     </div>
 </main>
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
-        crossorigin="anonymous"></script>
-<script>
+<script th:inline="javascript">
     var activeMarketId, lastLoadedMarketId, lastLoadedChartId;
     var marketCurrencySymbol = '$';
     var totalBids, totalAsks;
+    var bidTotal, askTotal;
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
@@ -332,206 +229,16 @@
         }
     });
 
-    function addData(label, data, update) {
-        myChart.data.labels.push(label);
-        myChart.data.datasets.forEach((dataset) => {
-            dataset.data.push(data);
-        });
-        if (update) {
-            myChart.update();
-        }
-        //myChart.update();
-    }
-
     $('#searchForMarkets').click(function () {
         var baseMint = $('#tokenSelect').val();
         loadMarkets(baseMint);
     });
 
-    function loadMarkets(tokenId) {
-        let apiUrl = "/api/serum/token/" + tokenId;
-        $.get(apiUrl, function (data) {
-            $("#marketList").empty();
-            $.each(data, function (k, v) {
-                $("#marketList").append(
-                    "<li>" +
-                    "<img src=" + v.baseLogo + " class=\"img-icon\" style=\"float: left\"/> " +
-                    "<a href=\"#\" onClick=\"setMarket('" + v.id + "');\">" +
-                    v.baseSymbol + " / " + v.quoteSymbol + " / " + v.id.substring(0, 3) + ".." + v.id.substring(v.id.length - 3) +
-                    " (" + (v.percentage * 100).toFixed(0) + "%)" +
-                    "</a></li>"
-                );
-            })
-        });
-    }
-
-    function setMarket(marketId) {
-        activeMarketId = marketId; // starts order book loop
-
-        // update trade history
-        loadTradeHistory(marketId);
-    }
-
-    function loadTradeHistory(marketId) {
-        let apiUrl = "/api/serum/market/" + marketId + "/tradeHistory";
-        $.get(apiUrl, function (data) {
-            $('#tradeHistoryTable tbody').empty();
-
-            // reset chart
-            myChart.data = {
-                labels: [],
-                datasets: [{
-                    label: 'Price',
-                    data: [],
-                    fill: false,
-                    borderColor: 'rgb(41,98,255)',
-                    tension: 0.1
-                }]
-            };
-            myChart.update();
-
-            $.each(data, function (k, v) {
-                if (!v.maker) {
-                    $("#tradeHistoryTable tbody").append(
-                        "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                        "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                        "<td style=\"text-align: right\">" +
-                        v.quantity +
-                        "</td>" +
-                        "<td style=\"text-align: left\">" +
-                        (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                        ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.jupiterTx ?
-                            (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                            : "") +
-                        "</td>" +
-                        "</tr>"
-                    );
-                }
-                addData(k, v.price, false);
-            })
-
-            myChart.data.datasets.forEach((dataset) => {
-                dataset.data.reverse();
-            });
-            myChart.update();
-
-            lastLoadedChartId = marketId;
-        });
-    }
-
-    function loadMarketDetail() {
-        let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
-        $.get({url: apiUrl, cache: true})
-            .done(function (data) {
-                // only update html if the refresh is a new market
-                if (data.id !== lastLoadedMarketId) {
-                    $("#orderBookHeader").html("Order Book: " +
-                        "<img class=\"baseLogo img-icon\"> " +
-                        "<span id=\"baseName\"></span> / " +
-                        "<img class=\"quoteLogo img-icon\"> " +
-                        "<span id=\"quoteName\"></span> " +
-                        "<span id=\"ownerName\"></span> " +
-                        "<span class=\"livePrice\"></span>"
-                    );
-                    $("#baseName").text(data.baseSymbol);
-                    $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
-                    $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
-                    $("#quoteName").text(data.quoteSymbol);
-                    $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
-                    $(".baseLogo").attr("src", data.baseLogo);
-                    $(".quoteLogo").attr("src", data.quoteLogo);
-                    lastLoadedMarketId = data.id;
-                }
-
-                if (data.quoteSymbol === 'USDC' || data.quoteSymbol === 'USDT') {
-                    marketCurrencySymbol = '$';
-                } else {
-                    marketCurrencySymbol = '';
-                }
-
-
-                // bids
-                $('#bidsTable tbody').empty();
-                $.each(data.bids, function (k, v) {
-                    $("#bidsTable tbody").append(
-                        "<tr>" +
-                        "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                        "<td style=\"text-align: right\">" +
-                        v.quantity +
-                        "</td>" +
-                        "<td style=\"text-align: left\">" +
-                        (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.metadata.name ?
-                            "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
-                            : v.metadata.name) +
-                        "</td>" +
-                        "</tr>"
-                    );
-                })
-
-                // asks
-                $('#asksTable tbody').empty();
-                $.each(data.asks, function (k, v) {
-                    $("#asksTable tbody").append(
-                        "<tr>" +
-                        "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                        "<td style=\"text-align: right\">" +
-                        v.quantity +
-                        "</td>" +
-                        "<td style=\"text-align: left\">" +
-                        (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                        (!v.metadata.name ?
-                            "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
-                            : v.metadata.name) +
-                        "</td>" +
-                        "</tr>"
-                    );
-                })
-            });
-    }
-
-    function updateOrderBookLoop() {
-        if (activeMarketId) {
-            loadMarketDetail();
-        }
-    }
-
-    function updateSales() {
-        if (activeMarketId) {
-            let apiUrl = "/api/serum/market/" + activeMarketId + "/tradeHistory";
-            $.get({url: apiUrl, cache: true})
-                .done(function (data) {
-                    $('#tradeHistoryTable tbody').empty();
-                    $.each(data, function (k, v) {
-                        if (!v.maker) {
-                            $("#tradeHistoryTable tbody").append(
-                                "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                                "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                                "<td style=\"text-align: right\">" +
-                                v.quantity +
-                                "</td>" +
-                                "<td style=\"text-align: left\">" +
-                                (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                                ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                                (!v.jupiterTx ?
-                                    (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                                    : "") +
-                                "</td>" +
-                                "</tr>"
-                            );
-                        }
-                    })
-                });
-        }
-    }
-
     setInterval(updateOrderBookLoop, 1100);
     setInterval(updateSales, 3000);
 
-</script>
-<script th:inline="javascript">
-    var bidTotal, askTotal;
+    // DRAW DEPTH CHART AND SET INTERVAL
+
     var formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -612,107 +319,9 @@
         }]
     });
 
-    function updateDepthChart() {
-        if (activeMarketId) {
-            let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
-            // bids + asks
-            $.get({url: apiUrl, cache: true})
-                .done(function (newData) {
-                    // loop total bids, total each level, total all that
-                    totalBids = newData.bids.reduce(
-                        (previousValue, currentValue) => {
-                            return previousValue + (currentValue[0] * currentValue[2]);
-                        },
-                        0
-                    );
-
-                    var totalBidsString = formatter.format(totalBids);
-                    if (marketCurrencySymbol !== '$') {
-                        // trim $ if not a usdc pair, since formatter assumes money
-                        totalBidsString = totalBidsString.substring(1);
-                    }
-
-                    if (newData.asks.length === 0) {
-                        totalAsks = 0;
-                    } else {
-                        totalAsks = newData.asks[newData.asks.length - 1][1].toFixed(2);
-                    }
-
-                    depthChart.series[0].setData(newData.bids);
-                    depthChart.series[1].setData(newData.asks);
-                    depthChart.xAxis[0].options.plotLines[0].value = newData.midpoint;
-                    depthChart.xAxis[0].setExtremes(newData.midpoint - (newData.midpoint / 3), newData.midpoint + (newData.midpoint / 3));
-                    depthChart.xAxis[0].update();
-
-                    // text for agg totals
-                    bidTotal ? bidTotal.destroy() : null;
-                    bidTotal = depthChart.renderer.text(totalBidsString + " " + $("#quoteName").text(), 50, 133)
-                        .attr({
-                            zIndex: 5
-                        })
-                        .css({
-                            fontSize: '12px',
-                            color: '#00ff08'
-                        })
-                        .add();
-
-                    var totalAsksString = formatter.format(totalAsks).substring(1);
-
-                    askTotal ? askTotal.destroy() : null;
-                    var xAskTotal = $("#container").width() * 0.75;
-                    askTotal = depthChart.renderer.text(totalAsksString + " " + $("#baseName").text(), xAskTotal, 133)
-                        .attr({
-                            zIndex: 5
-                        })
-                        .css({
-                            fontSize: '12px',
-                            color: '#ff0000'
-                        })
-                        .add();
-
-                    depthChart.redraw();
-                    depthChart.hideLoading();
-
-                    // update ticker spans
-                    $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
-
-                    // update price chart with a midpoint tick, if it has changed.
-                    if (parseFloat(myChart.data.datasets[0].data[myChart.data.labels.length - 1]).toFixed(8) !== parseFloat(newData.midpoint).toFixed(8)) {
-                        // only update it if the midpoint changes
-
-                        if (newData.marketId !== lastLoadedChartId) {
-                            return;
-                        }
-
-                        addData(parseInt(myChart.data.labels[myChart.data.labels.length - 1]) + 1, newData.midpoint, true);
-
-                        // if over 1000 data points, start popping from the front
-                        if (myChart.data.labels.length >= 100) {
-                            myChart.data.datasets[0].data.shift();
-                            myChart.data.labels.shift();
-                            myChart.update();
-                        }
-
-                    }
-
-                    // paint midpoint once if no other data exists
-                    if (isNaN(myChart.data.labels[0])) {
-                        myChart.data.labels.pop();
-                        myChart.data.datasets[0].data.pop();
-                        addData(0, newData.midpoint, true);
-                        addData(1, newData.midpoint, true); // 2 entries to draw a straight line
-                    }
-
-                    $(document).attr("title",
-                        ((newData.chartTitle.includes("USDC Price") || newData.chartTitle.includes("USDT Price")) ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
-                    );
-                });
-        }
-    }
-
     setInterval(updateDepthChart, 550);
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/js/darkmode.min.js"></script>
+<script src="static/js/darkmode.min.js"></script>
 </body>
 </html>
