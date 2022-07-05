@@ -29,6 +29,7 @@ public class IndexController {
     private final MarketManager marketManager;
     private final MarketRankManager marketRankManager;
     private final Map<PublicKey, Token> activeTokenMap = new HashMap<>();
+    private List<MarketListing> marketListings = new ArrayList<>();
 
     public IndexController(TokenManager tokenManager,
                            MarketManager marketManager,
@@ -43,6 +44,17 @@ public class IndexController {
                 activeTokenMap.put(tokenMint, token);
             }
         });
+
+        // Cache market list for "/markets" endpoint
+        // todo - periodically update this for fresh notional amounts, new markets, new tokens etc
+        marketListings = marketManager.getMarketCache().stream()
+                .map(market -> new MarketListing(
+                        tokenManager.getMarketNameByMarket(market),
+                        market.getOwnAddress(),
+                        market.getQuoteDepositsTotal(),
+                        marketManager.getNotional(market)
+                ))
+                .collect(Collectors.toList());
     }
 
     @RequestMapping("/")
@@ -58,17 +70,6 @@ public class IndexController {
 
     @RequestMapping("/markets")
     public String markets(Model model) {
-        List<Market> markets = marketManager.getMarketCache();
-        List<MarketListing> marketListings = markets.stream()
-                .map(market -> new MarketListing(
-                        tokenManager.getMarketNameByMarket(market),
-                        market.getOwnAddress(),
-                        market.getQuoteDepositsTotal(),
-                        marketManager.getNotional(market)
-                ))
-                .collect(Collectors.toList());
-
-
         model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
         model.addAttribute("marketListings", marketListings);

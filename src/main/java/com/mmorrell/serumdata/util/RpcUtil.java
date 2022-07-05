@@ -8,6 +8,7 @@ public class RpcUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcUtil.class);
     private static final PublicCluster DEFAULT_CLUSTER = PublicCluster.GENESYSGO;
     private static final String CUSTOM_ENDPOINT = System.getenv("OPENSERUM_ENDPOINT");
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
     private enum PublicCluster {
         GENESYSGO ("https://ssc-dao.genesysgo.net/"),
