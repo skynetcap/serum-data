@@ -318,7 +318,7 @@ public class MarketManager {
                 quoteMint.equals(PublicKey.valueOf("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So")) ||
                 quoteMint.equals(PublicKey.valueOf("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"))
         ) {
-            return 34f;
+            return 35.5f;
         }
 
         if (quoteMint.equals(PublicKey.valueOf("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"))) {
