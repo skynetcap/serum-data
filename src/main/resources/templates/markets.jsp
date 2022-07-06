@@ -1,5 +1,4 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org" class="dark">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -66,19 +65,19 @@
                                     ID
                                 </th>
                                 <th>
-                                    Quote Deposits Total
-                                </th>
-                                <th>
                                     Quote Deposits Notional
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="market : ${marketListings}">
-                                <td><span th:value="${market.name}" th:text="${market.name}"></span></td>
-                                <td><span th:value="${market.id}" th:text="${market.id}"></span></td>
-                                <td><span th:value="${market.quoteDepositsTotal}" th:text="${market.quoteDepositsTotal}"></span></td>
-                                <td><span th:value="${market.quoteNotional}" th:text="${market.quoteNotional}"></span></td>
+                                <td>
+                                    <span th:text="${market.name}"></span>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/' + ${market.id}}" th:text="${market.id}" target="_blank"></a>
+                                </td>
+                                <td><span th:value="${#numbers.formatCurrency(market.quoteNotional)}" th:text="${#numbers.formatCurrency(market.quoteNotional)}"></span></td>
                             </tr>
                             </tbody>
                         </table>
@@ -99,7 +98,7 @@
         $('#marketListings').DataTable({
             paging: false,
             scrollY: 500,
-            order: [[3, 'desc']]
+            order: [[2, 'desc']]
         });
     }
     );

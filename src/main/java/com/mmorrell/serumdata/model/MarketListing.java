@@ -8,12 +8,23 @@ public class MarketListing {
     private PublicKey id;
     private long quoteDepositsTotal;
     private float quoteNotional;
+    private int baseDecimals;
+    private int quoteDecimals;
 
-    public MarketListing(String name, PublicKey id, long quoteDepositsTotal, float quoteNotional) {
+    public MarketListing(
+            String name,
+            PublicKey id,
+            long quoteDepositsTotal,
+            float quoteNotional,
+            int baseDecimals,
+            int quoteDecimals
+    ) {
         this.name = name;
         this.id = id;
         this.quoteDepositsTotal = quoteDepositsTotal;
         this.quoteNotional = quoteNotional;
+        this.baseDecimals = baseDecimals;
+        this.quoteDecimals = quoteDecimals;
     }
 
     public String getName() {
@@ -46,5 +57,21 @@ public class MarketListing {
 
     public void setQuoteNotional(float quoteNotional) {
         this.quoteNotional = quoteNotional;
+    }
+
+    public int getQuoteDecimals() {
+        return quoteDecimals;
+    }
+
+    public void setQuoteDecimals(int quoteDecimals) {
+        this.quoteDecimals = quoteDecimals;
+    }
+
+    public int getBaseDecimals() {
+        return baseDecimals;
+    }
+
+    public void setBaseDecimals(int baseDecimals) {
+        this.baseDecimals = baseDecimals;
     }
 }

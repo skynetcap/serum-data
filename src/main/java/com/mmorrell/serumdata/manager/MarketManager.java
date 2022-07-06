@@ -302,9 +302,9 @@ public class MarketManager {
         return Optional.empty();
     }
 
-    public float getNotional(Market market) {
+    public float getQuoteNotional(Market market, int quoteDecimals) {
         float price = getQuoteMintPrice(market.getQuoteMint());
-        float totalQuantity = (float)((double)market.getQuoteDepositsTotal() / SerumUtils.getQuoteSplTokenMultiplier(market.getQuoteDecimals()));
+        float totalQuantity = (float)((double)market.getQuoteDepositsTotal() / SerumUtils.getQuoteSplTokenMultiplier((byte) quoteDecimals));
         return price * totalQuantity;
     }
 

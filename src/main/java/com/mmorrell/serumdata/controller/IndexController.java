@@ -48,12 +48,31 @@ public class IndexController {
         // Cache market list for "/markets" endpoint
         // todo - periodically update this for fresh notional amounts, new markets, new tokens etc
         marketListings = marketManager.getMarketCache().stream()
-                .map(market -> new MarketListing(
-                        tokenManager.getMarketNameByMarket(market),
-                        market.getOwnAddress(),
-                        market.getQuoteDepositsTotal(),
-                        marketManager.getNotional(market)
-                ))
+                .map(market -> {
+                    // base and quote decimals
+                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
+                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
+
+                    int baseDecimals = 0, quoteDecimals = 0;
+                    if (baseToken.isPresent()) {
+                        baseDecimals = baseToken.get().getDecimals();
+                    }
+
+                    if (quoteToken.isPresent()) {
+                        quoteDecimals = quoteToken.get().getDecimals();
+                    }
+
+                    // both tokens need to be present, or not listing it.
+                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
+                    return new MarketListing(
+                            tokenManager.getMarketNameByMarket(market),
+                            market.getOwnAddress(),
+                            market.getQuoteDepositsTotal(),
+                            marketManager.getQuoteNotional(market, quoteDecimals),
+                            baseDecimals,
+                            quoteDecimals
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -123,11 +142,11 @@ public class IndexController {
             }
 
             // check if it's a token mint.
-            Token token = tokenManager.getTokenByMint(PublicKey.valueOf(sanitized));
-            if (token != null) {
-                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.getPublicKey());
+            Optional<Token> token = tokenManager.getTokenByMint(PublicKey.valueOf(sanitized));
+            if (token.isPresent()) {
+                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.get().getPublicKey());
                 if (optionalMarket.isPresent()) {
-                    model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.getAddress());
+                    model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.get().getAddress());
                     model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, optionalMarket.get().getOwnAddress().toBase58());
                 }
             }

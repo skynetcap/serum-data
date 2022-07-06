@@ -113,7 +113,7 @@ public class MarketRankManager {
         activeMarkets.sort(Comparator.comparingLong(Market::getQuoteFeesAccrued).reversed());
 
         if (activeMarkets.size() > 0) {
-            return Optional.ofNullable(tokenManager.getTokenByMint(activeMarkets.get(0).getBaseMint()));
+            return tokenManager.getTokenByMint(activeMarkets.get(0).getBaseMint());
         } else {
             return Optional.empty();
         }
