@@ -4,6 +4,7 @@ import ch.openserum.serum.model.Market;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.MarketRankManager;
 import com.mmorrell.serumdata.manager.TokenManager;
+import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class IndexController {
@@ -27,6 +29,7 @@ public class IndexController {
     private final MarketManager marketManager;
     private final MarketRankManager marketRankManager;
     private final Map<PublicKey, Token> activeTokenMap = new HashMap<>();
+    private List<MarketListing> marketListings = new ArrayList<>();
 
     public IndexController(TokenManager tokenManager,
                            MarketManager marketManager,
@@ -41,6 +44,36 @@ public class IndexController {
                 activeTokenMap.put(tokenMint, token);
             }
         });
+
+        // Cache market list for "/markets" endpoint
+        // todo - periodically update this for fresh notional amounts, new markets, new tokens etc
+        marketListings = marketManager.getMarketCache().stream()
+                .map(market -> {
+                    // base and quote decimals
+                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
+                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
+
+                    int baseDecimals = 0, quoteDecimals = 0;
+                    if (baseToken.isPresent()) {
+                        baseDecimals = baseToken.get().getDecimals();
+                    }
+
+                    if (quoteToken.isPresent()) {
+                        quoteDecimals = quoteToken.get().getDecimals();
+                    }
+
+                    // both tokens need to be present, or not listing it.
+                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
+                    return new MarketListing(
+                            tokenManager.getMarketNameByMarket(market),
+                            market.getOwnAddress(),
+                            market.getQuoteDepositsTotal(),
+                            marketManager.getQuoteNotional(market, quoteDecimals),
+                            baseDecimals,
+                            quoteDecimals
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @RequestMapping("/")
@@ -52,6 +85,15 @@ public class IndexController {
         model.addAttribute(marketRankManager);
 
         return "index";
+    }
+
+    @RequestMapping("/markets")
+    public String markets(Model model) {
+        model.addAttribute("tokens", activeTokenMap);
+        model.addAttribute(marketRankManager);
+        model.addAttribute("marketListings", marketListings);
+
+        return "markets";
     }
 
     // for now, return index with the market determined.
@@ -100,11 +142,11 @@ public class IndexController {
             }
 
             // check if it's a token mint.
-            Token token = tokenManager.getTokenByMint(PublicKey.valueOf(sanitized));
-            if (token != null) {
-                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.getPublicKey());
+            Optional<Token> token = tokenManager.getTokenByMint(PublicKey.valueOf(sanitized));
+            if (token.isPresent()) {
+                Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(token.get().getPublicKey());
                 if (optionalMarket.isPresent()) {
-                    model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.getAddress());
+                    model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, token.get().getAddress());
                     model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, optionalMarket.get().getOwnAddress().toBase58());
                 }
             }

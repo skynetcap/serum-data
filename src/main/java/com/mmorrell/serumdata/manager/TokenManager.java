@@ -93,8 +93,8 @@ public class TokenManager {
         }
     }
 
-    public Token getTokenByMint(PublicKey tokenMint) {
-        return tokenCache.get(tokenMint);
+    public Optional<Token> getTokenByMint(PublicKey tokenMint) {
+        return Optional.ofNullable(tokenCache.get(tokenMint));
     }
 
     public String getTokenNameByMint(PublicKey tokenMint) {
@@ -142,11 +142,11 @@ public class TokenManager {
     public List<Token> getTokensBySymbol(String tokenSymbol) {
         String symbol = tokenSymbol.toUpperCase();
         if (symbol.equalsIgnoreCase("USDC")) {
-            return List.of(getTokenByMint(MarketUtil.USDC_MINT));
+            return List.of(getTokenByMint(MarketUtil.USDC_MINT).get());
         } else if (symbol.equalsIgnoreCase("USDT")) {
-            return List.of(getTokenByMint(MarketUtil.USDT_MINT));
+            return List.of(getTokenByMint(MarketUtil.USDT_MINT).get());
         }  else if (symbol.equalsIgnoreCase("SOL")) {
-            return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT));
+            return List.of(getTokenByMint(SerumUtils.WRAPPED_SOL_MINT).get());
         } else {
             // return symbol if we have it
             return tokenCache.values().stream()
