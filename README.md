@@ -123,6 +123,13 @@ sudo ufw enable
 sudo docker logs -f production
 ```
 
+### Entire server setup (3 scripts) (Docker, Nginx, Ufw, Blue + Green)
+```shell
+curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/setup.sh | sh
+curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/blue_start.sh | sh
+curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/green_start.sh | sh
+```
+
 ## Contributing
 Open an issue with details, or pull request with changes.
 
