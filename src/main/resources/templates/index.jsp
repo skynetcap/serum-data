@@ -74,7 +74,7 @@
 
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
-            <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link">Market List</a></li>
+            <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link">Markets</a></li>
             <li class="nav-item"><a href="#" aria-current="page" class="nav-link">API</a></li>
             <li class="nav-item"><a href="https://github.com/skynetcap/serum-data" aria-current="page" class="nav-link"
                                     target="_blank"><i class="fa fa-github"></i> GitHub</a></li>

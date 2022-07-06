@@ -10,7 +10,7 @@
     <meta name="color-scheme" content="dark">
     <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
     <link href="static/css/custom.css" rel="stylesheet">
-    <link href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="static/css/jquery.dataTables.min.css" rel="stylesheet">
 
     <!-- end dark mode -->
     <!-- github/twitter icons -->
@@ -37,7 +37,7 @@
 
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Home</a></li>
-            <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link active">Market List</a></li>
+            <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link active">Markets</a></li>
             <li class="nav-item"><a href="#" aria-current="page" class="nav-link">API</a></li>
             <li class="nav-item"><a href="https://github.com/skynetcap/serum-data" aria-current="page" class="nav-link"
                                     target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
@@ -52,7 +52,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h1 class="card-title">Markets</h1>
+                        <h1 class="card-title">Serum Markets</h1>
                         <hr>
                         <p>
                         <table id="marketListings" class="table table-dark table-striped">
@@ -81,10 +81,6 @@
                             </tr>
                             </tbody>
                         </table>
-
-                        <hr>
-                        <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
-                               style="width: 100%">
                     </div>
                 </div>
             </div>
@@ -96,8 +92,8 @@
     /*<![CDATA[*/
     $(document).ready( function () {
         $('#marketListings').DataTable({
-            paging: false,
-            scrollY: 500,
+            paging: true,
+            //scrollY: 500,
             order: [[2, 'desc']]
         });
     }

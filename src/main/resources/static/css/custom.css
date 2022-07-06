@@ -87,3 +87,7 @@ canvas#myChart {
 html.dark .table>:not(:first-child) {
     border-top: 0;
 }
+
+.dataTables_wrapper {
+    color: white !important;
+}
