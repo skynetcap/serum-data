@@ -87,41 +87,12 @@ public class IdentityManager {
         // asks
         ownerReverseLookup(asks, unknownOwnerOrders);
 
-        // get unknowns and set in cache
-        lookupAndAddMultipleOwnersToCache(unknownOwnerOrders);
-    }
-
-    private void lookupAndAddMultipleOwnersToCache(List<SerumOrder> unknownOwnerOrders) {
-        // craft getMultipleAccounts call
-        List<PublicKey> accountsToSearch = unknownOwnerOrders.stream()
+        List<PublicKey> unknownAccounts = unknownOwnerOrders.stream()
                 .map(SerumOrder::getOwner)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
-        try {
-            List<AccountInfo.Value> accountData = new ArrayList<>();
-            List<List<PublicKey>> accountsToSearchList = Lists.partition(accountsToSearch, 100);
-
-            for (int i = 0; i < accountsToSearchList.size(); i++) {
-                accountData.addAll(client.getApi().getMultipleAccounts(accountsToSearchList.get(i)));
-            }
-
-            for (int i = 0; i < accountsToSearch.size(); i++) {
-                List<String> accountDataStrings = accountData.get(i).getData();
-                if (accountDataStrings.size() < 1) {
-                    break;
-                }
-
-                final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
-                        Base64.getDecoder().decode(
-                                accountData.get(i).getData().get(0).getBytes()
-                        )
-                );
-                ownerReverseLookupCache.put(accountsToSearch.get(i), ooa.getOwner());
-            }
-        } catch (RpcException e) {
-            throw new RuntimeException(e);
-        }
+        lookupAndAddOwnersToCache(unknownAccounts);
     }
 
     public void ownerReverseLookup(List<SerumOrder> orders, List<SerumOrder> unknownOwnerOrders) {
@@ -142,7 +113,11 @@ public class IdentityManager {
         }
     }
 
-    // TODO: Refactor/dedupe similar function above.
+    /**
+     * Retrieves owners and updates cache. Returns the new cache, if needed.
+     * @param openOrdersAccounts ooa pubkeys to lookup
+     * @return map <ooa, optional<owner>>
+     */
     public Map<PublicKey, Optional<PublicKey>> lookupAndAddOwnersToCache(@NotNull List<PublicKey> openOrdersAccounts) {
         // <ooa, owner>
         Map<PublicKey, Optional<PublicKey>> resultMap = new HashMap<>();
