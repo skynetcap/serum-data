@@ -2,12 +2,14 @@ package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class MarketRankManager {
@@ -23,10 +25,45 @@ public class MarketRankManager {
 
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
+    private final List<MarketListing> marketListings;
 
     public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
         this.marketManager = marketManager;
         this.tokenManager = tokenManager;
+
+        marketListings = marketManager.getMarketCache().stream()
+                .map(market -> {
+                    // base and quote decimals
+                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
+                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
+
+                    int baseDecimals = 0, quoteDecimals = 0;
+                    if (baseToken.isPresent()) {
+                        baseDecimals = baseToken.get().getDecimals();
+                    }
+
+                    if (quoteToken.isPresent()) {
+                        quoteDecimals = quoteToken.get().getDecimals();
+                    }
+
+                    PublicKey baseMint = baseToken.isPresent() ?
+                            baseToken.get().getPublicKey() :
+                            MarketUtil.USDC_MINT;
+
+                    // both tokens need to be present, or not listing it.
+                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
+                    return new MarketListing(
+                            tokenManager.getMarketNameByMarket(market),
+                            market.getOwnAddress(),
+                            market.getQuoteDepositsTotal(),
+                            marketManager.getQuoteNotional(market, quoteDecimals),
+                            baseDecimals,
+                            quoteDecimals,
+                            baseMint
+                    );
+                })
+                .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -35,19 +72,13 @@ public class MarketRankManager {
      * @return serum market rank for the given token
      */
     public int getMarketRankOfToken(PublicKey tokenMint) {
-        Map<PublicKey, Integer> marketCounts = new HashMap<>();
-
-        marketManager.getMarketMapCache().forEach((token, markets) -> marketCounts.put(token, markets.size()));
-
-        List<Map.Entry<PublicKey, Integer>> list = new ArrayList<>(marketCounts.entrySet());
-        list.sort(Map.Entry.comparingByValue((o1, o2) -> o2 - o1));
-
-        Map<PublicKey, Integer> marketRanks = new HashMap<>();
-        for (int i = 0; i < list.size(); i++) {
-            marketRanks.put(list.get(i).getKey(), i + 1);
+        for (int i = 0; i < marketListings.size(); i++) {
+            if (marketListings.get(i).getBaseMint().equals(tokenMint)) {
+                return i;
+            }
         }
 
-        return marketRanks.getOrDefault(tokenMint, RANK_PLACEHOLDER);
+        return RANK_PLACEHOLDER;
     }
 
     public Optional<Market> getMostActiveMarket(PublicKey baseMint) {
@@ -117,5 +148,9 @@ public class MarketRankManager {
         } else {
             return Optional.empty();
         }
+    }
+
+    public List<MarketListing> getMarketListings() {
+        return marketListings;
     }
 }

@@ -10,6 +10,7 @@ public class MarketListing {
     private float quoteNotional;
     private int baseDecimals;
     private int quoteDecimals;
+    private PublicKey baseMint;
 
     public MarketListing(
             String name,
@@ -17,7 +18,8 @@ public class MarketListing {
             long quoteDepositsTotal,
             float quoteNotional,
             int baseDecimals,
-            int quoteDecimals
+            int quoteDecimals,
+            PublicKey baseMint
     ) {
         this.name = name;
         this.id = id;
@@ -25,6 +27,7 @@ public class MarketListing {
         this.quoteNotional = quoteNotional;
         this.baseDecimals = baseDecimals;
         this.quoteDecimals = quoteDecimals;
+        this.baseMint = baseMint;
     }
 
     public String getName() {
@@ -73,5 +76,13 @@ public class MarketListing {
 
     public void setBaseDecimals(int baseDecimals) {
         this.baseDecimals = baseDecimals;
+    }
+
+    public PublicKey getBaseMint() {
+        return baseMint;
+    }
+
+    public void setBaseMint(PublicKey baseMint) {
+        this.baseMint = baseMint;
     }
 }

@@ -29,7 +29,6 @@ public class IndexController {
     private final MarketManager marketManager;
     private final MarketRankManager marketRankManager;
     private final Map<PublicKey, Token> activeTokenMap = new HashMap<>();
-    private List<MarketListing> marketListings = new ArrayList<>();
 
     public IndexController(TokenManager tokenManager,
                            MarketManager marketManager,
@@ -44,36 +43,6 @@ public class IndexController {
                 activeTokenMap.put(tokenMint, token);
             }
         });
-
-        // Cache market list for "/markets" endpoint
-        // todo - periodically update this for fresh notional amounts, new markets, new tokens etc
-        marketListings = marketManager.getMarketCache().stream()
-                .map(market -> {
-                    // base and quote decimals
-                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
-                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
-
-                    int baseDecimals = 0, quoteDecimals = 0;
-                    if (baseToken.isPresent()) {
-                        baseDecimals = baseToken.get().getDecimals();
-                    }
-
-                    if (quoteToken.isPresent()) {
-                        quoteDecimals = quoteToken.get().getDecimals();
-                    }
-
-                    // both tokens need to be present, or not listing it.
-                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
-                    return new MarketListing(
-                            tokenManager.getMarketNameByMarket(market),
-                            market.getOwnAddress(),
-                            market.getQuoteDepositsTotal(),
-                            marketManager.getQuoteNotional(market, quoteDecimals),
-                            baseDecimals,
-                            quoteDecimals
-                    );
-                })
-                .collect(Collectors.toList());
     }
 
     @RequestMapping("/")
@@ -91,7 +60,7 @@ public class IndexController {
     public String markets(Model model) {
         model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
-        model.addAttribute("marketListings", marketListings);
+        model.addAttribute("marketListings", marketRankManager.getMarketListings());
 
         return "markets";
     }

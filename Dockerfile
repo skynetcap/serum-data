@@ -1,7 +1,10 @@
 #
 # Build stage
 #
-FROM maven:3.6.0-jdk-11-slim AS build
+FROM maven:3.8.6-eclipse-temurin-17 AS build
+
+RUN apt-get update \
+    && apt-get install -y unzip
 
 # solanaj (dependency, not in a public registry)
 ADD https://github.com/skynetcap/solanaj/archive/refs/heads/main.zip /home/solanaj/solanaj.zip
@@ -22,7 +25,7 @@ RUN mvn -f /home/app/pom.xml clean package -DskipTests
 #
 # Package stage
 #
-FROM openjdk:11-jre-slim
+FROM openjdk:17.0.2-slim
 COPY --from=build /home/app/target/serumdata-0.0.1-SNAPSHOT.jar /usr/local/lib/serumdata.jar
 ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,address=*:8000,server=y,suspend=n
 ENV OPENSERUM_ENDPOINT=GENESYSGO
