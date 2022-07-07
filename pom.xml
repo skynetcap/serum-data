@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mmorrell</groupId>
-	<artifactId>serumdata</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>serumdata</name>
-	<description>Serum data interface</description>
+	<artifactId>serum-data</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<name>serum-data</name>
+	<description>Openserum Market Data</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -86,5 +86,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
