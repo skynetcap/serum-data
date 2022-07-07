@@ -53,3 +53,4 @@ sudo systemctl reload nginx
 sudo ufw allow 80
 sudo ufw allow 22
 sudo echo "y" | sudo ufw enable
+

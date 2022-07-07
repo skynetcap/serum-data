@@ -115,14 +115,6 @@ sudo ufw allow 22
 sudo ufw enable
 ```
 
-### Pull latest + Start Openserum server
-```shell
-# Initiate startup, App will be at: http://IP_ADDRESS/ (or http://IP_ADDRESS:8080/ (if no nginx))
-./home/prod_start.sh
-# Follow logs (optional)
-sudo docker logs -f production
-```
-
 ### Entire server setup (3 scripts) (Docker, Nginx, Ufw, Blue + Green)
 ```shell
 curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/setup.sh | sh
