@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class MarketManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
-    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 40;
+    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
     // <tokenMint, List<Market>>
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
     // <marketId, Builder>
@@ -141,11 +141,10 @@ public class MarketManager {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
-                    LOGGER.info("Requesting: " + quoteMint.toBase58());
                 }
 
                 try {
+                    LOGGER.info("Requesting: " + quoteMint.toBase58());
                     programAccounts.addAll(
                             client.getApi().getProgramAccounts(
                                     SerumUtils.SERUM_PROGRAM_ID_V3,
@@ -160,7 +159,24 @@ public class MarketManager {
                     );
                     LOGGER.info("Cached: " + quoteMint.toBase58());
                 } catch (RpcException e) {
-                    throw new RuntimeException(e);
+                    LOGGER.info("Requesting: " + quoteMint.toBase58());
+                    try {
+                        programAccounts.addAll(
+                                client.getApi().getProgramAccounts(
+                                        SerumUtils.SERUM_PROGRAM_ID_V3,
+                                        List.of(
+                                                new Memcmp(
+                                                        SerumUtils.QUOTE_MINT_OFFSET,
+                                                        quoteMint.toBase58()
+                                                )
+                                        ),
+                                        SerumUtils.MARKET_ACCOUNT_SIZE
+                                )
+                        );
+                    } catch (RpcException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    LOGGER.info("Cached: " + quoteMint.toBase58());
                 }
                 return null;
             });
