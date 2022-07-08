@@ -322,30 +322,54 @@ public class MarketManager {
 
     public float getQuoteNotional(Market market, int quoteDecimals) {
         float price = getQuoteMintPrice(market.getQuoteMint());
-        float totalQuantity = (float)((double)market.getQuoteDepositsTotal() / SerumUtils.getQuoteSplTokenMultiplier((byte) quoteDecimals));
+        float totalQuantity = (float) ((double) market.getQuoteDepositsTotal() / SerumUtils.getQuoteSplTokenMultiplier((byte) quoteDecimals));
         return price * totalQuantity;
     }
 
     // TODO: get real price, for now just use for *rough* sorting of the top markets
     private float getQuoteMintPrice(PublicKey quoteMint) {
-        if (quoteMint.equals(MarketUtil.USDC_MINT) || quoteMint.equals(MarketUtil.USDT_MINT)) {
-            return 1.0f;
+        // USDC, USDT, USDCet, UXD, soUSDT
+        if (quoteMint.equals(MarketUtil.USDC_MINT) ||
+                quoteMint.equals(MarketUtil.USDT_MINT) ||
+                quoteMint.equals(PublicKey.valueOf("A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM")) ||
+                quoteMint.equals(PublicKey.valueOf("7kbnvuGBxxj8AG9qp8Scn56muWGaRaFqxg1FsRp3PaFT")) ||
+                quoteMint.equals(PublicKey.valueOf("BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4"))
+        ) {
+            return 1f;
         }
 
+        // SOL, mSOL, stSOL
         if (quoteMint.equals(SerumUtils.WRAPPED_SOL_MINT) ||
                 quoteMint.equals(PublicKey.valueOf("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So")) ||
                 quoteMint.equals(PublicKey.valueOf("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"))
         ) {
-            return 35.5f;
+            return 39f;
         }
 
+        // RAY
         if (quoteMint.equals(PublicKey.valueOf("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"))) {
-            // ray
-            return 0.65f;
+            return 0.74f;
         }
 
+        // SRM
         if (quoteMint.equals(PublicKey.valueOf("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"))) {
-            return 0.76f;
+            return 0.88f;
+        }
+
+        // ETH (Portal), soETH
+        if (quoteMint.equals(PublicKey.valueOf("7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs")) ||
+                quoteMint.equals(PublicKey.valueOf("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"))) {
+            return 1250f;
+        }
+
+        // BTC
+        if (quoteMint.equals(PublicKey.valueOf("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"))) {
+            return 22000f;
+        }
+
+        // ATLAS
+        if (quoteMint.equals(PublicKey.valueOf("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx"))) {
+            return 0.00689177f;
         }
 
         return 0;
