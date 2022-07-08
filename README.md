@@ -1,9 +1,6 @@
 # serum-data
 A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
 
-Live deployments:
-- [openserum.io](https://openserum.io/), [alpha.openserum.io](https://alpha.openserum.io/)
-
 ![serum-data](https://i.ibb.co/CJXrn4g/image.png)
 
 ## Building
