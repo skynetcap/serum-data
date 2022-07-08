@@ -15,12 +15,14 @@ import org.p2p.solanaj.rpc.types.SignatureInformation;
 import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -114,6 +116,7 @@ public class MarketManager {
     /**
      * Update marketCache with the latest markets
      */
+    @Scheduled(initialDelay = 10L, fixedRate = 10L, timeUnit = TimeUnit.MINUTES)
     public void updateMarkets() {
         LOGGER.info(
                 String.format(
@@ -130,7 +133,6 @@ public class MarketManager {
             // Create each thread
             final CompletableFuture<Void> marketCacheThread = CompletableFuture.supplyAsync(() -> {
                 if (!SKIP_CACHE_DELAY) {
-                    LOGGER.info("Caching (w/ random delay): " + quoteMint.toBase58());
                     int delay = new Random().nextInt(12000);
 
                     // Random delay to not get rate limited.
@@ -140,7 +142,7 @@ public class MarketManager {
                         throw new RuntimeException(e);
                     }
 
-                    LOGGER.info("Random delay complete, requesting: " + quoteMint.toBase58());
+                    LOGGER.info("Requesting: " + quoteMint.toBase58());
                 }
 
                 try {
