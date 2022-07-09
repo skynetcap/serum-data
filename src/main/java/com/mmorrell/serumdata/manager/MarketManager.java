@@ -116,7 +116,7 @@ public class MarketManager {
     /**
      * Update marketCache with the latest markets
      */
-    @Scheduled(initialDelay = 10L, fixedRate = 10L, timeUnit = TimeUnit.MINUTES)
+    // @Scheduled(initialDelay = 10L, fixedRate = 10L, timeUnit = TimeUnit.MINUTES)
     public void updateMarkets() {
         LOGGER.info(
                 String.format(
