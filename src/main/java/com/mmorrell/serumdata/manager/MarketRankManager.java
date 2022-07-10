@@ -2,19 +2,28 @@ package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
+import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
 import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.rpc.RpcClient;
+import org.p2p.solanaj.rpc.RpcException;
+import org.p2p.solanaj.rpc.types.AccountInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
 public class MarketRankManager {
 
     private static final int RANK_PLACEHOLDER = 9999999;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarketRankManager.class);
 
     // Top tokens list, for quicker resolution from symbol.
     private static final Map<String, Token> TOP_TOKENS = Map.of(
@@ -26,10 +35,12 @@ public class MarketRankManager {
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
     private final List<MarketListing> marketListings;
+    private final RpcClient rpcClient;
 
-    public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
+    public MarketRankManager(MarketManager marketManager, TokenManager tokenManager, RpcClient rpcClient) {
         this.marketManager = marketManager;
         this.tokenManager = tokenManager;
+        this.rpcClient = rpcClient;
 
         marketListings = marketManager.getMarketCache().stream()
                 .map(market -> {
@@ -67,7 +78,48 @@ public class MarketRankManager {
     }
 
     /**
-     * Returns rank of tokenMint, the highest rank is 1, based on # of Serum markets
+     * Update agg. quote notional variables in the List of MarketListings.
+     * Uses batched getMultipleAccounts against all known Market pubkeys.
+     */
+    @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)
+    public void updateMarketListingNotional() throws RpcException {
+        List<PublicKey> marketIds = marketListings.stream()
+                .map(MarketListing::getId)
+                .toList();
+
+        List<List<PublicKey>> marketIdsPartitioned = Lists.partition(marketIds, 100);
+        Map<PublicKey, Optional<AccountInfo.Value>> accountDataMap = new HashMap<>();
+
+        for (List<PublicKey> publicKeys : marketIdsPartitioned) {
+            Map<PublicKey, Optional<AccountInfo.Value>> accountInfos = rpcClient.getApi().getMultipleAccountsMap(publicKeys);
+            accountDataMap.putAll(accountInfos);
+        }
+
+        marketListings.forEach(marketListing -> {
+            Optional<AccountInfo.Value> value = accountDataMap.get(marketListing.getId());
+            value.ifPresent(accountData -> {
+                Market market = Market.readMarket(
+                        Base64.getDecoder().decode(
+                                value.get().getData().get(0)
+                        )
+                );
+
+                // Update quote notional
+                marketListing.setQuoteNotional(
+                        marketManager.getQuoteNotional(
+                                market,
+                                marketListing.getQuoteDecimals()
+                        )
+                );
+            });
+        });
+
+        LOGGER.info("Market listings updated.");
+    }
+
+    /**
+     * Returns rank of tokenMint, the highest rank is 1, based on # of Serum markets`
+     *
      * @param tokenMint mint to rank based on # of serum markets
      * @return serum market rank for the given token
      */
@@ -125,6 +177,7 @@ public class MarketRankManager {
 
     /**
      * Returns lightweight token (address only) if given symbol has an active serum market.
+     *
      * @param symbol e.g. SOL or USDC or RAY
      * @return most active token for given symbol
      */

@@ -1,5 +1,7 @@
 package com.mmorrell.serumdata.config;
 
+import com.mmorrell.serumdata.util.RpcUtil;
+import org.p2p.solanaj.rpc.RpcClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -45,5 +47,13 @@ public class WebConfig implements WebMvcConfigurer {
         threadPoolTaskScheduler.setPoolSize(24);
         threadPoolTaskScheduler.setThreadNamePrefix("SerumThread");
         return threadPoolTaskScheduler;
+    }
+
+    /**
+     * Used for updating market listings every 5 minutes.
+     */
+    @Bean
+    public RpcClient backgroundRpcClient() {
+        return new RpcClient(RpcUtil.getPublicEndpoint());
     }
 }

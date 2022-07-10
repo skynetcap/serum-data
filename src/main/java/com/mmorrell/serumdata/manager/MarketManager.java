@@ -15,14 +15,10 @@ import org.p2p.solanaj.rpc.types.SignatureInformation;
 import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +27,7 @@ public class MarketManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
     // <tokenMint, List<Market>>
-    private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
+    private final Map<PublicKey, List<Market>> marketMapCache = new ConcurrentHashMap<>();
     // <marketId, Builder>
     private final Map<PublicKey, MarketBuilder> marketBuilderCache = new HashMap<>();
     private final Map<PublicKey, MarketBuilder> marketEventQueueBuilderCache = new HashMap<>();
@@ -75,10 +71,6 @@ public class MarketManager {
         updateMarkets();
     }
 
-    public Map<PublicKey, List<Market>> getMarketMapCache() {
-        return marketMapCache;
-    }
-
     public List<Market> getMarketCache() {
         return marketMapCache.values().stream()
                 .flatMap(List::stream)
@@ -116,7 +108,6 @@ public class MarketManager {
     /**
      * Update marketCache with the latest markets
      */
-    // @Scheduled(initialDelay = 10L, fixedRate = 10L, timeUnit = TimeUnit.MINUTES)
     public void updateMarkets() {
         LOGGER.info(
                 String.format(
