@@ -27,7 +27,7 @@ public class MarketManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
     // <tokenMint, List<Market>>
-    private final Map<PublicKey, List<Market>> marketMapCache = new ConcurrentHashMap<>();
+    private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
     // <marketId, Builder>
     private final Map<PublicKey, MarketBuilder> marketBuilderCache = new HashMap<>();
     private final Map<PublicKey, MarketBuilder> marketEventQueueBuilderCache = new HashMap<>();

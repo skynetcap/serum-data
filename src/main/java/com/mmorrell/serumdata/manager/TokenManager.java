@@ -58,14 +58,15 @@ public class TokenManager {
         Iterator<JsonNode> elements = tokensNode.elements();
         while (elements.hasNext()) {
             JsonNode tokenNode = elements.next();
-            Token token = new Token(
-                    tokenNode.get("name").textValue(),
-                    tokenNode.get("address").textValue(),
-                    tokenNode.get("symbol").textValue(),
-                    tokenNode.get("logoURI").textValue(),
-                    tokenNode.get("chainId").intValue(),
-                    tokenNode.get("decimals").intValue()
-            );
+            Token token = Token.builder()
+                    .name(tokenNode.get("name").textValue())
+                    .publicKey(PublicKey.valueOf(tokenNode.get("address").textValue()))
+                    .address(tokenNode.get("address").textValue())
+                    .symbol(tokenNode.get("symbol").textValue())
+                    .logoURI(tokenNode.get("logoURI").textValue())
+                    .chainId(tokenNode.get("chainId").intValue())
+                    .decimals(tokenNode.get("decimals").intValue())
+                    .build();
 
             // update cache, only mainnet tokens
             if (token.getChainId() == CHAIN_ID_MAINNET) {

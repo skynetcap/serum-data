@@ -27,9 +27,18 @@ public class MarketRankManager {
 
     // Top tokens list, for quicker resolution from symbol.
     private static final Map<String, Token> TOP_TOKENS = Map.of(
-            "SOL", new Token(SerumUtils.WRAPPED_SOL_MINT),
-            "USDC", new Token(MarketUtil.USDC_MINT),
-            "USDT", new Token(MarketUtil.USDT_MINT)
+            "SOL", Token.builder()
+                    .publicKey(SerumUtils.WRAPPED_SOL_MINT)
+                    .address(SerumUtils.WRAPPED_SOL_MINT.toBase58())
+                    .build(),
+            "USDC", Token.builder()
+                    .publicKey(MarketUtil.USDC_MINT)
+                    .address(MarketUtil.USDC_MINT.toBase58())
+                    .build(),
+            "USDT", Token.builder()
+                    .publicKey(MarketUtil.USDT_MINT)
+                    .address(MarketUtil.USDT_MINT.toBase58())
+                    .build()
     );
 
     private final MarketManager marketManager;
