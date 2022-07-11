@@ -177,12 +177,12 @@ public class ApiController {
             Optional<PublicKey> owner = takers.getOrDefault(event.getOpenOrders(), Optional.empty());
             PublicKey taker = owner.orElseGet(event::getOpenOrders);
 
-            final TradeHistoryEvent tradeHistoryEvent = new TradeHistoryEvent(
-                    i,
-                    event.getFloatPrice(),
-                    event.getFloatQuantity(),
-                    taker
-            );
+            final TradeHistoryEvent tradeHistoryEvent = TradeHistoryEvent.builder()
+                    .index(i)
+                    .price(event.getFloatPrice())
+                    .quantity(event.getFloatQuantity())
+                    .owner(taker)
+                    .build();
 
             // Known entity e.g. Wintermute
             boolean isKnownTaker = identityManager.hasReverseLookup(taker);
