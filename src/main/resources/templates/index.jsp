@@ -359,12 +359,19 @@
                 order: [[2, 'desc']],
                 columnDefs: [
                     {
-                        targets: [0, 1],
-                        className: 'dt-right'
+                        targets: [0],
+                        className: 'dt-right',
+                        width: '50%'
+                    },
+                    {
+                        targets: [1],
+                        className: 'dt-right',
+                        width: '25%'
                     },
                     {
                         targets: [2],
-                        className: 'table-success dt-right'
+                        className: 'table-success dt-right',
+                        width: '25%'
                     }
                 ]
             });
@@ -403,11 +410,18 @@
                 columnDefs: [
                     {
                         targets: [0],
-                        className: 'dt-left table-danger'
+                        className: 'dt-left table-danger',
+                        width: '25%'
                     },
                     {
-                        targets: [1, 2],
-                        className: 'dt-left'
+                        targets: [1],
+                        className: 'dt-left',
+                        width: '25%'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-left',
+                        width: '50%'
                     }
                 ]
             });

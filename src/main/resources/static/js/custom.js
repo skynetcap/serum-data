@@ -224,6 +224,10 @@ function updateDepthChart() {
                         return;
                     }
 
+                    if (totalBids === 0) {
+                        return;
+                    }
+
                     addData(parseInt(myChart.data.labels[myChart.data.labels.length - 1]) + 1, newData.midpoint, true);
 
                     // if over 1000 data points, start popping from the front
