@@ -148,13 +148,13 @@
                     <div id="container"></div>
                     <div class="row">
                         <div class="column orderBook">
-                            <table id="bidsTable" class="table table-striped table-hover table-bordered"
+                            <table id="bidsTable" class="table table-striped table-hover cell-border"
                                    style="width: 100%">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Quantity</th>
                                     <th scope="col">Owner</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Price</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -162,7 +162,7 @@
                             </table>
                         </div>
                         <div class="column orderBook">
-                            <table id="asksTable" class="table table-striped table-hover table-bordered"
+                            <table id="asksTable" class="table table-striped table-hover cell-border"
                                    style="width: 100%">
                                 <thead>
                                 <tr>
@@ -333,10 +333,8 @@
                     dataSrc: ''
                 },
                 columns: [
-                    {data: 'price'},
-                    {data: 'quantity'},
                     {
-                        data: null,
+                        data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
                                 return row.metadata.name;
@@ -344,17 +342,24 @@
                                 return row.owner.publicKey;
                             }
                         }
+                    },
+                    {data: 'quantity'},
+                    {
+                        data: 'price',
+                        render: function ( data, type, row ) {
+                            return marketCurrencySymbol + data;
+                        }
                     }
                 ],
-                order: [[0, 'desc']],
+                order: [[2, 'desc']],
                 columnDefs: [
                     {
                         targets: [0, 1],
-                        className: 'dt-body-right'
+                        className: 'dt-right'
                     },
                     {
                         targets: [2],
-                        className: 'dt-body-left'
+                        className: 'table-success dt-right'
                     }
                 ]
             });
@@ -366,10 +371,15 @@
                     dataSrc: ''
                 },
                 columns: [
-                    {data: 'price'},
+                    {
+                        data: 'price',
+                        render: function ( data, type, row ) {
+                            return marketCurrencySymbol + data;
+                        }
+                    },
                     {data: 'quantity'},
                     {
-                        data: null,
+                        data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
                                 return row.metadata.name;
@@ -382,12 +392,12 @@
                 order: [[0, 'asc']],
                 columnDefs: [
                     {
-                        targets: [0, 1],
-                        className: 'dt-body-right'
+                        targets: [0],
+                        className: 'dt-left table-danger'
                     },
                     {
-                        targets: [2],
-                        className: 'dt-body-left'
+                        targets: [1, 2],
+                        className: 'dt-left'
                     }
                 ]
             });
