@@ -2,7 +2,11 @@ package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.MarketBuilder;
+import ch.openserum.serum.model.OrderBook;
 import ch.openserum.serum.model.SerumUtils;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
@@ -26,6 +30,10 @@ public class MarketManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
+
+    // Managers
+    private final TokenManager tokenManager;
+
     // <tokenMint, List<Market>>
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
     // <marketId, Builder>
@@ -34,6 +42,58 @@ public class MarketManager {
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
     private static final Boolean SKIP_CACHE_DELAY = System.getenv("SKIP_CACHE_DELAY") != null && Boolean.parseBoolean(System.getenv("SKIP_CACHE_DELAY"));
+
+    private final Map<PublicKey, Market> marketCache = new HashMap<>();
+
+    // Caching for individual bid and asks orderbooks.
+    final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public OrderBook load(PublicKey key) throws RpcException {
+                            Market cachedMarket = marketCache.get(key);
+                            OrderBook orderBook = OrderBook.readOrderBook(
+                                    Base64.getDecoder().decode(
+                                            client.getApi()
+                                                    .getAccountInfo(cachedMarket.getBids())
+                                                    .getValue()
+                                                    .getData()
+                                                    .get(0)
+                                    )
+                            );
+                            orderBook.setBaseDecimals(cachedMarket.getBaseDecimals());
+                            orderBook.setQuoteDecimals(cachedMarket.getQuoteDecimals());
+                            orderBook.setBaseLotSize(cachedMarket.getBaseLotSize());
+                            orderBook.setQuoteLotSize(cachedMarket.getQuoteLotSize());
+                            return orderBook;
+                        }
+                    });
+
+    // Caching for individual bid and asks orderbooks.
+    final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public OrderBook load(PublicKey key) throws RpcException {
+                            Market cachedMarket = marketCache.get(key);
+                            OrderBook orderBook = OrderBook.readOrderBook(
+                                    Base64.getDecoder().decode(
+                                            client.getApi()
+                                                    .getAccountInfo(cachedMarket.getAsks())
+                                                    .getValue()
+                                                    .getData()
+                                                    .get(0)
+                                    )
+                            );
+                            orderBook.setBaseDecimals(cachedMarket.getBaseDecimals());
+                            orderBook.setQuoteDecimals(cachedMarket.getQuoteDecimals());
+                            orderBook.setBaseLotSize(cachedMarket.getBaseLotSize());
+                            orderBook.setQuoteLotSize(cachedMarket.getQuoteLotSize());
+                            return orderBook;
+                        }
+                    });
 
     // <concat(marketId, ooa, owner), jupiterTx>
     private final Map<String, Optional<String>> jupiterTxMap = new HashMap<>();
@@ -67,7 +127,8 @@ public class MarketManager {
             PublicKey.valueOf("9vMJfxuKxXBoEa7rM12mYLMwTacLMLDJqHozw96WQL8i") // UST (Portal)
     );
 
-    public MarketManager() {
+    public MarketManager(final TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
         updateMarkets();
     }
 
@@ -186,6 +247,17 @@ public class MarketManager {
 
         for (ProgramAccount programAccount : programAccounts) {
             Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
+            market.setBaseDecimals(
+                    (byte) tokenManager.getDecimals(
+                            market.getBaseMint()
+                    )
+            );
+            market.setQuoteDecimals(
+                    (byte) tokenManager.getDecimals(
+                            market.getQuoteMint()
+                    )
+            );
+            marketCache.put(market.getOwnAddress(), market);
 
             // Get list of existing markets for this base mint. otherwise create a new list and put it there.
             List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint(), new ArrayList<>());
@@ -208,12 +280,8 @@ public class MarketManager {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>()).size();
     }
 
-    // Takes sanitized user input
     public Optional<Market> getMarketById(String marketId) {
-        return marketMapCache.values().stream()
-                .flatMap(Collection::stream)
-                .filter(market -> market.getOwnAddress().toBase58().equals(marketId))
-                .findAny();
+        return Optional.ofNullable(marketCache.get(PublicKey.valueOf(marketId)));
     }
 
     public Optional<String> getJupiterTxForMarketAndOoa(
@@ -364,5 +432,21 @@ public class MarketManager {
         }
 
         return 0;
+    }
+
+    public Optional<OrderBook> getCachedBidOrderBook(PublicKey marketPubkey) {
+        try {
+            return Optional.of(bidOrderBookLoadingCache.get(marketPubkey));
+        } catch (ExecutionException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<OrderBook> getCachedAskOrderBook(PublicKey marketPubkey) {
+        try {
+            return Optional.of(askOrderBookLoadingCache.get(marketPubkey));
+        } catch (ExecutionException e) {
+            return Optional.empty();
+        }
     }
 }

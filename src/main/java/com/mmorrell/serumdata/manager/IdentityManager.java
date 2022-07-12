@@ -30,17 +30,22 @@ public class IdentityManager {
     {
         addKnownEntity(
                 "CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq",
-                "Alameda Research",
+                "Alameda",
+                "alameda"
+        );
+        addKnownEntity(
+                "HtJAWMsSRXbyBvXm1F4PDnGFzhgfBAPciyHWMZgugejX",
+                "Alameda",
                 "alameda"
         );
         addKnownEntity(
                 "9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S",
-                "Mango Markets",
+                "Mango",
                 "mango"
         );
         addKnownEntity(
                 "3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC",
-                "Atrix Finance",
+                "Atrix",
                 "atrix"
         );
         addKnownEntity(
@@ -50,7 +55,7 @@ public class IdentityManager {
         );
         addKnownEntity(
                 "5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp",
-                "Jump Trading",
+                "Jump",
                 "jump"
         );
         addKnownEntity(
@@ -76,6 +81,18 @@ public class IdentityManager {
 
     public String getEntityIconByOwner(PublicKey owner) {
         return knownEntitiesIcons.get(owner);
+    }
+
+    public void reverseOwnerLookup(List<SerumOrder> serumOrders) {
+        List<SerumOrder> unknownOwnerOrders = new ArrayList<>();
+        ownerReverseLookup(serumOrders, unknownOwnerOrders);
+
+        List<PublicKey> unknownAccounts = unknownOwnerOrders.stream()
+                .map(SerumOrder::getOwner)
+                .distinct()
+                .toList();
+
+        lookupAndAddOwnersToCache(unknownAccounts);
     }
 
     public void reverseOwnerLookup(List<SerumOrder> bids, List<SerumOrder> asks) {

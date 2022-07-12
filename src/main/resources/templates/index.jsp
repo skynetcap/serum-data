@@ -11,6 +11,7 @@
     <meta name="color-scheme" content="dark">
     <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
     <link href="static/css/custom.css" rel="stylesheet">
+    <link href="static/css/jquery.dataTables.min.css" rel="stylesheet">
 
     <!-- end dark mode -->
     <!-- github/twitter icons -->
@@ -30,6 +31,9 @@
     <script src="static/js/bootstrap.bundle.min.js"></script>
 
     <script src="static/js/custom.js"></script>
+
+    <!-- TODO: save locally -->
+    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
 
     <!-- inlined vars from controller -->
@@ -104,8 +108,8 @@
                             href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');">BTC</a> - <a
                             href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');">ETH</a> - <a
                             href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');">SOL</a> - <a
-                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a> - <a
-                            href="#" onClick="loadMarkets('orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE');">ORCA</a>
+                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');">SRM</a> - <a
+                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
@@ -144,13 +148,13 @@
                     <div id="container"></div>
                     <div class="row">
                         <div class="column orderBook">
-                            <table id="bidsTable" class="table table-striped table-hover table-bordered"
+                            <table id="bidsTable" class="table table-striped table-hover cell-border"
                                    style="width: 100%">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Quantity</th>
                                     <th scope="col">Owner</th>
+                                    <th scope="col">Size</th>
+                                    <th scope="col">Price</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -158,12 +162,12 @@
                             </table>
                         </div>
                         <div class="column orderBook">
-                            <table id="asksTable" class="table table-striped table-hover table-bordered"
+                            <table id="asksTable" class="table table-striped table-hover cell-border"
                                    style="width: 100%">
                                 <thead>
                                 <tr>
                                     <th scope="col">Price</th>
-                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Size</th>
                                     <th scope="col">Owner</th>
                                 </tr>
                                 </thead>
@@ -179,11 +183,12 @@
                     <h5 id="tradeHistoryTitle" class="card-title">Trade History</h5>
                     <hr>
                     <div class="orderBook" style="height: 100% !important; max-height: 650px;">
-                        <table id="tradeHistoryTable" class="table table-hover table-bordered" style="width: 100%">
+                        <table id="tradeHistoryTable" class="table table-striped table-hover cell-border"
+                               style="width: 100%">
                             <thead>
                             <tr>
                                 <th scope="col">Price</th>
-                                <th scope="col">Quantity</th>
+                                <th scope="col">Size</th>
                                 <th scope="col">Taker</th>
                             </tr>
                             </thead>
@@ -230,9 +235,6 @@
         var baseMint = $('#tokenSelect').val();
         loadMarkets(baseMint);
     });
-
-    setInterval(updateOrderBookLoop, 1100);
-    setInterval(updateSales, 3000);
 
     // DRAW DEPTH CHART AND SET INTERVAL
 
@@ -320,5 +322,185 @@
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
+<script type="text/javascript" th:inline="none" class="init">
+    /*<![CDATA[*/
+    $(document).ready(function () {
+            var bidTable = $('#bidsTable').DataTable({
+                paging: false,
+                ajax: {
+                    url: '/api/serum/market/' + activeMarketId + '/bids',
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        data: 'owner',
+                        render: function (data, type, row) {
+                            if (typeof row.metadata.name !== 'undefined') {
+                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name;
+                            } else {
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
+                            }
+                        }
+                    },
+                    {data: 'quantity'},
+                    {
+                        data: 'price',
+                        render: function (data, type, row) {
+                            return marketCurrencySymbol + data;
+                        }
+                    }
+                ],
+                order: [[2, 'desc']],
+                columnDefs: [
+                    {
+                        targets: [0],
+                        className: 'dt-right',
+                        width: '70%'
+                    },
+                    {
+                        targets: [1],
+                        className: 'dt-right',
+                        width: '10%'
+                    },
+                    {
+                        targets: [2],
+                        className: 'table-success dt-right',
+                        width: '20%'
+                    }
+                ]
+            });
+
+            var askTable = $('#asksTable').DataTable({
+                paging: false,
+                ajax: {
+                    url: '/api/serum/market/' + activeMarketId + '/asks',
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        data: 'price',
+                        render: function (data, type, row) {
+                            return marketCurrencySymbol + data;
+                        }
+                    },
+                    {data: 'quantity'},
+                    {
+                        data: 'owner',
+                        render: function (data, type, row) {
+                            if (typeof row.metadata.name !== 'undefined') {
+                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name;
+                            } else {
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
+                            }
+                        }
+                    }
+                ],
+                order: [[0, 'asc']],
+                columnDefs: [
+                    {
+                        targets: [0],
+                        className: 'dt-left table-danger',
+                        width: '20%'
+                    },
+                    {
+                        targets: [1],
+                        className: 'dt-left',
+                        width: '10%'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-left',
+                        width: '70%'
+                    }
+                ]
+            });
+
+            // Trade history table
+            var tradeHistoryTable = $('#tradeHistoryTable').DataTable({
+                ordering: false,
+                searching: false,
+                paging: false,
+                info: false,
+                ajax: {
+                    url: '/api/serum/market/' + activeMarketId + '/tradeHistory',
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        data: 'price',
+                        render: function (data, type, row) {
+                            return marketCurrencySymbol + data;
+                        }
+                    },
+                    {data: 'quantity'},
+                    {
+                        data: 'owner',
+                        render: function (data, type, row) {
+                            if (row.entityName) {
+                                return"<img src=\"static/entities/" + row.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.entityName;
+                            } else {
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
+                            }
+                        }
+                    }
+                ],
+                columnDefs: [
+                    {
+                        targets: [0],
+                        className: 'dt-left',
+                        width: '20%'
+                    },
+                    {
+                        targets: [1],
+                        className: 'dt-left',
+                        width: '10%'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-left',
+                        width: '70%'
+                    }
+                ],
+                rowCallback: function( row, data, displayNum, displayIndex, dataIndex ) {
+                    var node = this.api().row(row).nodes().to$();
+                    if (data.bid) {
+                        node.addClass('table-success')
+                    } else {
+                        node.addClass('table-danger')
+                    }
+                }
+            });
+
+            setInterval(function () {
+                bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
+                bidTable.ajax.reload();
+            }, 400);
+            setInterval(function () {
+                askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
+                askTable.ajax.reload();
+            }, 400);
+            setInterval(function () {
+                tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
+                tradeHistoryTable.ajax.reload();
+            }, 2500);
+        }
+    );
+    /*]]>*/
+</script>
 </body>
 </html>

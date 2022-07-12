@@ -40,6 +40,8 @@ function loadMarkets(tokenId) {
 function setMarket(marketId) {
     activeMarketId = marketId; // starts order book loop
 
+    loadMarketDetail();
+
     // update trade history
     loadTradeHistory(marketId);
 }
@@ -64,24 +66,9 @@ function loadTradeHistory(marketId) {
 
         $.each(data, function (k, v) {
             if (!v.maker) {
-                $("#tradeHistoryTable tbody").append(
-                    "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                    "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" +
-                    v.quantity +
-                    "</td>" +
-                    "<td style=\"text-align: left\">" +
-                    (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                    ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                    (!v.jupiterTx ?
-                        (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                        : "") +
-                    "</td>" +
-                    "</tr>"
-                );
+                addData(k, v.price, false);
             }
-            addData(k, v.price, false);
-        })
+        });
 
         myChart.data.datasets.forEach((dataset) => {
             dataset.data.reverse();
@@ -93,109 +80,32 @@ function loadTradeHistory(marketId) {
 }
 
 function loadMarketDetail() {
-    let apiUrl = "/api/serum/market/" + activeMarketId + "/cached";
+    let apiUrl = "/api/serum/market/" + activeMarketId;
     $.get({url: apiUrl, cache: true})
         .done(function (data) {
-            // only update html if the refresh is a new market
-            if (data.id !== lastLoadedMarketId) {
-                $("#orderBookHeader").html("Order Book: " +
-                    "<img class=\"baseLogo img-icon\"> " +
-                    "<span id=\"baseName\"></span> / " +
-                    "<img class=\"quoteLogo img-icon\"> " +
-                    "<span id=\"quoteName\"></span> " +
-                    "<span id=\"ownerName\"></span> " +
-                    "<span class=\"livePrice\"></span>"
-                );
-                $("#baseName").text(data.baseSymbol);
-                $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
-                $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
-                $("#quoteName").text(data.quoteSymbol);
-                $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
-                $(".baseLogo").attr("src", data.baseLogo);
-                $(".quoteLogo").attr("src", data.quoteLogo);
-                lastLoadedMarketId = data.id;
-            }
+            $("#orderBookHeader").html("Order Book: " +
+                "<img class=\"baseLogo img-icon\"> " +
+                "<span id=\"baseName\"></span> / " +
+                "<img class=\"quoteLogo img-icon\"> " +
+                "<span id=\"quoteName\"></span> " +
+                "<span id=\"ownerName\"></span> " +
+                "<span class=\"livePrice\"></span>"
+            );
+            $("#baseName").text(data.baseSymbol);
+            $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
+            $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
+            $("#quoteName").text(data.quoteSymbol);
+            $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
+            $(".baseLogo").attr("src", data.baseLogo);
+            $(".quoteLogo").attr("src", data.quoteLogo);
+            lastLoadedMarketId = data.id;
 
             if (data.quoteSymbol === 'USDC' || data.quoteSymbol === 'USDT') {
                 marketCurrencySymbol = '$';
             } else {
                 marketCurrencySymbol = '';
             }
-
-
-            // bids
-            $('#bidsTable tbody').empty();
-            $.each(data.bids, function (k, v) {
-                $("#bidsTable tbody").append(
-                    "<tr>" +
-                    "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" +
-                    v.quantity +
-                    "</td>" +
-                    "<td style=\"text-align: left\">" +
-                    (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                    (!v.metadata.name ?
-                        "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
-                        : v.metadata.name) +
-                    "</td>" +
-                    "</tr>"
-                );
-            })
-
-            // asks
-            $('#asksTable tbody').empty();
-            $.each(data.asks, function (k, v) {
-                $("#asksTable tbody").append(
-                    "<tr>" +
-                    "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" +
-                    v.quantity +
-                    "</td>" +
-                    "<td style=\"text-align: left\">" +
-                    (v.metadata.icon ? "<img src=\"static/entities/" + v.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                    (!v.metadata.name ?
-                        "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>"
-                        : v.metadata.name) +
-                    "</td>" +
-                    "</tr>"
-                );
-            })
         });
-}
-
-function updateOrderBookLoop() {
-    if (activeMarketId) {
-        loadMarketDetail();
-    }
-}
-
-function updateSales() {
-    if (activeMarketId) {
-        let apiUrl = "/api/serum/market/" + activeMarketId + "/tradeHistory";
-        $.get({url: apiUrl, cache: true})
-            .done(function (data) {
-                $('#tradeHistoryTable tbody').empty();
-                $.each(data, function (k, v) {
-                    if (!v.maker) {
-                        $("#tradeHistoryTable tbody").append(
-                            "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                            "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                            "<td style=\"text-align: right\">" +
-                            v.quantity +
-                            "</td>" +
-                            "<td style=\"text-align: left\">" +
-                            (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                            ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                            (!v.jupiterTx ?
-                                (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                                : "") +
-                            "</td>" +
-                            "</tr>"
-                        );
-                    }
-                })
-            });
-    }
 }
 
 function updateDepthChart() {
@@ -267,6 +177,10 @@ function updateDepthChart() {
                     // only update it if the midpoint changes
 
                     if (newData.marketId !== lastLoadedChartId) {
+                        return;
+                    }
+
+                    if (totalBids === 0) {
                         return;
                     }
 
