@@ -40,12 +40,12 @@ public class IdentityManager {
         );
         addKnownEntity(
                 "9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S",
-                "Mango Markets",
+                "Mango",
                 "mango"
         );
         addKnownEntity(
                 "3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC",
-                "Atrix Finance",
+                "Atrix",
                 "atrix"
         );
         addKnownEntity(
@@ -55,7 +55,7 @@ public class IdentityManager {
         );
         addKnownEntity(
                 "5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp",
-                "Jump Trading",
+                "Jump",
                 "jump"
         );
         addKnownEntity(
