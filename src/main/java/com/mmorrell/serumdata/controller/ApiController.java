@@ -180,19 +180,19 @@ public class ApiController {
             tradeHistoryEvent.setBid(event.getEventQueueFlags().isBid());
             tradeHistoryEvent.setMaker(event.getEventQueueFlags().isMaker());
 
-            // Jupiter TX handling, only lookup unknown entities, only top 12 in history
-            int maxRowsToJupiterSearch = 12;
-            if (!isKnownTaker && i < maxRowsToJupiterSearch) {
-                Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
-                        marketKey,
-                        event.getOpenOrders(),
-                        taker,
-                        event.getFloatPrice(),
-                        event.getFloatQuantity()
-                );
-
-                jupiterTx.ifPresent(tradeHistoryEvent::setJupiterTx);
-            }
+//            // Jupiter TX handling, only lookup unknown entities, only top 12 in history
+//            int maxRowsToJupiterSearch = 12;
+//            if (!isKnownTaker && i < maxRowsToJupiterSearch) {
+//                Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
+//                        marketKey,
+//                        event.getOpenOrders(),
+//                        taker,
+//                        event.getFloatPrice(),
+//                        event.getFloatQuantity()
+//                );
+//
+//                jupiterTx.ifPresent(tradeHistoryEvent::setJupiterTx);
+//            }
 
             result.add(tradeHistoryEvent);
         }
