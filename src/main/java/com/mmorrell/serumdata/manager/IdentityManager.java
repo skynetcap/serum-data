@@ -30,7 +30,12 @@ public class IdentityManager {
     {
         addKnownEntity(
                 "CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq",
-                "Alameda Research",
+                "Alameda",
+                "alameda"
+        );
+        addKnownEntity(
+                "HtJAWMsSRXbyBvXm1F4PDnGFzhgfBAPciyHWMZgugejX",
+                "Alameda",
                 "alameda"
         );
         addKnownEntity(

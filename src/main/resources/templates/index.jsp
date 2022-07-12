@@ -337,16 +337,21 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
-                                return row.metadata.name;
+                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name;
                             } else {
-                                return row.owner.publicKey;
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
                             }
                         }
                     },
                     {data: 'quantity'},
                     {
                         data: 'price',
-                        render: function ( data, type, row ) {
+                        render: function (data, type, row) {
                             return marketCurrencySymbol + data;
                         }
                     }
@@ -373,7 +378,7 @@
                 columns: [
                     {
                         data: 'price',
-                        render: function ( data, type, row ) {
+                        render: function (data, type, row) {
                             return marketCurrencySymbol + data;
                         }
                     },
@@ -382,9 +387,14 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
-                                return row.metadata.name;
+                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name;
                             } else {
-                                return row.owner.publicKey;
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
                             }
                         }
                     }
