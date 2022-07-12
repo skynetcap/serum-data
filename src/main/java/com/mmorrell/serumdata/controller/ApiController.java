@@ -153,7 +153,7 @@ public class ApiController {
         Map<PublicKey, Optional<PublicKey>> takers = identityManager.lookupAndAddOwnersToCache(
                 tradeEvents.stream()
                         .map(TradeEvent::getOpenOrders)
-                        .collect(Collectors.toList())
+                        .toList()
         );
 
         for (int i = 0; i < tradeEvents.size(); i++) {
@@ -180,21 +180,9 @@ public class ApiController {
             tradeHistoryEvent.setBid(event.getEventQueueFlags().isBid());
             tradeHistoryEvent.setMaker(event.getEventQueueFlags().isMaker());
 
-//            // Jupiter TX handling, only lookup unknown entities, only top 12 in history
-//            int maxRowsToJupiterSearch = 12;
-//            if (!isKnownTaker && i < maxRowsToJupiterSearch) {
-//                Optional<String> jupiterTx = marketManager.getJupiterTxForMarketAndOoa(
-//                        marketKey,
-//                        event.getOpenOrders(),
-//                        taker,
-//                        event.getFloatPrice(),
-//                        event.getFloatQuantity()
-//                );
-//
-//                jupiterTx.ifPresent(tradeHistoryEvent::setJupiterTx);
-//            }
-
-            result.add(tradeHistoryEvent);
+            if (!tradeHistoryEvent.isMaker()) {
+                result.add(tradeHistoryEvent);
+            }
         }
 
         return result;

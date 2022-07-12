@@ -66,24 +66,9 @@ function loadTradeHistory(marketId) {
 
         $.each(data, function (k, v) {
             if (!v.maker) {
-                $("#tradeHistoryTable tbody").append(
-                    "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                    "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                    "<td style=\"text-align: right\">" +
-                    v.quantity +
-                    "</td>" +
-                    "<td style=\"text-align: left\">" +
-                    (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                    ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                    (!v.jupiterTx ?
-                        (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                        : "") +
-                    "</td>" +
-                    "</tr>"
-                );
+                addData(k, v.price, false);
             }
-            addData(k, v.price, false);
-        })
+        });
 
         myChart.data.datasets.forEach((dataset) => {
             dataset.data.reverse();
@@ -121,35 +106,6 @@ function loadMarketDetail() {
                 marketCurrencySymbol = '';
             }
         });
-}
-
-function updateSales() {
-    if (activeMarketId) {
-        let apiUrl = "/api/serum/market/" + activeMarketId + "/tradeHistory";
-        $.get({url: apiUrl, cache: true})
-            .done(function (data) {
-                $('#tradeHistoryTable tbody').empty();
-                $.each(data, function (k, v) {
-                    if (!v.maker) {
-                        $("#tradeHistoryTable tbody").append(
-                            "<tr class='" + (v.bid ? "table-success" : "table-danger") + "'>" +
-                            "<td style=\"text-align: right\">" + marketCurrencySymbol + v.price + "</td>" +
-                            "<td style=\"text-align: right\">" +
-                            v.quantity +
-                            "</td>" +
-                            "<td style=\"text-align: left\">" +
-                            (v.jupiterTx ? "<a href=\"https://solscan.io/tx/" + v.jupiterTx + "\" target=_blank><img src=\"static/entities/jup.png\" width=16 height=16 style=\"margin-right: 6px;\"> Jupiter (" + v.owner.publicKey.substring(0, 3) + "..)" : "") +
-                            ((!v.jupiterTx && v.entityName) ? "<img src=\"static/entities/" + v.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" : "") +
-                            (!v.jupiterTx ?
-                                (!v.entityName ? "<a href=\"https://solscan.io/account/" + v.owner.publicKey + "\" target=_blank>" + v.owner.publicKey.substring(0, 3) + ".." + v.owner.publicKey.substring(v.owner.publicKey.toString().length - 3) + "</a>" : v.entityName)
-                                : "") +
-                            "</td>" +
-                            "</tr>"
-                        );
-                    }
-                })
-            });
-    }
 }
 
 function updateDepthChart() {
