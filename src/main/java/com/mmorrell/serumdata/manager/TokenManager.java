@@ -155,4 +155,9 @@ public class TokenManager {
                     .collect(Collectors.toList());
         }
     }
+
+    public int getDecimals(PublicKey tokenMint) {
+        final Optional<Token> token = Optional.ofNullable(tokenCache.get(tokenMint));
+        return token.map(Token::getDecimals).orElse(9);
+    }
 }

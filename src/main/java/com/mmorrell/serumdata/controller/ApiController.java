@@ -75,70 +75,54 @@ public class ApiController {
         return results;
     }
 
+    /**
+     * Returns Serum market metadata such as token mints, etc
+     * @param marketId serum market id
+     * @return map with market metadata
+     */
     @GetMapping(value = "/api/serum/market/{marketId}")
     public Map<String, Object> getMarket(@PathVariable String marketId) {
-        Map<String, Object> result = new HashMap<>();
-        PublicKey marketKey = new PublicKey(marketId);
-        Optional<Market> marketFromCache = marketManager.getMarketCache().stream()
-                .filter(market -> market.getOwnAddress().equals(marketKey))
-                .findFirst();
+        final Optional<Market> market = marketManager.getMarketById(marketId);
 
-        if (marketFromCache.isEmpty()) {
-            // make this an error, nothing was found
-            return result;
+        if (market.isEmpty()) {
+            return Collections.emptyMap();
         }
 
-        final Market marketWithOrderBooks = new MarketBuilder()
-                .setClient(orderBookClient)
-                .setPublicKey(marketKey)
-                .setRetrieveOrderBooks(true)
-                .build();
-
-        Market market = marketFromCache.get();
-        return convertOrdersAndLookup(market, marketWithOrderBooks.getBidOrderBook(), marketWithOrderBooks.getAskOrderBook());
+        return convertMarketToMap(market.get());
     }
 
-    @GetMapping(value = "/api/serum/market/{marketId}/cached")
-    public Map<String, Object> getMarketCached(@PathVariable String marketId, HttpServletResponse response) {
+    @GetMapping(value = "/api/serum/market/{marketId}/bids")
+    public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
-        MarketBuilder builder;
-        Market market;
-        PublicKey marketKey = new PublicKey(marketId);
+        final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
+        final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
 
-        // check builder map
-        boolean isBuilderCached = marketManager.isBuilderCached(marketKey);
-        if (isBuilderCached) {
-            builder = marketManager.getBuilderFromCache(marketKey);
-            market = builder.reload();
+        if (orderBook.isPresent()) {
+            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), true);
+            identityManager.reverseOwnerLookup(serumOrders);
+            return serumOrders;
         } else {
-            builder = new MarketBuilder()
-                    .setClient(orderBookClient)
-                    .setPublicKey(marketKey)
-                    .setRetrieveOrderBooks(true)
-                    .setOrderBookCacheEnabled(true);
-            market = builder.build();
-
-            // add to cache, saves decimal cache and initial account poll
-            marketManager.addBuilderToCache(builder);
+            return Collections.emptyList();
         }
-
-        return convertOrdersAndLookup(market, market.getBidOrderBook(), market.getAskOrderBook());
     }
 
-    private Map<String, Object> convertOrdersAndLookup(Market market, OrderBook bidOrderBook, OrderBook askOrderBook) {
-        Map<String, Object> result = convertMarketToMap(market);
+    @GetMapping(value = "/api/serum/market/{marketId}/asks")
+    public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
-        List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook, true);
-        List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook, false);
+        final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
+        final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
 
-        identityManager.reverseOwnerLookup(bids, asks);
-
-        result.put("bids", bids);
-        result.put("asks", asks);
-
-        return result;
+        if (orderBook.isPresent()) {
+            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), false);
+            identityManager.reverseOwnerLookup(serumOrders);
+            return serumOrders;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
@@ -250,38 +234,33 @@ public class ApiController {
         return new TreeMap<>(result);
     }
 
-    // todo - refactor + dedupe
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
     public Map<String, Object> getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
         final Map<String, Object> result = new HashMap<>();
-        MarketBuilder builder;
-        Market market;
-        PublicKey marketKey = new PublicKey(marketId);
+        final Optional<Market> optionalMarket = marketManager.getMarketById(marketId);
 
-        // check builder map
-        boolean isBuilderCached = marketManager.isBuilderCached(marketKey);
-        if (isBuilderCached) {
-            builder = marketManager.getBuilderFromCache(marketKey);
-            market = builder.reload();
-        } else {
-            builder = new MarketBuilder()
-                    .setClient(orderBookClient)
-                    .setPublicKey(marketKey)
-                    .setRetrieveOrderBooks(true)
-                    .setOrderBookCacheEnabled(true);
-            market = builder.build();
-
-            // add to cache, saves decimal cache and initial account poll
-            marketManager.addBuilderToCache(builder);
+        if (optionalMarket.isEmpty()) {
+            return Collections.emptyMap();
         }
 
-        List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(market.getBidOrderBook(), false);
-        List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(market.getAskOrderBook(), false);
-        float bestBid = bids.size() > 0 ? market.getBidOrderBook().getBestBid().getFloatPrice() : 0.0f;
-        float bestAsk = asks.size() > 0 ? market.getAskOrderBook().getBestAsk().getFloatPrice() : 0.0f;
+        final Market market = optionalMarket.get();
+
+        // TODO - use completeable future here?
+        final Optional<OrderBook> bidOrderBook = marketManager.getCachedBidOrderBook(market.getOwnAddress());
+        final Optional<OrderBook> askOrderBook = marketManager.getCachedAskOrderBook(market.getOwnAddress());
+
+        if (bidOrderBook.isEmpty() || askOrderBook.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        final List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook.get(), false);
+        final List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook.get(), false);
+
+        float bestBid = bids.size() > 0 ? bidOrderBook.get().getBestBid().getFloatPrice() : 0.0f;
+        float bestAsk = asks.size() > 0 ? askOrderBook.get().getBestAsk().getFloatPrice() : 0.0f;
         float midPoint = (bestBid + bestAsk) / 2;
         float aggregateBidQuantity = 0.0f, aggregateAskQuantity = 0.0f;
 

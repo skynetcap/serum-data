@@ -11,6 +11,7 @@
     <meta name="color-scheme" content="dark">
     <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
     <link href="static/css/custom.css" rel="stylesheet">
+    <link href="static/css/jquery.dataTables.min.css" rel="stylesheet">
 
     <!-- end dark mode -->
     <!-- github/twitter icons -->
@@ -30,6 +31,9 @@
     <script src="static/js/bootstrap.bundle.min.js"></script>
 
     <script src="static/js/custom.js"></script>
+
+    <!-- TODO: save locally -->
+    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
 
     <!-- inlined vars from controller -->
@@ -231,7 +235,6 @@
         loadMarkets(baseMint);
     });
 
-    setInterval(updateOrderBookLoop, 1100);
     setInterval(updateSales, 3000);
 
     // DRAW DEPTH CHART AND SET INTERVAL
@@ -320,5 +323,86 @@
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
+<script type="text/javascript" th:inline="none" class="init">
+    /*<![CDATA[*/
+    $(document).ready(function () {
+            var bidTable = $('#bidsTable').DataTable({
+                paging: false,
+                ajax: {
+                    url: '/api/serum/market/' + activeMarketId + '/bids',
+                    dataSrc: ''
+                },
+                columns: [
+                    {data: 'price'},
+                    {data: 'quantity'},
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            if (typeof row.metadata.name !== 'undefined') {
+                                return row.metadata.name;
+                            } else {
+                                return row.owner.publicKey;
+                            }
+                        }
+                    }
+                ],
+                order: [[0, 'desc']],
+                columnDefs: [
+                    {
+                        targets: [0, 1],
+                        className: 'dt-body-right'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-body-left'
+                    }
+                ]
+            });
+
+            var askTable = $('#asksTable').DataTable({
+                paging: false,
+                ajax: {
+                    url: '/api/serum/market/' + activeMarketId + '/asks',
+                    dataSrc: ''
+                },
+                columns: [
+                    {data: 'price'},
+                    {data: 'quantity'},
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            if (typeof row.metadata.name !== 'undefined') {
+                                return row.metadata.name;
+                            } else {
+                                return row.owner.publicKey;
+                            }
+                        }
+                    }
+                ],
+                order: [[0, 'asc']],
+                columnDefs: [
+                    {
+                        targets: [0, 1],
+                        className: 'dt-body-right'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-body-left'
+                    }
+                ]
+            });
+
+            setInterval(function () {
+                bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
+                bidTable.ajax.reload();
+            }, 400);
+            setInterval(function () {
+                askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
+                askTable.ajax.reload();
+            }, 400);
+        }
+    );
+    /*]]>*/
+</script>
 </body>
 </html>
