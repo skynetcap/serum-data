@@ -12,8 +12,8 @@
     <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
     <link href="static/css/custom.css" rel="stylesheet">
     <link href="static/css/jquery.dataTables.min.css" rel="stylesheet">
-
     <!-- end dark mode -->
+
     <!-- github/twitter icons -->
     <link rel="stylesheet" href="static/css/font-awesome.min.css">
     <link href="static/css/select2.min.css" rel="stylesheet"/>
@@ -29,12 +29,8 @@
     <script src="static/js/select2.min.js"></script>
     <!-- JavaScript Bundle with Popper -->
     <script src="static/js/bootstrap.bundle.min.js"></script>
-
+    <script src="static/js/jquery.dataTables.min.js"></script>
     <script src="static/js/custom.js"></script>
-
-    <!-- TODO: save locally -->
-    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-
 
     <!-- inlined vars from controller -->
     <script th:inline="javascript">
