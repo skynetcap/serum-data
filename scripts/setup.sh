@@ -14,14 +14,9 @@ $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev
 sudo apt-get update -y
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
 
-sudo cat > /home/prod_start.sh <<EOF
-sudo docker pull mmorrell/serum-data
-sudo docker stop production
-sudo docker container prune -f
-sudo docker run --name production -d -p 8080:8080 mmorrell/serum-data:latest
-EOF
+git clone https://github.com/skynetcap/serum-data.git /home/
 
-sudo chmod +x /home/prod_start.sh
+sudo chmod +x /home/serum-data/scripts*.sh
 
 sudo apt install nginx -y
 sudo cat > /etc/nginx/sites-available/openserum.io <<EOF
