@@ -1,3 +1,5 @@
+$.fn.dataTable.ext.errMode = 'none';
+
 function formatToken(token) {
     // only load top 100 icons
     if (!token.id || token.element.dataset.rank > 100) {
