@@ -1,9 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.Market;
-import ch.openserum.serum.model.MarketBuilder;
-import ch.openserum.serum.model.OrderBook;
-import ch.openserum.serum.model.SerumUtils;
+import ch.openserum.serum.model.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -12,10 +9,7 @@ import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
-import org.p2p.solanaj.rpc.types.Memcmp;
-import org.p2p.solanaj.rpc.types.ProgramAccount;
-import org.p2p.solanaj.rpc.types.SignatureInformation;
+import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,70 +22,143 @@ import java.util.stream.Collectors;
 @Component
 public class MarketManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
+    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
 
     // Managers
     private final TokenManager tokenManager;
 
+    // <marketPubkey, Market>
+    private final Map<PublicKey, Market> marketCache = new HashMap<>();
     // <tokenMint, List<Market>>
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
-    // <marketId, Builder>
-    private final Map<PublicKey, MarketBuilder> marketBuilderCache = new HashMap<>();
-    private final Map<PublicKey, MarketBuilder> marketEventQueueBuilderCache = new HashMap<>();
-    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
     private static final Boolean SKIP_CACHE_DELAY = System.getenv("SKIP_CACHE_DELAY") != null && Boolean.parseBoolean(System.getenv("SKIP_CACHE_DELAY"));
 
-    private final Map<PublicKey, Market> marketCache = new HashMap<>();
+    // Solana Context
+    private final long DEFAULT_MIN_CONTEXT_SLOT = 0L;
+    private final Map<PublicKey, Long> askOrderBookMinContextSlot = new HashMap<>();
+    private final Map<PublicKey, Long> bidOrderBookMinContextSlot = new HashMap<>();
+    private final Map<PublicKey, Long> eventQueueMinContextSlot = new HashMap<>();
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public OrderBook load(PublicKey key) throws RpcException {
-                            Market cachedMarket = marketCache.get(key);
-                            OrderBook orderBook = OrderBook.readOrderBook(
-                                    Base64.getDecoder().decode(
-                                            client.getApi()
-                                                    .getAccountInfo(cachedMarket.getBids())
-                                                    .getValue()
-                                                    .getData()
-                                                    .get(0)
-                                    )
-                            );
-                            orderBook.setBaseDecimals(cachedMarket.getBaseDecimals());
-                            orderBook.setQuoteDecimals(cachedMarket.getQuoteDecimals());
-                            orderBook.setBaseLotSize(cachedMarket.getBaseLotSize());
-                            orderBook.setQuoteLotSize(cachedMarket.getQuoteLotSize());
-                            return orderBook;
+                        public OrderBook load(PublicKey marketPubkey) {
+                            try {
+                                Market cachedMarket = marketCache.get(marketPubkey);
+                                long slotToUse = bidOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+
+                                AccountInfo accountInfo = client.getApi()
+                                        .getAccountInfo(
+                                                cachedMarket.getBids(),
+                                                Map.of(
+                                                        "minContextSlot",
+                                                        slotToUse,
+                                                        "commitment",
+                                                        Commitment.CONFIRMED
+                                                )
+                                        );
+
+                                // LOGGER.info("BID new context! " + accountInfo.getContext().getSlot());
+                                bidOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
+
+                                return buildOrderBook(
+                                        Base64.getDecoder().decode(
+                                                accountInfo.getValue()
+                                                        .getData()
+                                                        .get(0)
+                                        ),
+                                        cachedMarket
+                                );
+                            } catch (RpcException ex) {
+                                // LOGGER.info("bids exception: returning map");
+                                return bidOrderBookLoadingCache.asMap().get(marketPubkey);
+                            }
                         }
                     });
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public OrderBook load(PublicKey key) throws RpcException {
-                            Market cachedMarket = marketCache.get(key);
-                            OrderBook orderBook = OrderBook.readOrderBook(
-                                    Base64.getDecoder().decode(
-                                            client.getApi()
-                                                    .getAccountInfo(cachedMarket.getAsks())
-                                                    .getValue()
-                                                    .getData()
-                                                    .get(0)
-                                    )
-                            );
-                            orderBook.setBaseDecimals(cachedMarket.getBaseDecimals());
-                            orderBook.setQuoteDecimals(cachedMarket.getQuoteDecimals());
-                            orderBook.setBaseLotSize(cachedMarket.getBaseLotSize());
-                            orderBook.setQuoteLotSize(cachedMarket.getQuoteLotSize());
-                            return orderBook;
+                        public OrderBook load(PublicKey marketPubkey) {
+                            try {
+                                Market cachedMarket = marketCache.get(marketPubkey);
+                                long slotToUse = askOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+
+                                AccountInfo accountInfo = client.getApi()
+                                        .getAccountInfo(
+                                                cachedMarket.getAsks(),
+                                                Map.of(
+                                                        "minContextSlot",
+                                                        slotToUse,
+                                                        "commitment",
+                                                        Commitment.CONFIRMED
+                                                )
+                                        );
+
+                                // LOGGER.info("ASK new context! " + accountInfo.getContext().getSlot());
+                                askOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
+
+                                return buildOrderBook(
+                                        Base64.getDecoder().decode(
+                                                accountInfo.getValue()
+                                                        .getData()
+                                                        .get(0)
+                                        ),
+                                        cachedMarket
+                                );
+                            } catch (RpcException ex) {
+                                // LOGGER.info("asks exception: returning map");
+                                return askOrderBookLoadingCache.asMap().get(marketPubkey);
+                            }
+                        }
+                    });
+
+    final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
+            .refreshAfterWrite(2500, TimeUnit.MILLISECONDS)
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public EventQueue load(PublicKey marketPubkey) {
+                            try {
+                                Market cachedMarket = marketCache.get(marketPubkey);
+                                long slotToUse = eventQueueMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+
+                                AccountInfo accountInfo = client.getApi()
+                                        .getAccountInfo(
+                                                cachedMarket.getEventQueueKey(),
+                                                Map.of(
+                                                        "minContextSlot",
+                                                        slotToUse,
+                                                        "commitment",
+                                                        Commitment.CONFIRMED
+                                                )
+                                        );
+
+                                // LOGGER.info("EQ new context! " + accountInfo.getContext().getSlot());
+                                eventQueueMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
+
+                                return EventQueue.readEventQueue(
+                                        Base64.getDecoder().decode(
+                                                accountInfo.getValue().getData().get(0)
+                                        ),
+                                        cachedMarket.getBaseDecimals(),
+                                        cachedMarket.getQuoteDecimals(),
+                                        cachedMarket.getBaseLotSize(),
+                                        cachedMarket.getQuoteLotSize()
+                                );
+                            } catch (RpcException ex) {
+                                // LOGGER.info("EQ context error, using map cache.");
+                                return eventQueueLoadingCache.asMap().get(marketPubkey);
+                            }
                         }
                     });
 
@@ -140,30 +207,6 @@ public class MarketManager {
 
     public List<Market> getMarketsByMint(PublicKey tokenMint) {
         return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
-    }
-
-    public void addBuilderToCache(MarketBuilder marketBuilder) {
-        marketBuilderCache.put(marketBuilder.getPublicKey(), marketBuilder);
-    }
-
-    public boolean isBuilderCached(PublicKey marketId) {
-        return marketBuilderCache.containsKey(marketId);
-    }
-
-    public MarketBuilder getBuilderFromCache(PublicKey marketId) {
-        return marketBuilderCache.get(marketId);
-    }
-
-    public void addEventQueueBuilderToCache(MarketBuilder marketBuilder) {
-        marketEventQueueBuilderCache.put(marketBuilder.getPublicKey(), marketBuilder);
-    }
-
-    public boolean isEventQueueBuilderCached(PublicKey marketId) {
-        return marketEventQueueBuilderCache.containsKey(marketId);
-    }
-
-    public MarketBuilder getEventQueueBuilderFromCache(PublicKey marketId) {
-        return marketEventQueueBuilderCache.get(marketId);
     }
 
     /**
@@ -448,5 +491,23 @@ public class MarketManager {
         } catch (ExecutionException e) {
             return Optional.empty();
         }
+    }
+
+    public Optional<EventQueue> getCachedEventQueue(PublicKey marketPubkey) {
+        try {
+            return Optional.of(eventQueueLoadingCache.get(marketPubkey));
+        } catch (ExecutionException e) {
+            return Optional.empty();
+        }
+    }
+
+    private OrderBook buildOrderBook(byte[] data, Market market) {
+        OrderBook orderBook = OrderBook.readOrderBook(data);
+        orderBook.setBaseDecimals(market.getBaseDecimals());
+        orderBook.setQuoteDecimals(market.getQuoteDecimals());
+        orderBook.setBaseLotSize(market.getBaseLotSize());
+        orderBook.setQuoteLotSize(market.getQuoteLotSize());
+
+        return orderBook;
     }
 }

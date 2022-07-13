@@ -7,24 +7,16 @@ import com.mmorrell.serumdata.manager.TokenManager;
 import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
-import com.mmorrell.serumdata.util.RpcUtil;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 public class ApiController {
-
-    private final RpcClient orderBookClient = new RpcClient(RpcUtil.getPublicEndpoint());
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
@@ -131,25 +123,14 @@ public class ApiController {
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
         final List<TradeHistoryEvent> result = new ArrayList<>();
+        final PublicKey marketKey = new PublicKey(marketId);
 
-        MarketBuilder builder;
-        Market marketWithEventQueue;
-        PublicKey marketKey = new PublicKey(marketId);
-
-        boolean isBuilderCached = marketManager.isEventQueueBuilderCached(marketKey);
-        if (isBuilderCached) {
-            builder = marketManager.getEventQueueBuilderFromCache(marketKey);
-            marketWithEventQueue = builder.reload();
-        } else {
-            builder = new MarketBuilder()
-                    .setClient(orderBookClient)
-                    .setPublicKey(marketKey)
-                    .setRetrieveEventQueue(true);
-            marketWithEventQueue = builder.build();
-            marketManager.addEventQueueBuilderToCache(builder);
+        final Optional<EventQueue> eventQueue = marketManager.getCachedEventQueue(marketKey);
+        if (eventQueue.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        List<TradeEvent> tradeEvents = marketWithEventQueue.getEventQueue().getEvents();
+        List<TradeEvent> tradeEvents = eventQueue.get().getEvents();
         Map<PublicKey, Optional<PublicKey>> takers = identityManager.lookupAndAddOwnersToCache(
                 tradeEvents.stream()
                         .map(TradeEvent::getOpenOrders)
@@ -188,40 +169,7 @@ public class ApiController {
         return result;
     }
 
-    /**
-     * Retrieves the best bid and best ask price for the given marketId.
-     *
-     * @param marketId serum market id
-     * @return best bid and best ask
-     */
-    // TODO - cache these builders with different params somehow
-    @GetMapping(value = "/api/serum/market/{marketId}/spread")
-    public Map<String, Object> getMarketSpread(@PathVariable String marketId) {
-        final Market market = new MarketBuilder()
-                .setClient(orderBookClient)
-                .setPublicKey(PublicKey.valueOf(marketId))
-                .setRetrieveEventQueue(false)
-                .setRetrieveOrderBooks(true)
-                .build();
-
-        final Map<String, Object> result = new HashMap<>(convertMarketToMap(market));
-
-        final Order bestBid = market.getBidOrderBook().getBestBid();
-        final Order bestAsk = market.getAskOrderBook().getBestAsk();
-
-        result.put("bidPrice", bestBid.getFloatPrice());
-        result.put("bidQuantity", bestBid.getFloatQuantity());
-        result.put("askPrice", bestAsk.getFloatPrice());
-        result.put("askQuantity", bestAsk.getFloatQuantity());
-
-        // Remove logo values for bandwidth efficiency. Client can look up themselves.
-        result.remove("baseLogo");
-        result.remove("quoteLogo");
-
-        // Treemap for alphabetical sorting.
-        return new TreeMap<>(result);
-    }
-
+    // TODO - convert to POJO response (faster?)
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
     public Map<String, Object> getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
