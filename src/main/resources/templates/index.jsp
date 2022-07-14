@@ -62,6 +62,15 @@
             updateDepthChart();
         });
     </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H55B3XYLG0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-H55B3XYLG0');
+    </script>
 </head>
 <body class="dark">
 <div class="container">
