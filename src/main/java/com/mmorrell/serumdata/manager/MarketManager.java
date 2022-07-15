@@ -24,6 +24,8 @@ public class MarketManager {
 
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
+    private final RpcClient bidClient = new RpcClient(RpcUtil.getPublicEndpoint());
+    private final RpcClient askClient = new RpcClient(RpcUtil.getPublicEndpoint());
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
 
     // Managers
@@ -53,7 +55,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = bidOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = client.getApi()
+                                AccountInfo accountInfo = bidClient.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getBids(),
                                                 Map.of(
@@ -93,7 +95,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = askOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = client.getApi()
+                                AccountInfo accountInfo = askClient.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getAsks(),
                                                 Map.of(

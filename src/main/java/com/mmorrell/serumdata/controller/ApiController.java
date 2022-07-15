@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class ApiController {
@@ -177,10 +179,19 @@ public class ApiController {
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
         final PublicKey marketPubkey = new PublicKey(marketId);
+        CompletableFuture<Optional<OrderBook>> bidFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedBidOrderBook(marketPubkey));
+        CompletableFuture<Optional<OrderBook>> askFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedAskOrderBook(marketPubkey));
 
-        // TODO - use completeable future here?
-        final Optional<OrderBook> bidOrderBook = marketManager.getCachedBidOrderBook(marketPubkey);
-        final Optional<OrderBook> askOrderBook = marketManager.getCachedAskOrderBook(marketPubkey);
+        final CompletableFuture<Void> combinedFutures = CompletableFuture.allOf(bidFuture, askFuture);
+        Optional<OrderBook> bidOrderBook, askOrderBook;
+
+        try {
+            combinedFutures.get();
+            bidOrderBook = bidFuture.get();
+            askOrderBook = askFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
         if (bidOrderBook.isEmpty() || askOrderBook.isEmpty()) {
             return MarketDepth.builder().build();
