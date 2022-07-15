@@ -1,5 +1,5 @@
 $.fn.dataTable.ext.errMode = 'none';
-var chartTitle, baseSymbol, quoteSymbol, baseLogo, quoteLogo;
+var chartTitle, baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot;
 
 function formatToken(token) {
     // only load top 100 icons
@@ -92,7 +92,8 @@ function loadMarketDetail() {
                 "<img class=\"quoteLogo img-icon\"> " +
                 "<span id=\"quoteName\"></span> " +
                 "<span id=\"ownerName\"></span> " +
-                "<span class=\"livePrice\"></span>"
+                "<span class=\"livePrice\"></span>" +
+                "<span class=\"marketContext\" style=\"float: right;\"></span>"
             );
             baseSymbol = data.baseSymbol;
             quoteSymbol = data.quoteSymbol;
@@ -123,6 +124,11 @@ function updateDepthChart() {
         // bids + asks
         $.get({url: apiUrl, cache: true})
             .done(function (newData) {
+                bidContextSlot = newData.bidContextSlot;
+                askContextSlot = newData.askContextSlot;
+
+                $(".marketContext").text("Slot: " + bidContextSlot)
+
                 // loop total bids, total each level, total all that
                 totalBids = newData.bids.reduce(
                     (previousValue, currentValue) => {

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Component
 public class MarketManager {
 
-    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 20;
+    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 30;
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
     private final RpcClient bidClient = new RpcClient(RpcUtil.getPublicEndpoint());
     private final RpcClient askClient = new RpcClient(RpcUtil.getPublicEndpoint());
@@ -511,5 +511,13 @@ public class MarketManager {
         orderBook.setQuoteLotSize(market.getQuoteLotSize());
 
         return orderBook;
+    }
+
+    public long getBidContext(PublicKey publicKey) {
+        return bidOrderBookMinContextSlot.getOrDefault(publicKey, DEFAULT_MIN_CONTEXT_SLOT);
+    }
+
+    public long getAskContext(PublicKey publicKey) {
+        return bidOrderBookMinContextSlot.getOrDefault(publicKey, DEFAULT_MIN_CONTEXT_SLOT);
     }
 }

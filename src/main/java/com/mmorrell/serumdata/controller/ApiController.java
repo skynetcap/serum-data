@@ -230,6 +230,8 @@ public class ApiController {
                 .asks(floatAsks)
                 .bids(floatBids)
                 .midpoint(midPoint)
+                .bidContextSlot(marketManager.getBidContext(marketPubkey))
+                .askContextSlot(marketManager.getAskContext(marketPubkey))
                 .build();
     }
 
