@@ -1,4 +1,5 @@
 $.fn.dataTable.ext.errMode = 'none';
+var chartTitle, baseSymbol, quoteSymbol, baseLogo, quoteLogo;
 
 function formatToken(token) {
     // only load top 100 icons
@@ -93,16 +94,22 @@ function loadMarketDetail() {
                 "<span id=\"ownerName\"></span> " +
                 "<span class=\"livePrice\"></span>"
             );
-            $("#baseName").text(data.baseSymbol);
-            $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + data.baseSymbol + "/" + data.quoteSymbol + " Price - " + activeMarketId);
-            $("#tradeHistoryTitle").text(data.baseSymbol + " Trade History")
-            $("#quoteName").text(data.quoteSymbol);
-            $("#ownerName").text("(" + data.id.substring(0, 3) + ".." + data.id.substring(data.id.toString().length - 3) + ")");
-            $(".baseLogo").attr("src", data.baseLogo);
-            $(".quoteLogo").attr("src", data.quoteLogo);
+            baseSymbol = data.baseSymbol;
+            quoteSymbol = data.quoteSymbol;
+            chartTitle = baseSymbol + "/" + data.quoteSymbol;
             lastLoadedMarketId = data.id;
+            baseLogo = data.baseLogo;
+            quoteLogo = data.quoteLogo;
 
-            if (data.quoteSymbol === 'USDC' || data.quoteSymbol === 'USDT') {
+            $("#baseName").text(baseSymbol);
+            $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + chartTitle + " Price - " + activeMarketId);
+            $("#tradeHistoryTitle").text(baseSymbol + " Trade History")
+            $("#quoteName").text(quoteSymbol);
+            $("#ownerName").text("(" + lastLoadedMarketId.substring(0, 3) + ".." + lastLoadedMarketId.substring(lastLoadedMarketId.toString().length - 3) + ")");
+            $(".baseLogo").attr("src", baseLogo);
+            $(".quoteLogo").attr("src", quoteLogo);
+
+            if (quoteSymbol === 'USDC' || quoteSymbol === 'USDT') {
                 marketCurrencySymbol = '$';
             } else {
                 marketCurrencySymbol = '';
@@ -172,13 +179,13 @@ function updateDepthChart() {
                 depthChart.hideLoading();
 
                 // update ticker spans
-                $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(2) + " ");
+                $(".livePrice").text(marketCurrencySymbol + newData.midpoint.toFixed(3) + " ");
 
                 // update price chart with a midpoint tick, if it has changed.
                 if (parseFloat(myChart.data.datasets[0].data[myChart.data.labels.length - 1]).toFixed(8) !== parseFloat(newData.midpoint).toFixed(8)) {
                     // only update it if the midpoint changes
 
-                    if (newData.marketId !== lastLoadedChartId) {
+                    if (activeMarketId !== lastLoadedChartId) {
                         return;
                     }
 
@@ -206,7 +213,7 @@ function updateDepthChart() {
                 }
 
                 $(document).attr("title",
-                    ((newData.chartTitle.includes("USDC Price") || newData.chartTitle.includes("USDT Price")) ? '$' : '') + newData.midpoint.toFixed(2) + ' ' + newData.chartTitle.replace("Price", "").replace(/\s/g, '')
+                    marketCurrencySymbol + newData.midpoint.toFixed(3) + ' ' + chartTitle.replace(/\s/g, '') + ' - Openserum'
                 );
             });
     }
