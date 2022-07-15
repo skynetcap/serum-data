@@ -154,7 +154,7 @@
                     <div class="row">
                         <div class="column orderBook">
                             <table id="bidsTable" class="table table-striped table-hover cell-border"
-                                   style="width: 100%">
+                                   style="width: 100%; table-layout: fixed;">
                                 <thead>
                                 <tr>
                                     <th scope="col">Owner</th>
@@ -168,7 +168,7 @@
                         </div>
                         <div class="column orderBook">
                             <table id="asksTable" class="table table-striped table-hover cell-border"
-                                   style="width: 100%">
+                                   style="width: 100%; table-layout: fixed;">
                                 <thead>
                                 <tr>
                                     <th scope="col">Price</th>
@@ -187,9 +187,9 @@
                 <div class="card-body">
                     <h5 id="tradeHistoryTitle" class="card-title">Trade History</h5>
                     <hr>
-                    <div class="orderBook" style="height: 100% !important; max-height: 650px;">
+                    <div class="orderBook" style="height: 100% !important; max-height: 650px; overflow-x: hidden;">
                         <table id="tradeHistoryTable" class="table table-striped table-hover cell-border"
-                               style="width: 100%">
+                               style="width: 100%; table-layout: fixed; overflow-x:hidden;">
                             <thead>
                             <tr>
                                 <th scope="col">Price</th>
@@ -365,17 +365,17 @@
                     {
                         targets: [0],
                         className: 'dt-right',
-                        width: '70%'
+                        width: '50%'
                     },
                     {
                         targets: [1],
                         className: 'dt-right',
-                        width: '10%'
+                        width: '25%'
                     },
                     {
                         targets: [2],
                         className: 'table-success dt-right',
-                        width: '20%'
+                        width: '25%'
                     }
                 ]
             });
@@ -415,17 +415,17 @@
                     {
                         targets: [0],
                         className: 'dt-left table-danger',
-                        width: '20%'
+                        width: '25%'
                     },
                     {
                         targets: [1],
                         className: 'dt-left',
-                        width: '10%'
+                        width: '25%'
                     },
                     {
                         targets: [2],
                         className: 'dt-left',
-                        width: '70%'
+                        width: '50%'
                     }
                 ]
             });
@@ -468,17 +468,17 @@
                     {
                         targets: [0],
                         className: 'dt-left',
-                        width: '20%'
+                        width: '30%'
                     },
                     {
                         targets: [1],
                         className: 'dt-left',
-                        width: '10%'
+                        width: '25%'
                     },
                     {
                         targets: [2],
                         className: 'dt-left',
-                        width: '70%'
+                        width: '45%'
                     }
                 ],
                 rowCallback: function( row, data, displayNum, displayIndex, dataIndex ) {
