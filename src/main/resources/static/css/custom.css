@@ -91,3 +91,9 @@ html.dark .table>:not(:first-child) {
 .dataTables_wrapper {
     color: white !important;
 }
+
+td {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
