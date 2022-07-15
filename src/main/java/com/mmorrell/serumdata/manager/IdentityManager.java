@@ -9,8 +9,6 @@ import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -20,7 +18,6 @@ import java.util.stream.Collectors;
 public class IdentityManager {
 
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint());
-    private static final Logger LOGGER = LoggerFactory.getLogger(IdentityManager.class);
 
     // <ooa, owner>
     private final Map<PublicKey, PublicKey> ownerReverseLookupCache = new HashMap<>();
@@ -28,6 +25,7 @@ public class IdentityManager {
     private final Map<PublicKey, String> knownEntitiesIcons = new HashMap<>();
 
     {
+        // Alameda Research
         addKnownEntity(
                 "CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq",
                 "Alameda",
@@ -39,25 +37,40 @@ public class IdentityManager {
                 "alameda"
         );
         addKnownEntity(
+                "5Xm6nU1Bi6UewCrhJQFk1CAV97ZJaRiFw4tFNhUbXy3u",
+                "Alameda",
+                "alameda"
+        );
+
+        // Mango Markets
+        addKnownEntity(
                 "9BVcYqEQxyccuwznvxXqDkSJFavvTyheiTYk231T1A8S",
                 "Mango",
                 "mango"
         );
+
+        // Atrix Finance
         addKnownEntity(
                 "3uTzTX5GBSfbW7eM9R9k95H7Txe32Qw3Z25MtyD2dzwC",
                 "Atrix",
                 "atrix"
         );
+
+        // Raydium
         addKnownEntity(
                 "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
                 "Raydium",
                 "raydium"
         );
+
+        // Jump Trading / Jump Crypto
         addKnownEntity(
                 "5xoBq7f7CDgZwqHrDBdRWM84ExRetg4gZq93dyJtoSwp",
                 "Jump",
                 "jump"
         );
+
+        // Wintermute Trading
         addKnownEntity(
                 "CwyQtt6xGptR7PaxrrksgqBSRCZ3Zb2GjUYjKD9jH3tf",
                 "Wintermute",
@@ -86,23 +99,6 @@ public class IdentityManager {
     public void reverseOwnerLookup(List<SerumOrder> serumOrders) {
         List<SerumOrder> unknownOwnerOrders = new ArrayList<>();
         ownerReverseLookup(serumOrders, unknownOwnerOrders);
-
-        List<PublicKey> unknownAccounts = unknownOwnerOrders.stream()
-                .map(SerumOrder::getOwner)
-                .distinct()
-                .toList();
-
-        lookupAndAddOwnersToCache(unknownAccounts);
-    }
-
-    public void reverseOwnerLookup(List<SerumOrder> bids, List<SerumOrder> asks) {
-        List<SerumOrder> unknownOwnerOrders = new ArrayList<>();
-
-        // bids
-        ownerReverseLookup(bids, unknownOwnerOrders);
-
-        // asks
-        ownerReverseLookup(asks, unknownOwnerOrders);
 
         List<PublicKey> unknownAccounts = unknownOwnerOrders.stream()
                 .map(SerumOrder::getOwner)
