@@ -4,6 +4,7 @@ import ch.openserum.serum.model.*;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
+import com.mmorrell.serumdata.model.MarketDepth;
 import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
@@ -169,29 +170,23 @@ public class ApiController {
         return result;
     }
 
-    // TODO - convert to POJO response (faster?)
+    // Only works for cached markets.
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
-    public Map<String, Object> getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
+    public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
 
-        final Map<String, Object> result = new HashMap<>();
-        final Optional<Market> optionalMarket = marketManager.getMarketById(marketId);
-
-        if (optionalMarket.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        final Market market = optionalMarket.get();
+        final PublicKey marketPubkey = new PublicKey(marketId);
 
         // TODO - use completeable future here?
-        final Optional<OrderBook> bidOrderBook = marketManager.getCachedBidOrderBook(market.getOwnAddress());
-        final Optional<OrderBook> askOrderBook = marketManager.getCachedAskOrderBook(market.getOwnAddress());
+        final Optional<OrderBook> bidOrderBook = marketManager.getCachedBidOrderBook(marketPubkey);
+        final Optional<OrderBook> askOrderBook = marketManager.getCachedAskOrderBook(marketPubkey);
 
         if (bidOrderBook.isEmpty() || askOrderBook.isEmpty()) {
-            return Collections.emptyMap();
+            return MarketDepth.builder().build();
         }
 
+        // isBid = false on the bids since chart JS library expects ascending order
         final List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook.get(), false);
         final List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook.get(), false);
 
@@ -220,28 +215,11 @@ public class ApiController {
 
         float[][] floatAsks = askList.toArray(new float[0][0]);
 
-        result.put(
-                "chartTitle",
-                tokenManager.getMarketNameByMarket(market) + " Price"
-        );
-        result.put(
-                "bids",
-                floatBids
-        );
-        result.put(
-                "asks",
-                floatAsks
-        );
-        result.put(
-                "midpoint",
-                midPoint
-        );
-        result.put(
-                "marketId",
-                market.getOwnAddress().toBase58()
-        );
-
-        return result;
+        return MarketDepth.builder()
+                .asks(floatAsks)
+                .bids(floatBids)
+                .midpoint(midPoint)
+                .build();
     }
 
     private Map<String, Object> convertMarketToMap(Market market) {
