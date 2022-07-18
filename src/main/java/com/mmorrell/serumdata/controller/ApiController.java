@@ -181,13 +181,13 @@ public class ApiController {
             if (makerPubkey.isPresent()) {
                 Optional<PublicKey> makerOwner = owners.get(makerPubkey.get());
                 if (makerOwner.isPresent()) {
-                    tradeHistoryEvent.setMakerPubkey(makerOwner.get());
+                    tradeHistoryEvent.setMakerOwner(makerOwner.get());
                     if (identityManager.hasReverseLookup(makerOwner.get())) {
                         tradeHistoryEvent.setMakerEntityName(identityManager.getEntityNameByOwner(makerOwner.get()));
                         tradeHistoryEvent.setMakerEntityIcon(identityManager.getEntityIconByOwner(makerOwner.get()));
                     }
                 } else {
-                    tradeHistoryEvent.setMakerPubkey(makerPubkey.get());
+                    tradeHistoryEvent.setMakerOwner(makerPubkey.get());
                 }
             }
 

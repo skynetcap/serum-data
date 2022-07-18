@@ -17,7 +17,7 @@ public class TradeHistoryEvent {
     private PublicKey owner;
 
     @JsonSerialize(using = PublicKeySerializer.class)
-    private PublicKey makerPubkey;
+    private PublicKey makerOwner;
 
     // Known entities
     private String takerEntityName;

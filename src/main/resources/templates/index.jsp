@@ -73,7 +73,7 @@
     </script>
 </head>
 <body class="dark">
-<div class="container">
+<div class="container-fluid" style="max-width: 1500px !important;">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="fs-4" style="color: rgb(225, 225, 225);"><img src="static/serum-srm-logo.png" width="32"
@@ -92,7 +92,7 @@
         </ul>
     </header>
 </div>
-<main class="container">
+<main class="container-fluid" style="max-width: 1500px !important;">
     <div class="p-5 rounded" style="padding-top: 0px!important;">
         <div class="row">
             <div class="col-sm-4">
@@ -471,10 +471,10 @@
                                 return"<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.makerEntityName;
                             } else {
-                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
+                                return "<a href=\"https://solscan.io/account/" + row.makerOwner.publicKey + "\" target=_blank>" +
+                                    row.makerOwner.publicKey.substring(0, 3) +
                                     ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
                                     "</a>";
                             }
                         }
@@ -488,6 +488,16 @@
                     },
                     {
                         targets: [1],
+                        className: 'dt-left',
+                        width: '20%'
+                    },
+                    {
+                        targets: [2],
+                        className: 'dt-left',
+                        width: '25%'
+                    },
+                    {
+                        targets: [3],
                         className: 'dt-left',
                         width: '25%'
                     }
