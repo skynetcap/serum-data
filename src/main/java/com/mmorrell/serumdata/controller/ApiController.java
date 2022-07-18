@@ -134,7 +134,7 @@ public class ApiController {
         }
 
         List<TradeEvent> tradeEvents = eventQueue.get().getEvents();
-        Map<PublicKey, Optional<PublicKey>> takers = identityManager.lookupAndAddOwnersToCache(
+        Map<PublicKey, Optional<PublicKey>> owners = identityManager.lookupAndAddOwnersToCache(
                 tradeEvents.stream()
                         .map(TradeEvent::getOpenOrders)
                         .toList()
@@ -142,8 +142,26 @@ public class ApiController {
 
         for (int i = 0; i < tradeEvents.size(); i++) {
             TradeEvent event = tradeEvents.get(i);
-            Optional<PublicKey> owner = takers.getOrDefault(event.getOpenOrders(), Optional.empty());
+
+            if (event.getEventQueueFlags().isMaker()) {
+                // Skip event if it's a maker side fill
+                // We are attaching that metadata to the taker event instead.
+                continue;
+            }
+
+            // Get owner of taker OOA
+            Optional<PublicKey> owner = owners.getOrDefault(event.getOpenOrders(), Optional.empty());
+
+            // Fall back if not found yet
             PublicKey taker = owner.orElseGet(event::getOpenOrders);
+
+            // Calculate the corresponding maker for trade.
+            // The maker row is always adjacent to the taker. E.g. index 0 is taker, index 1 is maker.
+            // Volume and price can also be correlated but it isn't as deterministic.
+            int makerIndex = i + 1;
+            final Optional<PublicKey> makerPubkey = makerIndex < tradeEvents.size() ?
+                    Optional.ofNullable(tradeEvents.get(makerIndex).getOpenOrders()) :
+                    Optional.empty();
 
             final TradeHistoryEvent tradeHistoryEvent = TradeHistoryEvent.builder()
                     .index(i)
@@ -155,8 +173,22 @@ public class ApiController {
             // Known entity e.g. Wintermute
             boolean isKnownTaker = identityManager.hasReverseLookup(taker);
             if (isKnownTaker) {
-                tradeHistoryEvent.setEntityName(identityManager.getEntityNameByOwner(taker));
-                tradeHistoryEvent.setEntityIcon(identityManager.getEntityIconByOwner(taker));
+                tradeHistoryEvent.setTakerEntityName(identityManager.getEntityNameByOwner(taker));
+                tradeHistoryEvent.setTakerEntityIcon(identityManager.getEntityIconByOwner(taker));
+            }
+
+            // Maker metadata
+            if (makerPubkey.isPresent()) {
+                Optional<PublicKey> makerOwner = owners.get(makerPubkey.get());
+                if (makerOwner.isPresent()) {
+                    tradeHistoryEvent.setMakerPubkey(makerOwner.get());
+                    if (identityManager.hasReverseLookup(makerOwner.get())) {
+                        tradeHistoryEvent.setMakerEntityName(identityManager.getEntityNameByOwner(makerOwner.get()));
+                        tradeHistoryEvent.setMakerEntityIcon(identityManager.getEntityIconByOwner(makerOwner.get()));
+                    }
+                } else {
+                    tradeHistoryEvent.setMakerPubkey(makerPubkey.get());
+                }
             }
 
             tradeHistoryEvent.setFill(event.getEventQueueFlags().isFill());
@@ -164,9 +196,7 @@ public class ApiController {
             tradeHistoryEvent.setBid(event.getEventQueueFlags().isBid());
             tradeHistoryEvent.setMaker(event.getEventQueueFlags().isMaker());
 
-            if (!tradeHistoryEvent.isMaker()) {
-                result.add(tradeHistoryEvent);
-            }
+            result.add(tradeHistoryEvent);
         }
 
         return result;

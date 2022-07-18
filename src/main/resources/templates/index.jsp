@@ -195,6 +195,7 @@
                                 <th scope="col">Price</th>
                                 <th scope="col">Size</th>
                                 <th scope="col">Taker</th>
+                                <th scope="col">Maker</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -451,9 +452,24 @@
                     {
                         data: 'owner',
                         render: function (data, type, row) {
-                            if (row.entityName) {
-                                return"<img src=\"static/entities/" + row.entityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.entityName;
+                            if (row.takerEntityName) {
+                                return"<img src=\"static/entities/" + row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.takerEntityName;
+                            } else {
+                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                    row.owner.publicKey.substring(0, 3) +
+                                    ".." +
+                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    "</a>";
+                            }
+                        }
+                    },
+                    {
+                        data: 'maker',
+                        render: function (data, type, row) {
+                            if (row.makerEntityName) {
+                                return"<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.makerEntityName;
                             } else {
                                 return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
                                     row.owner.publicKey.substring(0, 3) +
@@ -474,11 +490,6 @@
                         targets: [1],
                         className: 'dt-left',
                         width: '25%'
-                    },
-                    {
-                        targets: [2],
-                        className: 'dt-left',
-                        width: '45%'
                     }
                 ],
                 rowCallback: function( row, data, displayNum, displayIndex, dataIndex ) {
