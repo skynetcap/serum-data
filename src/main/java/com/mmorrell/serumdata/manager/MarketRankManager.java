@@ -43,56 +43,31 @@ public class MarketRankManager {
 
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
-    private final List<MarketListing> marketListings;
     private final RpcClient rpcClient;
+    private List<MarketListing> marketListings;
 
     public MarketRankManager(MarketManager marketManager, TokenManager tokenManager, RpcClient rpcClient) {
         this.marketManager = marketManager;
         this.tokenManager = tokenManager;
         this.rpcClient = rpcClient;
 
-        marketListings = marketManager.getMarketCache().stream()
-                .map(market -> {
-                    // base and quote decimals
-                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
-                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
+        updateCachedMarketListings();
+    }
 
-                    int baseDecimals = 0, quoteDecimals = 0;
-                    if (baseToken.isPresent()) {
-                        baseDecimals = baseToken.get().getDecimals();
-                    }
+    @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)
+    public void updateMarketsScheduled() {
+        LOGGER.info("Scheduled markets update");
 
-                    if (quoteToken.isPresent()) {
-                        quoteDecimals = quoteToken.get().getDecimals();
-                    }
-
-                    PublicKey baseMint = baseToken.isPresent() ?
-                            baseToken.get().getPublicKey() :
-                            MarketUtil.USDC_MINT;
-
-                    // both tokens need to be present, or not listing it.
-                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
-                    return new MarketListing(
-                            tokenManager.getMarketNameByMarket(market),
-                            market.getOwnAddress(),
-                            market.getQuoteDepositsTotal(),
-                            marketManager.getQuoteNotional(market, quoteDecimals),
-                            baseDecimals,
-                            quoteDecimals,
-                            baseMint
-                    );
-                })
-                .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
-                .collect(Collectors.toList());
+        marketManager.updateMarkets();
+        updateCachedMarketListings();
     }
 
     /**
      * Update agg. quote notional variables in the List of MarketListings.
      * Uses batched getMultipleAccounts against all known Market pubkeys.
      */
-    @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)
     public void updateMarketListingNotional() throws RpcException {
-        List<PublicKey> marketIds = marketListings.stream()
+                List<PublicKey> marketIds = marketListings.stream()
                 .map(MarketListing::getId)
                 .toList();
 
@@ -216,5 +191,41 @@ public class MarketRankManager {
 
     public List<MarketListing> getMarketListings() {
         return marketListings;
+    }
+
+    private void updateCachedMarketListings() {
+        marketListings = marketManager.getMarketCache().stream()
+                .map(market -> {
+                    // base and quote decimals
+                    Optional<Token> baseToken = tokenManager.getTokenByMint(market.getBaseMint());
+                    Optional<Token> quoteToken = tokenManager.getTokenByMint(market.getQuoteMint());
+
+                    int baseDecimals = 0, quoteDecimals = 0;
+                    if (baseToken.isPresent()) {
+                        baseDecimals = baseToken.get().getDecimals();
+                    }
+
+                    if (quoteToken.isPresent()) {
+                        quoteDecimals = quoteToken.get().getDecimals();
+                    }
+
+                    PublicKey baseMint = baseToken.isPresent() ?
+                            baseToken.get().getPublicKey() :
+                            MarketUtil.USDC_MINT;
+
+                    // both tokens need to be present, or not listing it.
+                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
+                    return new MarketListing(
+                            tokenManager.getMarketNameByMarket(market),
+                            market.getOwnAddress(),
+                            market.getQuoteDepositsTotal(),
+                            marketManager.getQuoteNotional(market, quoteDecimals),
+                            baseDecimals,
+                            quoteDecimals,
+                            baseMint
+                    );
+                })
+                .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
+                .collect(Collectors.toList());
     }
 }

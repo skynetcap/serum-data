@@ -182,9 +182,7 @@ public class MarketManager {
     }
 
     public List<Market> getMarketCache() {
-        return marketMapCache.values().stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+        return new ArrayList<>(marketCache.values());
     }
 
     public List<Market> getMarketsByMint(PublicKey tokenMint) {
@@ -196,8 +194,6 @@ public class MarketManager {
      */
     public void updateMarkets() {
         LOGGER.info("Caching all Serum markets.");
-
-        marketMapCache.clear();
         final List<ProgramAccount> programAccounts;
 
         try {
@@ -232,13 +228,27 @@ public class MarketManager {
             );
             marketCache.put(market.getOwnAddress(), market);
 
+            // marketMapCache is a tokenMint to List<Market> map which powers the token search.
             // Get list of existing markets for this base mint. otherwise create a new list and put it there.
             List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint(), new ArrayList<>());
-            existingMarketList.add(market);
 
-            if (existingMarketList.size() == 1) {
-                marketMapCache.put(market.getBaseMint(), existingMarketList);
+            // Since Market can't be used in a Set yet, find it manually
+            int existingIndex = -1;
+            for (int i = 0; i < existingMarketList.size(); i++) {
+                Market existingMarket = existingMarketList.get(i);
+                if (existingMarket.getOwnAddress().equals(market.getOwnAddress())) {
+                    existingIndex = i;
+                }
             }
+
+            // Replace existing
+            if (existingIndex >= 0) {
+                existingMarketList.set(existingIndex, market);
+            } else {
+                existingMarketList.add(market);
+            }
+
+            marketMapCache.put(market.getBaseMint(), existingMarketList);
         }
 
         LOGGER.info("All Serum markets cached: " + programAccounts.size());
