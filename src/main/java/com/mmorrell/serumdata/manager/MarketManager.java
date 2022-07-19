@@ -214,6 +214,12 @@ public class MarketManager {
 
         for (ProgramAccount programAccount : programAccounts) {
             Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
+
+            // Ignore fake/erroneous market accounts
+            if (market.getOwnAddress().equals(new PublicKey("11111111111111111111111111111111"))) {
+                continue;
+            }
+
             market.setBaseDecimals(
                     (byte) tokenManager.getDecimals(
                             market.getBaseMint()

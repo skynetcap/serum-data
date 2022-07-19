@@ -100,13 +100,15 @@ public class MarketRankManager {
         Map<PublicKey, Optional<AccountInfo.Value>> accountDataMap = new HashMap<>();
 
         for (List<PublicKey> publicKeys : marketIdsPartitioned) {
-            Map<PublicKey, Optional<AccountInfo.Value>> accountInfos = rpcClient.getApi().getMultipleAccountsMap(publicKeys);
+            Map<PublicKey, Optional<AccountInfo.Value>> accountInfos = rpcClient.getApi()
+                    .getMultipleAccountsMap(publicKeys);
             accountDataMap.putAll(accountInfos);
         }
 
-        marketListings.forEach(marketListing -> {
+        // iterate by index to debug
+        for (MarketListing marketListing : marketListings) {
             Optional<AccountInfo.Value> value = accountDataMap.get(marketListing.getId());
-            value.ifPresent(accountData -> {
+            if (value.isPresent()) {
                 Market market = Market.readMarket(
                         Base64.getDecoder().decode(
                                 value.get().getData().get(0)
@@ -120,8 +122,8 @@ public class MarketRankManager {
                                 marketListing.getQuoteDecimals()
                         )
                 );
-            });
-        });
+            }
+        }
 
         LOGGER.info("Market listings updated.");
     }
