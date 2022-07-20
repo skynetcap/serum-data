@@ -18,4 +18,7 @@ public class MarketListing {
     private int quoteDecimals;
     @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey baseMint;
+
+    private String baseIcon;
+    private String quoteIcon;
 }
