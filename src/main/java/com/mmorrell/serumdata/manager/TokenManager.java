@@ -128,7 +128,7 @@ public class TokenManager {
     public String getMarketNameByMarket(Market market) {
         // result = "SOL / USDC"
         return String.format(
-                "%s / %s",
+                "%s - %s",
                 getTokenSymbolByMint(market.getBaseMint()),
                 getTokenSymbolByMint(market.getQuoteMint())
         );

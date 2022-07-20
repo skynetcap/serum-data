@@ -1,4 +1,5 @@
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd" class="dark">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,7 +30,11 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H55B3XYLG0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
         gtag('js', new Date());
 
         gtag('config', 'G-H55B3XYLG0');
@@ -82,12 +87,17 @@
                             <tbody>
                             <tr th:each="market : ${marketListings}">
                                 <td>
+                                    <img loading="lazy" width="20" height="20" th:src="${market.baseIcon}"
+                                         style="border-radius: 5px;">
+                                    <img loading="lazy" width="20" height="20" th:src="${market.quoteIcon}"
+                                         style="border-radius: 5px;">
                                     <span th:text="${market.name}"></span>
                                 </td>
                                 <td>
                                     <a th:href="@{'/' + ${market.id}}" th:text="${market.id}" target="_blank"></a>
                                 </td>
-                                <td><span th:value="${#numbers.formatCurrency(market.quoteNotional)}" th:text="${#numbers.formatCurrency(market.quoteNotional)}"></span></td>
+                                <td><span th:value="${#numbers.formatCurrency(market.quoteNotional)}"
+                                          th:text="${#numbers.formatCurrency(market.quoteNotional)}"></span></td>
                             </tr>
                             </tbody>
                         </table>
@@ -98,15 +108,15 @@
     </div>
 </main>
 <script src="static/js/darkmode.min.js"></script>
-<script type="text/javascript"  th:inline="none" class="init">
+<script type="text/javascript" th:inline="none" class="init">
     /*<![CDATA[*/
-    $(document).ready( function () {
-        $('#marketListings').DataTable({
-            paging: true,
-            //scrollY: 500,
-            order: [[2, 'desc']]
-        });
-    }
+    $(document).ready(function () {
+            $('#marketListings').DataTable({
+                paging: true,
+                //scrollY: 500,
+                order: [[2, 'desc']]
+            });
+        }
     );
     /*]]>*/
 </script>

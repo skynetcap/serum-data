@@ -2,16 +2,10 @@ package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
-import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.AccountInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +17,6 @@ import java.util.stream.Collectors;
 public class MarketRankManager {
 
     private static final int RANK_PLACEHOLDER = 9999999;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarketRankManager.class);
 
     // Top tokens list, for quicker resolution from symbol.
     private static final Map<String, Token> TOP_TOKENS = Map.of(
@@ -43,64 +36,19 @@ public class MarketRankManager {
 
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
-    private final RpcClient rpcClient;
     private List<MarketListing> marketListings;
 
-    public MarketRankManager(MarketManager marketManager, TokenManager tokenManager, RpcClient rpcClient) {
+    public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
         this.marketManager = marketManager;
         this.tokenManager = tokenManager;
-        this.rpcClient = rpcClient;
 
         updateCachedMarketListings();
     }
 
     @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)
     public void updateMarketsScheduled() {
-        LOGGER.info("Scheduled markets update");
-
         marketManager.updateMarkets();
         updateCachedMarketListings();
-    }
-
-    /**
-     * Update agg. quote notional variables in the List of MarketListings.
-     * Uses batched getMultipleAccounts against all known Market pubkeys.
-     */
-    public void updateMarketListingNotional() throws RpcException {
-                List<PublicKey> marketIds = marketListings.stream()
-                .map(MarketListing::getId)
-                .toList();
-
-        List<List<PublicKey>> marketIdsPartitioned = Lists.partition(marketIds, 100);
-        Map<PublicKey, Optional<AccountInfo.Value>> accountDataMap = new HashMap<>();
-
-        for (List<PublicKey> publicKeys : marketIdsPartitioned) {
-            Map<PublicKey, Optional<AccountInfo.Value>> accountInfos = rpcClient.getApi()
-                    .getMultipleAccountsMap(publicKeys);
-            accountDataMap.putAll(accountInfos);
-        }
-
-        // iterate by index to debug
-        for (MarketListing marketListing : marketListings) {
-            Optional<AccountInfo.Value> value = accountDataMap.get(marketListing.getId());
-            if (value.isPresent()) {
-                Market market = Market.readMarket(
-                        Base64.getDecoder().decode(
-                                value.get().getData().get(0)
-                        )
-                );
-
-                // Update quote notional
-                marketListing.setQuoteNotional(
-                        marketManager.getQuoteNotional(
-                                market,
-                                marketListing.getQuoteDecimals()
-                        )
-                );
-            }
-        }
-
-        LOGGER.info("Market listings updated.");
     }
 
     /**
@@ -222,7 +170,9 @@ public class MarketRankManager {
                             marketManager.getQuoteNotional(market, quoteDecimals),
                             baseDecimals,
                             quoteDecimals,
-                            baseMint
+                            baseMint,
+                            tokenManager.getTokenLogoByMint(market.getBaseMint()),
+                            tokenManager.getTokenLogoByMint(market.getQuoteMint())
                     );
                 })
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
