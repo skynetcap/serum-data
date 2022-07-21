@@ -474,11 +474,15 @@
                                 return"<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.makerEntityName;
                             } else {
-                                return "<a href=\"https://solscan.io/account/" + row.makerOwner.publicKey + "\" target=_blank>" +
-                                    row.makerOwner.publicKey.substring(0, 3) +
-                                    ".." +
-                                    row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
-                                    "</a>";
+                                if (row.makerOwner) {
+                                    return "<a href=\"https://solscan.io/account/" + row.makerOwner.publicKey + "\" target=_blank>" +
+                                        row.makerOwner.publicKey.substring(0, 3) +
+                                        ".." +
+                                        row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
+                                        "</a>";
+                                } else {
+                                    return "Deleted";
+                                }
                             }
                         }
                     }
