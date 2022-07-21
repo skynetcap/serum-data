@@ -10,7 +10,7 @@ function formatToken(token) {
     icon.concat(token.element.dataset.icon);
 
     return $(
-        '<span><img src="' + token.element.dataset.icon + '" class="img-icon" /> ' + token.text + '</span>'
+        '<span><img src="' + icon + '" class="img-icon" /> ' + token.text + '</span>'
     );
 }
 
