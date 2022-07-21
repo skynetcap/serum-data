@@ -2,16 +2,18 @@ $.fn.dataTable.ext.errMode = 'none';
 var chartTitle, baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot;
 
 function formatToken(token) {
-    // only load top 100 icons
-    if (!token.id || token.element.dataset.rank > 100) {
+    if (!token.id) {
         return token.text;
     }
-    var icon = ''
-    icon.concat(token.element.dataset.icon);
-
-    return $(
-        '<span><img src="' + icon + '" class="img-icon" /> ' + token.text + '</span>'
-    );
+    if (token.element.dataset.icon != null) {
+        return $(
+            '<span><img loading="lazy" src="' + token.element.dataset.icon + '" class="img-icon" /> ' + token.text + '</span>'
+        );
+    } else {
+        return $(
+            '<span>' + token.text + '</span>'
+        );
+    }
 }
 
 
