@@ -30,8 +30,11 @@ function loadMarkets(tokenId) {
         $.each(data, function (k, v) {
             $("#marketList").append(
                 "<li>" +
-                "<img width='20' height='20' src=" + v.baseLogo + " class=\"img-icon\" style=\"float: left; border-radius: 5px;\"/><img" +
-                " height='20' width='20' src=" + v.quoteLogo + " class=\"img-icon\" style=\"float: left;" +
+                "<img width='20' height='20' src=" + (v.baseLogo == null ? "" : v.baseLogo) + " class=\"img-icon\"" +
+                    " style=\"float:" +
+                    " left; border-radius: 5px;\"/><img" +
+                " height='20' width='20' src=" + (v.quoteLogo == null ? "" : v.quoteLogo) + " class=\"img-icon\"" +
+                " style=\"float: left;" +
                 " border-radius: 5px;\"/> " +
                 "<a href=\"#\" style='padding-left: 6px;' onClick=\"setMarket('" + v.id + "');\">" +
                 v.baseSymbol + " - " + v.quoteSymbol + " - " + "(" + (v.percentage * 100).toFixed(0) + "%)" +
