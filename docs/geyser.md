@@ -4,6 +4,11 @@
 running Postgres, called serum-db-va .
 - Geyser plugin on Validator 1: Postgres plugin written by Solana Labs, pointed to serum-db-va.
 
+Related:
+- https://github.com/solana-labs/solana-accountsdb-plugin-postgres
+- https://docs.solana.com/developing/plugins/geyser-plugins
+- https://github.com/rpcpool/solana-geyser-park
+
 ## serum-db-va
   - Massive Postgres server in same DC as Validator (OVH Vint Hill), w/ private networking. 
   - At least 128/256GB of RAM, High CPU, high private bandwidth
