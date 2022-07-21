@@ -1,5 +1,5 @@
 $.fn.dataTable.ext.errMode = 'none';
-var chartTitle, baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot;
+var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot;
 
 function formatToken(token) {
     if (!token.id) {
