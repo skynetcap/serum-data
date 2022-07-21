@@ -23,7 +23,7 @@
     <script src="static/js/chart.min.js"></script>
 
     <!-- depth -->
-    <script src="static/charting.js"></script>
+    <script src="static/highcharts.js"></script>
     <script src="static/plugin.js"></script>
 
     <script src="static/js/select2.min.js"></script>
@@ -335,6 +335,7 @@
                 paging: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/bids',
+                    cache: true,
                     dataSrc: ''
                 },
                 columns: [
@@ -385,6 +386,7 @@
                 paging: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/asks',
+                    cache: true,
                     dataSrc: ''
                 },
                 columns: [
@@ -439,6 +441,7 @@
                 info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/tradeHistory',
+                    cache: true,
                     dataSrc: ''
                 },
                 columns: [
