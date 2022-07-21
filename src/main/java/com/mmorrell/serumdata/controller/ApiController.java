@@ -26,6 +26,8 @@ public class ApiController {
     private final IdentityManager identityManager;
 
     // Cache headers
+    private final static String CACHE_CONTROL_HEADER_NAME = "Cache-Control";
+    private final static String CACHE_CONTROL_HEADER_VALUE = "no-cache";
     private final static String CACHE_HEADER_NAME = "Cloudflare-CDN-Cache-Control";
     private final static String CACHE_HEADER_VALUE = "max-age=";
     private final static int CACHE_MAX_DURATION_SECONDS = 1;
@@ -88,6 +90,7 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
     public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
@@ -104,6 +107,7 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
     public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
@@ -120,6 +124,7 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
     public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final List<TradeHistoryEvent> result = new ArrayList<>();
         final PublicKey marketKey = new PublicKey(marketId);
@@ -202,6 +207,7 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
     public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
         response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPubkey = new PublicKey(marketId);
         CompletableFuture<Optional<OrderBook>> bidFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedBidOrderBook(marketPubkey));
