@@ -6,6 +6,9 @@ function formatToken(token) {
     if (!token.id || token.element.dataset.rank > 100) {
         return token.text;
     }
+    var icon = ''
+    icon.concat(token.element.dataset.icon);
+
     return $(
         '<span><img src="' + token.element.dataset.icon + '" class="img-icon" /> ' + token.text + '</span>'
     );
