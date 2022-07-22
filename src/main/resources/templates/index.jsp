@@ -88,15 +88,18 @@
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link">Markets</a></li>
-            <li class="nav-item"><a href="#" aria-current="page" class="nav-link">API</a></li>
-            <li class="nav-item"><a href="https://github.com/skynetcap/serum-data" aria-current="page" class="nav-link"
-                                    target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
-            <li class="nav-item"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
-                                    target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li class="nav-item"><a href="https://solend.fi/dashboard?ref=HNeQJpqqhfgHcrRfEiBMsLDHVKLsWrpQGCveiRZDeikz"
+                                    aria-current="page"
+                                    class="nav-link"
+                                    target="_blank" style="background-image:
+                                                         linear-gradient(45deg, #e15300, #a12100); color:white;
+                                                         text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
+                    src="https://solend.fi/favicon.ico" width="20"
+                    height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
                                     class="nav-link"
                                     target="_blank" style="background-image:
-                                                         linear-gradient(45deg, #FF6404, #FE3800); color:white;"><img
+                                                         linear-gradient(45deg, #ff9500, #ff0000); color:white;"><img
                     src="https://mango.markets/favicon.ico" width="20"
                     height="20">Mango Markets</a></li>
         </ul>
@@ -120,14 +123,31 @@
                         </p>
                         <hr>
                         Popular: <a
-                            href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');" style="padding-right: 3px;"><img
+                            href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');"
+                            style="padding-right: 3px;"><img
                             width="20" height="20"
-                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">BTC</a> <a
-                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">ETH</a> <a
-                            href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">SOL</a> <a
-                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">SRM</a> <a
-                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');" style="padding-right: 3px;"><img
-                            width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/token.png" class="img-icon" style="=border-radius: 5px; margin-right: 2px">MNGO</a>
+                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png"
+                            class="img-icon" style="border-radius: 5px; margin-right: 2px">BTC</a> <a
+                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');"
+                            style="padding-right: 3px;"><img width="20" height="20"
+                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/logo.png"
+                                                             class="img-icon"
+                                                             style="border-radius: 5px; margin-right: 2px">ETH</a> <a
+                            href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');"
+                            style="padding-right: 3px;"><img width="20" height="20"
+                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
+                                                             class="img-icon"
+                                                             style="border-radius: 5px; margin-right: 2px">SOL</a> <a
+                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');"
+                            style="padding-right: 3px;"><img width="20" height="20"
+                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/logo.png"
+                                                             class="img-icon"
+                                                             style="border-radius: 5px; margin-right: 2px">SRM</a> <a
+                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');"
+                            style="padding-right: 3px;"><img
+                            width="20" height="20"
+                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/token.png"
+                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">MNGO</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
@@ -218,7 +238,16 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div style="margin-top: 15px">
+            <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
+                <li class="nav-item" style="float: right"><a href="#" aria-current="page" class="nav-link">API</a></li>
+                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
+                                        target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+                <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
+                                        class="nav-link"
+                                        target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
 </main>
 <script th:inline="javascript">
     var activeMarketId, lastLoadedMarketId, lastLoadedChartId;
