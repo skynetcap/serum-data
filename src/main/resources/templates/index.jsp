@@ -66,7 +66,11 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H55B3XYLG0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
         gtag('js', new Date());
 
         gtag('config', 'G-H55B3XYLG0');
@@ -89,6 +93,12 @@
                                     target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
             <li class="nav-item"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
                                     target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
+                                    class="nav-link"
+                                    target="_blank" style="background-image:
+                                                         linear-gradient(45deg, #FF6404, #FE3800); color:white;"><img
+                    src="https://mango.markets/favicon.ico" width="20"
+                    height="20">Mango Markets</a></li>
         </ul>
     </header>
 </div>
@@ -456,7 +466,7 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (row.takerEntityName) {
-                                return"<img src=\"static/entities/" + row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                return "<img src=\"static/entities/" + row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.takerEntityName;
                             } else {
                                 return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
@@ -471,7 +481,7 @@
                         data: 'maker',
                         render: function (data, type, row) {
                             if (row.makerEntityName) {
-                                return"<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                return "<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.makerEntityName;
                             } else {
                                 if (row.makerOwner) {
@@ -509,7 +519,7 @@
                         width: '25%'
                     }
                 ],
-                rowCallback: function( row, data, displayNum, displayIndex, dataIndex ) {
+                rowCallback: function (row, data, displayNum, displayIndex, dataIndex) {
                     var node = this.api().row(row).nodes().to$();
                     if (data.bid) {
                         node.addClass('table-success')

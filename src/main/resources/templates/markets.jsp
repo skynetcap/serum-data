@@ -58,6 +58,12 @@
                                     target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
             <li class="nav-item"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
                                     target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
+                                    class="nav-link"
+                                    target="_blank" style="background-image:
+                                                         linear-gradient(45deg, #FF6404, #FE3800); color:white;"><img
+                    src="https://mango.markets/favicon.ico" width="20"
+                    height="20">Mango Markets</a></li>
         </ul>
     </header>
 </div>
