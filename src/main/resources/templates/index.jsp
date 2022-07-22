@@ -120,11 +120,14 @@
                         </p>
                         <hr>
                         Popular: <a
-                            href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');">BTC</a> - <a
-                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');">ETH</a> - <a
-                            href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');">SOL</a> - <a
-                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');">SRM</a> - <a
-                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');">MNGO</a>
+                            href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');" style="padding-right: 3px;"><img
+                            width="20" height="20"
+                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">BTC</a> <a
+                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">ETH</a> <a
+                            href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">SOL</a> <a
+                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');" style="padding-right: 3px;"><img width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/logo.png" class="img-icon" style="border-radius: 5px; margin-right: 2px">SRM</a> <a
+                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');" style="padding-right: 3px;"><img
+                            width="20" height="20" src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/token.png" class="img-icon" style="=border-radius: 5px; margin-right: 2px">MNGO</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
