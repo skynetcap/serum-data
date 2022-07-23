@@ -62,6 +62,11 @@ public class IdentityManager {
                 "Raydium",
                 "raydium"
         );
+        addKnownEntity(
+                "3uaZBfHPfmpAHW7dsimC1SnyR61X4bJqQZKWmRSCXJxv",
+                "Raydium",
+                "raydium"
+        );
 
         // Jump Trading / Jump Crypto
         addKnownEntity(
