@@ -84,7 +84,6 @@
                                                                        height="32"
                                                                        style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
-
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link">Markets</a></li>
@@ -94,13 +93,13 @@
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #e15300, #a12100); color:white;
                                                          text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
-                    src="https://solend.fi/favicon.ico" width="20"
+                    src="static/entities/solend.ico" width="20"
                     height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #ff9500, #ff0000); color:white;"><img
-                    src="https://mango.markets/favicon.ico" width="20"
+                    src="static/entities/mango.ico" width="20"
                     height="20">Mango Markets</a></li>
         </ul>
     </header>
@@ -157,10 +156,15 @@
                 <p>
                 <div class="card overflow-auto">
                     <div class="card-body">
-                        <h5 class="card-title">Markets</h5>
-                        <hr>
-                        <ul id="marketList" style="height: 100px; overflow: auto; list-style: none; padding-left: 5px">
-                        </ul>
+                        <table id="marketList" class="table table-striped table-hover cell-border">
+                            <thead>
+                            <th>Base</th>
+                            <th>Quote</th>
+                            <th>Activity</th>
+                            <th></th>
+                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
