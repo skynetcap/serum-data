@@ -129,8 +129,6 @@ function setMarket(marketId) {
 function loadTradeHistory(marketId) {
     let apiUrl = "/api/serum/market/" + marketId + "/tradeHistory";
     $.get(apiUrl, function (data) {
-        $('#tradeHistoryTable tbody').empty();
-
         // reset chart
         myChart.data = {
             labels: [],

@@ -84,7 +84,6 @@
                                                                        height="32"
                                                                        style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
-
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link">Markets</a></li>
@@ -163,7 +162,7 @@
                             <th>Quote</th>
                             <th>Activity</th>
                             <th></th>
-                            <tbody style="font-size: 18px;"></tbody>
+                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
                             </thead>
                         </table>
                     </div>
