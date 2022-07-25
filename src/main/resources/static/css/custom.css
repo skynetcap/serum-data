@@ -24,7 +24,9 @@ img.img-icon {
     margin: 0 !important;
     display: inherit !important;
     height: 18px;
-    width: 18px
+    width: 18px;
+
+    border-radius: 5px;
 }
 
 * {
@@ -49,12 +51,12 @@ img.img-icon {
     margin: 0 auto;
 }
 
-#priceChartTitle {
-    text-overflow: ellipsis;
-    width: 450px;
-    white-space: nowrap;
-    overflow: hidden;
-}
+/*#priceChartTitle {*/
+/*    text-overflow: ellipsis;*/
+/*    width: 450px;*/
+/*    white-space: nowrap;*/
+/*    overflow: hidden;*/
+/*}*/
 
 /*th {*/
 /*    !*background: white !important;*!*/

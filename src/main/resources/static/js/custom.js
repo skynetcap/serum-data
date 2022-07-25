@@ -1,5 +1,7 @@
 $.fn.dataTable.ext.errMode = 'none';
-var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot;
+$.fn.DataTable.ext.pager.numbers_length = 5;
+
+var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot, marketTable;
 
 function formatToken(token) {
     if (!token.id) {
@@ -30,24 +32,89 @@ function addData(label, data, update) {
 
 function loadMarkets(tokenId) {
     let apiUrl = "/api/serum/token/" + tokenId;
-    $.get(apiUrl, function (data) {
-        $("#marketList").empty();
-        $.each(data, function (k, v) {
-            $("#marketList").append(
-                "<li>" +
-                "<img width='20' height='20' src=\"" + (v.baseLogo == null ? "" : v.baseLogo) + "\" class=\"img-icon\"" +
-                    " style=\"float:" +
-                    " left; border-radius: 5px;\"/><img" +
-                " height='20' width='20' src=\"" + (v.quoteLogo == null ? "" : v.quoteLogo) + "\" class=\"img-icon\"" +
-                " style=\"float: left;" +
-                " border-radius: 5px;\"/> " +
-                "<a href=\"#\" style='padding-left: 6px;' onClick=\"setMarket('" + v.id + "');\">" +
-                v.baseSymbol + " - " + v.quoteSymbol + " - " + "(" + (v.percentage * 100).toFixed(0) + "%)" +
-                " (" + v.id.substring(0, 3) + "..." + v.id.substring(v.id.length - 3) +
-                ")</a></li>"
-            );
-        })
-    });
+
+    if (marketTable == null) {
+        var marketList = $('#marketList');
+        marketTable = marketList.DataTable({
+            "ajax": {
+                "url": apiUrl,
+                "dataSrc": ""
+            },
+            pageLength: 3,
+            info: false,
+            searching: false,
+            lengthChange: false,
+            order: [[2, 'desc']],
+            columns: [
+                {
+                    data: 'base',
+                    render: function (data, type, row) {
+                        if (row.baseLogo !== "" && row.baseSymbol !== "") {
+                            return "<img style='float: left;' class='img-icon' src='" + row.baseLogo + "'><span" +
+                                " style='padding-left: 5px;'>" + row.baseSymbol + "</span>";
+                        } else {
+                            return "?";
+                        }
+                    }
+                },
+                {
+                    data: 'quote',
+                    render: function (data, type, row) {
+                        if (row.quoteLogo !== "" && row.quoteSymbol !== "") {
+                            return "<img style='float: left;' class='img-icon' src='" + row.quoteLogo + "'><span" +
+                                " style='padding-left: 5px;'>" + row.quoteSymbol + "</span>";
+                        } else {
+                            return "?";
+                        }
+                    }
+                },
+                {
+                    data: 'percentage',
+                    render: function (data, type, row) {
+                        return (row.percentage * 100).toFixed(0) + '%';
+                    }
+                },
+                {
+                    data: 'view',
+                    render: function (data, type, row) {
+                        return "<button type=\"button\" class=\"btn btn-primary btn-sm\"" +
+                            " onClick=\"setMarket('" + row.id + "');\">View</button>";
+                    }
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: [0],
+                    className: 'dt-left',
+                    width: '40%'
+                },
+                {
+                    targets: [1],
+                    className: 'dt-left',
+                    width: '35%'
+                },
+                {
+                    targets: [2],
+                    className: 'dt-middle',
+                    width: '10%'
+                },
+                {
+                    targets: [3],
+                    className: 'dt-middle',
+                    width: '15%'
+                }
+            ]
+        });
+        marketList.on('click', 'tbody td', function() {
+            var marketId = marketTable.row(this).data()['id'];
+            if (marketId) {
+                setMarket(marketId);
+            }
+        });
+    } else {
+        marketTable.ajax.url(apiUrl).load();
+    }
+
 }
 
 function setMarket(marketId) {
