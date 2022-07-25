@@ -110,9 +110,9 @@
             <div class="col-sm-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Tokens</h5>
+                        <h5 class="card-title" style="float: left; margin-right: 10px">Token</h5>
                         <p class="card-text">
-                            <select class="form-control" id="tokenSelect" style="display: none">
+                            <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
                                 <option th:each="token : ${tokens.values()}"
                                         th:value="${token.address}"
                                         th:attr="data-icon=${token.logoURI},data-rank=${marketRankManager.getMarketRankOfToken(token.address)}"
@@ -120,7 +120,6 @@
                                 </option>
                             </select>
                         </p>
-                        <hr>
                         Popular: <a
                             href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');"
                             style="padding-right: 3px;"><img
