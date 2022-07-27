@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Component
 public class MarketRankManager {
@@ -68,7 +67,7 @@ public class MarketRankManager {
     }
 
     public Optional<Market> getMostActiveMarket(PublicKey baseMint) {
-        List<Market> markets = marketManager.getMarketsByMint(baseMint);
+        List<Market> markets = marketManager.getMarketsByTokenMint(baseMint);
         if (markets.size() < 1) {
             return Optional.empty();
         }
@@ -93,7 +92,7 @@ public class MarketRankManager {
     }
 
     public Optional<Market> getMostActiveMarket(PublicKey baseMint, PublicKey quoteMint) {
-        List<Market> markets = marketManager.getMarketsByMint(baseMint);
+        List<Market> markets = marketManager.getMarketsByTokenMint(baseMint);
         if (markets.size() < 1) {
             return Optional.empty();
         }
@@ -161,8 +160,6 @@ public class MarketRankManager {
                             baseToken.get().getPublicKey() :
                             MarketUtil.USDC_MINT;
 
-                    // both tokens need to be present, or not listing it.
-                    // TODO: migrate token registry to use new (?) registry as tokenlist.json is deprecated
                     return new MarketListing(
                             tokenManager.getMarketNameByMarket(market),
                             market.getOwnAddress(),
@@ -176,6 +173,6 @@ public class MarketRankManager {
                     );
                 })
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

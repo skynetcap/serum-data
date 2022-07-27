@@ -40,6 +40,7 @@ function loadMarkets(tokenId) {
                 "url": apiUrl,
                 "dataSrc": ""
             },
+            autoWidth: false,
             pageLength: 3,
             info: false,
             searching: false,

@@ -4,38 +4,41 @@ import ch.openserum.serum.model.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.util.MarketUtil;
-import com.mmorrell.serumdata.util.RpcUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.config.Commitment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class MarketManager {
 
-    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 30;
-    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
-    private final RpcClient bidClient = new RpcClient(RpcUtil.getPublicEndpoint());
-    private final RpcClient askClient = new RpcClient(RpcUtil.getPublicEndpoint());
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
+    private static final int ORDER_BOOK_CACHE_DURATION_SECONDS = 1;
+    private static final int EVENT_QUEUE_CACHE_DURATION_MS = 2500;
 
+    private final RpcClient client;
     // Managers
     private final TokenManager tokenManager;
 
     // <marketPubkey, Market>
     private final Map<PublicKey, Market> marketCache = new HashMap<>();
-    // <tokenMint, List<Market>>
+    // <baseMint, List<Market>>
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
-    private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
+    // <quoteMint, List<Market>>
+    private final Map<PublicKey, List<Market>> marketMapQuoteMintCache = new HashMap<>();
+
+    // Price cache for notional calculations
+    // <marketId, bestBid>
+    private static final int MINIMUM_REQUIRED_MARKETS_FOR_PRICING = 2;
+    private final Map<PublicKey, Float> priceCache = new HashMap<>();
 
     // Solana Context
     private final long DEFAULT_MIN_CONTEXT_SLOT = 0L;
@@ -45,7 +48,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -54,7 +57,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = bidOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = bidClient.getApi()
+                                AccountInfo accountInfo = client.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getBids(),
                                                 Map.of(
@@ -65,7 +68,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("BID new context! " + accountInfo.getContext().getSlot());
                                 bidOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return buildOrderBook(
@@ -77,7 +79,6 @@ public class MarketManager {
                                         cachedMarket
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("bids exception: returning map");
                                 return bidOrderBookLoadingCache.asMap().get(marketPubkey);
                             }
                         }
@@ -85,7 +86,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -94,7 +95,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = askOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = askClient.getApi()
+                                AccountInfo accountInfo = client.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getAsks(),
                                                 Map.of(
@@ -105,7 +106,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("ASK new context! " + accountInfo.getContext().getSlot());
                                 askOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return buildOrderBook(
@@ -117,14 +117,13 @@ public class MarketManager {
                                         cachedMarket
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("asks exception: returning map");
                                 return askOrderBookLoadingCache.asMap().get(marketPubkey);
                             }
                         }
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(2500, TimeUnit.MILLISECONDS)
+            .refreshAfterWrite(EVENT_QUEUE_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -144,7 +143,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("EQ new context! " + accountInfo.getContext().getSlot());
                                 eventQueueMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return EventQueue.readEventQueue(
@@ -157,27 +155,14 @@ public class MarketManager {
                                         cachedMarket.getQuoteLotSize()
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("EQ context error, using map cache.");
                                 return eventQueueLoadingCache.asMap().get(marketPubkey);
                             }
                         }
                     });
 
-    // <concat(marketId, ooa, owner), jupiterTx>
-    private final Map<String, Optional<String>> jupiterTxMap = new HashMap<>();
-
-    // Jupiter
-    private static final PublicKey JUPITER_PROGRAM_ID =
-            PublicKey.valueOf("JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph");
-    private static final PublicKey JUPITER_USDC_WALLET =
-            PublicKey.valueOf("H5sizxhR6ssXrX2YNDoYaUv93PU34VzyRaVaUHuo5eFk");
-    private static final PublicKey JUPITER_USDT_WALLET =
-            PublicKey.valueOf("FVKG6bkrQ4rksme6GT1FN7PgvZf9cNmupyWfN5kJj8Fx");
-    private static final PublicKey JUPITER_WSOL_WALLET =
-            PublicKey.valueOf("61CjGbapEVoyCC51x5tPZGZHCYsgtPSSssCatHEEUWeG");
-
-    public MarketManager(final TokenManager tokenManager) {
+    public MarketManager(final TokenManager tokenManager, final RpcClient rpcClient) {
         this.tokenManager = tokenManager;
+        this.client = rpcClient;
         updateMarkets();
     }
 
@@ -185,15 +170,20 @@ public class MarketManager {
         return new ArrayList<>(marketCache.values());
     }
 
-    public List<Market> getMarketsByMint(PublicKey tokenMint) {
-        return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
+    public List<Market> getMarketsByTokenMint(PublicKey tokenMint) {
+        final Set<Market> result = new HashSet<>();
+
+        result.addAll(marketMapCache.getOrDefault(tokenMint, new ArrayList<>()));
+        result.addAll(marketMapQuoteMintCache.getOrDefault(tokenMint, new ArrayList<>()));
+
+        return result.stream().toList();
     }
 
     /**
      * Update marketCache with the latest markets
      */
     public void updateMarkets() {
-        LOGGER.info("Caching all Serum markets.");
+        log.info("Caching all Serum markets.");
         final List<ProgramAccount> programAccounts;
 
         try {
@@ -228,30 +218,93 @@ public class MarketManager {
             );
             marketCache.put(market.getOwnAddress(), market);
 
-            // marketMapCache is a tokenMint to List<Market> map which powers the token search.
+            // marketMapCache is a baseMint to List<Market> map which powers the token search.
             // Get list of existing markets for this base mint. otherwise create a new list and put it there.
-            List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint(), new ArrayList<>());
+            Set<Market> existingMarketList = new HashSet<>(marketMapCache.getOrDefault(market.getBaseMint(),
+                    new ArrayList<>()));
+            existingMarketList.add(market);
 
-            // Since Market can't be used in a Set yet, find it manually
-            int existingIndex = -1;
-            for (int i = 0; i < existingMarketList.size(); i++) {
-                Market existingMarket = existingMarketList.get(i);
-                if (existingMarket.getOwnAddress().equals(market.getOwnAddress())) {
-                    existingIndex = i;
-                }
-            }
+            // put it as a market for quote mint (as a base)
+            Set<Market> existingMarketQuoteList = new HashSet<>(marketMapQuoteMintCache.getOrDefault(market.getQuoteMint(),
+                    new ArrayList<>()));
+            existingMarketQuoteList.add(market);
 
-            // Replace existing
-            if (existingIndex >= 0) {
-                existingMarketList.set(existingIndex, market);
-            } else {
-                existingMarketList.add(market);
-            }
-
-            marketMapCache.put(market.getBaseMint(), existingMarketList);
+            marketMapCache.put(market.getBaseMint(), existingMarketList.stream().toList());
+            marketMapQuoteMintCache.put(market.getQuoteMint(), existingMarketQuoteList.stream().toList());
         }
 
-        LOGGER.info("All Serum markets cached: " + programAccounts.size());
+        final Map<PublicKey, Integer> marketsToPriceMap = new HashMap<>();
+        for (Market market : marketCache.values()) {
+            int marketCount = marketsToPriceMap.getOrDefault(market.getQuoteMint(), 0);
+            marketsToPriceMap.put(market.getQuoteMint(), marketCount + 1);
+        }
+
+        final List<PublicKey> quoteMintsToPrice =
+                marketsToPriceMap.entrySet().stream()
+                        .filter(entry -> entry.getValue() >= MINIMUM_REQUIRED_MARKETS_FOR_PRICING)
+                        .map(Map.Entry::getKey)
+                        .toList();
+
+        log.info("Pricing markets...");
+        final Map<PublicKey, Market> mintToUsdcMarketPubkey = new HashMap<>();
+        final Map<PublicKey, PublicKey> mintToBidOrderBook = new HashMap<>();
+
+        // Get best known USDC market for quote mint
+        quoteMintsToPrice.forEach(publicKey -> {
+            List<Market> existing = marketMapCache.getOrDefault(publicKey, marketMapQuoteMintCache.get(publicKey));
+            if (existing != null) {
+                List<Market> baseMarkets = new ArrayList<>(existing);
+                baseMarkets.sort(Comparator.comparingLong(Market::getQuoteDepositsTotal).reversed());
+                for (Market baseMarket : baseMarkets) {
+                    if (baseMarket.getQuoteMint().equals(MarketUtil.USDC_MINT) ||
+                            baseMarket.getQuoteMint().equals(MarketUtil.USDT_MINT)) {
+                        mintToUsdcMarketPubkey.put(publicKey, baseMarket);
+                        mintToBidOrderBook.put(publicKey, baseMarket.getBids());
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Request data for all bid orderbooks, for best usdc markets, for token mints with > 3 markets
+        Map<PublicKey, Optional<AccountInfo.Value>> accountData = new HashMap<>();
+        Collection<PublicKey> bidOrderBooks = mintToBidOrderBook.values();
+        List<List<PublicKey>> accountsToSearchList = Lists.partition(bidOrderBooks.stream().toList(), 100);
+        for (List<PublicKey> publicKeys : accountsToSearchList) {
+            try {
+                accountData.putAll(client.getApi().getMultipleAccountsMap(
+                                new ArrayList<>(publicKeys)
+                        )
+                );
+            } catch (RpcException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        quoteMintsToPrice.forEach(mintToPrice -> {
+            if (accountData.containsKey(mintToBidOrderBook.get(mintToPrice))) {
+                Optional<AccountInfo.Value> data = accountData.get(mintToBidOrderBook.get(mintToPrice));
+                if (data.isPresent()) {
+                    Market market = mintToUsdcMarketPubkey.get(mintToPrice);
+                    byte[] decoded = Base64.getDecoder().decode(data.get().getData().get(0));
+                    OrderBook bidOrderbook = OrderBook.readOrderBook(decoded);
+                    bidOrderbook.setBaseDecimals(market.getBaseDecimals());
+                    bidOrderbook.setQuoteDecimals(market.getQuoteDecimals());
+                    bidOrderbook.setBaseLotSize(market.getBaseLotSize());
+                    bidOrderbook.setQuoteLotSize(market.getQuoteLotSize());
+
+                    // getOrders is slightly inefficient, need to cache better
+                    if (bidOrderbook.getOrders().size() > 0 && bidOrderbook.getSlab().getSlabNodes().get(0) != null) {
+                        priceCache.put(mintToPrice, bidOrderbook.getBestBid().getFloatPrice());
+                        log.info(mintToPrice + ": Price: " + priceCache.get(mintToPrice));
+                    } else {
+                        log.info(mintToPrice + ": No bids found..");
+                    }
+                }
+            }
+        });
+
+        log.info("All Serum markets cached: " + programAccounts.size());
     }
 
     public int numMarketsByToken(PublicKey tokenMint) {
@@ -262,151 +315,35 @@ public class MarketManager {
         return Optional.ofNullable(marketCache.get(PublicKey.valueOf(marketId)));
     }
 
-    public Optional<String> getJupiterTxForMarketAndOoa(
-            PublicKey marketId,
-            PublicKey ooa,
-            PublicKey owner,
-            float price,
-            float quantity
-    ) {
-        String uniqueKey = marketId.toString().concat(ooa.toString()).concat(owner.toString()).concat(String.valueOf(price)).concat(String.valueOf(quantity));
-
-        // bail out if its cached
-        if (jupiterTxMap.containsKey(uniqueKey)) {
-            // LOGGER.info("HAVE ANSWER: " + uniqueKey);
-            return jupiterTxMap.get(uniqueKey);
-        }
-
-        // bail if were already working on it
-        if (tradeHistoryKeyToFutureMap.containsKey(uniqueKey)) {
-            if (!tradeHistoryKeyToFutureMap.get(uniqueKey).isDone()) {
-                // LOGGER.info("WORKING: " + uniqueKey);
-                return Optional.empty();
-            }
-        }
-
-
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            List<SignatureInformation> confirmedSignatures;
-            try {
-                confirmedSignatures = client.getApi().getSignaturesForAddress(
-                        owner,
-                        10,
-                        Commitment.CONFIRMED
-                );
-            } catch (RpcException e) {
-                throw new RuntimeException(e);
-            }
-
-            for (SignatureInformation signatureInformation : confirmedSignatures) {
-                ConfirmedTransaction confirmedTransaction;
-                try {
-                    confirmedTransaction = client.getApi().getTransaction(signatureInformation.getSignature(), Commitment.CONFIRMED);
-                } catch (RpcException e) {
-                    throw new RuntimeException(e);
-                }
-                if (confirmedTransaction.getTransaction() == null || confirmedTransaction.getTransaction().getMessage() == null) {
-                    break;
-                }
-                for (ConfirmedTransaction.Instruction instruction : confirmedTransaction.getTransaction().getMessage().getInstructions()) {
-                    final PublicKey programId = new PublicKey(
-                            confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(
-                                    (int) instruction.getProgramIdIndex()
-                            )
-                    );
-
-                    if (programId.equals(JUPITER_PROGRAM_ID)) {
-                        // if it has OOA and Jup's referrer quote wallet, gg
-                        // better to lookup the token account owner, hardcoding top 3 token types for now tho
-                        boolean hasReferrer = false, hasOoa = false, hasSrm = false, hasMarket = false;
-                        for (long accountIndex : instruction.getAccounts()) {
-                            int index = (int) accountIndex;
-                            PublicKey account = new PublicKey(
-                                    confirmedTransaction.getTransaction().getMessage().getAccountKeys().get(index)
-                            );
-
-                            if (account.equals(SerumUtils.SERUM_PROGRAM_ID_V3)) {
-                                hasSrm = true;
-                            } else if (account.equals(ooa)) {
-                                hasOoa = true;
-                            } else if (account.equals(JUPITER_USDC_WALLET) ||
-                                    account.equals(JUPITER_USDT_WALLET) ||
-                                    account.equals(JUPITER_WSOL_WALLET)) {
-                                hasReferrer = true;
-                            } else if (account.equals(marketId)) {
-                                hasMarket = true;
-                            }
-                        }
-
-                        if (hasOoa && hasReferrer && hasSrm && hasMarket) {
-                            // LOGGER.info("FOUND->JUP: " + uniqueKey);
-                            jupiterTxMap.put(uniqueKey, Optional.of(signatureInformation.getSignature()));
-                            return;
-                        }
-                    }
-                }
-
-            }
-
-            // LOGGER.info("FOUND->NOT-JUP: " + uniqueKey);
-            jupiterTxMap.put(uniqueKey, Optional.empty());
-        });
-        tradeHistoryKeyToFutureMap.put(uniqueKey, future);
-        // LOGGER.info("THREAD START: " + uniqueKey);
-
-        return Optional.empty();
-    }
-
+    // note: stablecoin values are hardcoded since most liquidity is on saber/mercurial
     public float getQuoteNotional(Market market, int quoteDecimals) {
         float price = getQuoteMintPrice(market.getQuoteMint());
+        if (price == 0.0f) {
+            // check serum if not hardcoded (e.g. not a stablecoin)
+            price = priceCache.getOrDefault(market.getQuoteMint(), 0.0f);
+        }
         float totalQuantity = (float) ((double) market.getQuoteDepositsTotal() / SerumUtils.getQuoteSplTokenMultiplier((byte) quoteDecimals));
         return price * totalQuantity;
     }
 
-    // TODO: get real price, for now just use for *rough* sorting of the top markets
+    /**
+     * Top 20 quote mints have their price calculated on startup / interval, used for subsequent calculations
+     *
+     * @param quoteMint token mint
+     * @return best bid for token mint's USDC market
+     */
     private float getQuoteMintPrice(PublicKey quoteMint) {
-        // USDC, USDT, USDCet, UXD, soUSDT
+        // USDC, USDT, USDCet, UXD, soUSDT, USDH, soUSDC, PAI
         if (quoteMint.equals(MarketUtil.USDC_MINT) ||
                 quoteMint.equals(MarketUtil.USDT_MINT) ||
                 quoteMint.equals(PublicKey.valueOf("A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM")) ||
                 quoteMint.equals(PublicKey.valueOf("7kbnvuGBxxj8AG9qp8Scn56muWGaRaFqxg1FsRp3PaFT")) ||
-                quoteMint.equals(PublicKey.valueOf("BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4"))
+                quoteMint.equals(PublicKey.valueOf("BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4")) ||
+                quoteMint.equals(PublicKey.valueOf("USDH1SM1ojwWUga67PGrgFWUHibbjqMvuMaDkRJTgkX")) ||
+                quoteMint.equals(PublicKey.valueOf("BXXkv6z8ykpG1yuvUDPgh732wzVHB69RnB9YgSYh3itW")) ||
+                quoteMint.equals(PublicKey.valueOf("Ea5SjE2Y6yvCeW5dYTn7PYMuW5ikXkvbGdcmSnXeaLjS"))
         ) {
             return 1f;
-        }
-
-        // SOL, mSOL, stSOL
-        if (quoteMint.equals(SerumUtils.WRAPPED_SOL_MINT) ||
-                quoteMint.equals(PublicKey.valueOf("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So")) ||
-                quoteMint.equals(PublicKey.valueOf("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"))
-        ) {
-            return 39f;
-        }
-
-        // RAY
-        if (quoteMint.equals(PublicKey.valueOf("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"))) {
-            return 0.74f;
-        }
-
-        // SRM
-        if (quoteMint.equals(PublicKey.valueOf("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"))) {
-            return 0.88f;
-        }
-
-        // ETH (Portal), soETH
-        if (quoteMint.equals(PublicKey.valueOf("7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs")) ||
-                quoteMint.equals(PublicKey.valueOf("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"))) {
-            return 1250f;
-        }
-
-        // BTC
-        if (quoteMint.equals(PublicKey.valueOf("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"))) {
-            return 22000f;
-        }
-
-        // ATLAS
-        if (quoteMint.equals(PublicKey.valueOf("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx"))) {
-            return 0.00689177f;
         }
 
         return 0;

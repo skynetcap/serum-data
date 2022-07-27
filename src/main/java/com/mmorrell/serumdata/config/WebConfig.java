@@ -19,6 +19,8 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private static final int HTTP_TIMEOUT_SECONDS = 30;
+
     @Bean
     public ViewResolver viewResolver() {
         InternalResourceViewResolver bean = new InternalResourceViewResolver();
@@ -54,6 +56,6 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Bean
     public RpcClient backgroundRpcClient() {
-        return new RpcClient(RpcUtil.getPublicEndpoint());
+        return new RpcClient(RpcUtil.getPublicEndpoint(), HTTP_TIMEOUT_SECONDS);
     }
 }
