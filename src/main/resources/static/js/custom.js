@@ -162,9 +162,9 @@ function loadMarketDetail() {
     $.get({url: apiUrl, cache: true})
         .done(function (data) {
             $("#orderBookHeader").html("Order Book: " +
-                "<img class=\"baseLogo img-icon\"> " +
+                "<img class=\"baseLogo img-icon\">" +
                 "<span id=\"baseName\"></span> / " +
-                "<img class=\"quoteLogo img-icon\"> " +
+                "<img class=\"quoteLogo img-icon\">" +
                 "<span id=\"quoteName\"></span> " +
                 "<span id=\"ownerName\"></span> " +
                 "<span class=\"livePrice\"></span>" +
@@ -172,7 +172,7 @@ function loadMarketDetail() {
             );
             baseSymbol = data.baseSymbol;
             quoteSymbol = data.quoteSymbol;
-            chartTitle = baseSymbol + "/" + data.quoteSymbol;
+            chartTitle = baseSymbol + " / " + data.quoteSymbol;
             lastLoadedMarketId = data.id;
             baseLogo = data.baseLogo;
             quoteLogo = data.quoteLogo;
@@ -182,6 +182,31 @@ function loadMarketDetail() {
             $("#tradeHistoryTitle").text(baseSymbol + " Trade History")
             $("#quoteName").text(quoteSymbol);
             $("#ownerName").text("(" + lastLoadedMarketId.substring(0, 3) + ".." + lastLoadedMarketId.substring(lastLoadedMarketId.toString().length - 3) + ")");
+
+            // Mkt details (bottom)
+            $(".marketDetailsId").html(explorerLink(activeMarketId));
+            $(".marketDetailsBaseMint").html(explorerLink(data.baseMint));
+            $(".marketDetailsQuoteMint").html(explorerLink(data.quoteMint));
+            $(".marketDetailsBids").html(explorerLink(data.bids));
+            $(".marketDetailsAsks").html(explorerLink(data.asks));
+            $(".marketDetailsEventQueue").html(explorerLink(data.eventQueue));
+            $(".marketDetailsBaseVault").html(explorerLink(data.baseVault));
+            $(".marketDetailsQuoteVault").html(explorerLink(data.quoteVault));
+            $(".marketDetailsBaseDepositsTotal").text(data.baseDepositsTotal);
+            $(".marketDetailsQuoteDepositsTotal").text(data.quoteDepositsTotal);
+            $(".marketDetailsQuoteFeesAccrued").text(data.quoteFeesAccrued);
+            $(".marketDetailsBaseLotSize").text(data.baseLotSize);
+            $(".marketDetailsQuoteLotSize").text(data.quoteLotSize);
+            $(".marketDetailsBaseDecimals").text(data.baseDecimals);
+            $(".marketDetailsQuoteDecimals").text(data.quoteDecimals);
+            $(".marketDetailsReferrerRebatesAccrued").text(data.referrerRebatesAccrued);
+            $(".marketDetailsQuoteDustThreshold").text(data.quoteDustThreshold);
+            $(".marketDetailsFeeRateBps").text(data.feeRateBps);
+            $(".marketDetailsBaseTokenName").html("<img class=\"baseLogo img-icon\"/>" + data.baseName);
+            $(".marketDetailsQuoteTokenName").html("<img class=\"quoteLogo img-icon\"/>" + data.quoteName);
+            $(".marketDetailsName").html("<img class=\"baseLogo img-icon\"/>" + baseSymbol + " / " + "<img" +
+                " class=\"quoteLogo img-icon\"/>" + quoteSymbol);
+
             $(".baseLogo").attr("src", baseLogo);
             $(".quoteLogo").attr("src", quoteLogo);
 
@@ -191,6 +216,10 @@ function loadMarketDetail() {
                 marketCurrencySymbol = '';
             }
         });
+}
+
+function explorerLink(accountId) {
+    return "<a target=_blank href=\"https://solscan.io/account/" + accountId + "\">" + accountId + "</a>";
 }
 
 function updateDepthChart() {
