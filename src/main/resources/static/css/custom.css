@@ -21,11 +21,10 @@ html {
 }
 
 img.img-icon {
-    margin: 0 !important;
+    margin-right: 4px;
     display: inherit !important;
     height: 18px;
     width: 18px;
-
     border-radius: 5px;
 }
 

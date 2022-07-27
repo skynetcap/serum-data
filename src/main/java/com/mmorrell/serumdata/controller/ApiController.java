@@ -48,7 +48,10 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
-    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
+    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
+
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
         PublicKey tokenKey = new PublicKey(tokenId);
@@ -77,7 +80,10 @@ public class ApiController {
      * @return map with market metadata
      */
     @GetMapping(value = "/api/serum/market/{marketId}")
-    public Map<String, Object> getMarket(@PathVariable String marketId) {
+    public Map<String, Object> getMarket(@PathVariable String marketId, HttpServletResponse response) {
+        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
+
         final Optional<Market> market = marketManager.getMarketById(marketId);
 
         if (market.isEmpty()) {
@@ -277,6 +283,31 @@ public class ApiController {
         result.put("quoteMint", market.getQuoteMint().toBase58());
         result.put("quoteSymbol", tokenManager.getTokenSymbolByMint(market.getQuoteMint()));
         result.put("quoteLogo", tokenManager.getTokenLogoByMint(market.getQuoteMint()));
+
+        // Market details (bottom)
+        result.put("bids", market.getBids().toBase58());
+        result.put("asks", market.getAsks().toBase58());
+        result.put("baseVault", market.getBaseVault().toBase58());
+        result.put("quoteVault", market.getQuoteVault().toBase58());
+        result.put("baseDepositsTotal", market.getBaseDepositsTotal());
+        result.put("quoteDepositsTotal", market.getQuoteDepositsTotal());
+        result.put("quoteFeesAccrued", market.getQuoteFeesAccrued());
+        result.put("quoteFeesAccruedFloat", (float) market.getQuoteFeesAccrued() / Math.pow(10,
+                market.getQuoteDecimals()));
+        result.put("eventQueue", market.getEventQueueKey().toBase58());
+        result.put("baseLotSize", market.getBaseLotSize());
+        result.put("quoteLotSize", market.getQuoteLotSize());
+        result.put("baseDecimals", market.getBaseDecimals());
+        result.put("quoteDecimals", market.getQuoteDecimals());
+        result.put("referrerRebatesAccrued", market.getReferrerRebatesAccrued());
+        result.put("referrerRebatesAccruedFloat", (float) market.getReferrerRebatesAccrued() / Math.pow(10,
+                market.getQuoteDecimals()));
+        result.put("quoteDustThreshold", market.getQuoteDustThreshold());
+        result.put("feeRateBps", market.getFeeRateBps());
+        result.put("baseDepositsFloat", (float) market.getBaseDepositsTotal() / Math.pow(10, market.getBaseDecimals()));
+        result.put("quoteDepositsFloat", (float) market.getQuoteDepositsTotal() / Math.pow(10,
+                market.getQuoteDecimals()));
+
         return result;
     }
 

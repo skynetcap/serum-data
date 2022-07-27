@@ -223,7 +223,7 @@
                 <div class="card-body">
                     <h5 id="tradeHistoryTitle" class="card-title">Trade History</h5>
                     <hr>
-                    <div class="orderBook" style="height: 100% !important; max-height: 650px; overflow-x: hidden;">
+                    <div class="orderBook" style="height: 100% !important; max-height: 625px; overflow-x: hidden;">
                         <table id="tradeHistoryTable" class="table table-striped table-hover cell-border"
                                style="width: 100%; table-layout: fixed; overflow-x:hidden;">
                             <thead>
@@ -241,16 +241,134 @@
                 </div>
             </div>
         </div>
+        <p></p>
+        <div class="row">
+            <div class="card col-sm-6">
+                <div class="card-body text-center">
+                    <table class="table table-striped table-hover cell-border table-bordered" style="border-color:
+                    rgb(29, 29, 29);">
+                        <thead>
+                        <tr>
+                            <h4><img src="static/serum-srm-logo.png" width="32" height="32" style="margin-right:
+                            0.5rem!important;">Market Information</h4>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">Base Token</th>
+                            <td><span class="marketDetailsBaseTokenName"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Token</th>
+                            <td><span class="marketDetailsQuoteTokenName"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Market ID</th>
+                            <td><span class="marketDetailsId"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Base Mint</th>
+                            <td><span class="marketDetailsBaseMint"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Mint</th>
+                            <td><span class="marketDetailsQuoteMint"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Bids</th>
+                            <td><span class="marketDetailsBids"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Asks</th>
+                            <td><span class="marketDetailsAsks"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Event Queue</th>
+                            <td><span class="marketDetailsEventQueue"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Base Vault</th>
+                            <td><span class="marketDetailsBaseVault"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Vault</th>
+                            <td><span class="marketDetailsQuoteVault"></span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card col-sm-6">
+                <div class="card-body text-center">
+                    <table class="table table-striped table-hover cell-border table-bordered" style="border-color:
+                    rgb(29, 29, 29);">
+                        <thead>
+                        <tr>
+                            <h4>Additional Details</h4>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">Market Name</th>
+                            <td><span class="marketDetailsName"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Base Deposits</th>
+                            <td><span class="marketDetailsBaseDepositsTotal"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Deposits</th>
+                            <td><span class="marketDetailsQuoteDepositsTotal"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Base Lot Size</th>
+                            <td><span class="marketDetailsBaseLotSize"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Lot Size</th>
+                            <td><span class="marketDetailsQuoteLotSize"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Base Decimals</th>
+                            <td><span class="marketDetailsBaseDecimals"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Decimals</th>
+                            <td><span class="marketDetailsQuoteDecimals"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Quote Dust Threshold</th>
+                            <td><span class="marketDetailsQuoteDustThreshold"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Fee Rate (bps)</th>
+                            <td><span class="marketDetailsFeeRateBps"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Permalink</th>
+                            <td><input style="width: 100%" type="text" readonly="readonly"
+                                       class="marketDetailsPermalink"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div style="margin-top: 15px">
             <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
                 <li class="nav-item" style="float: right"><a href="#" aria-current="page" class="nav-link">API</a></li>
-                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
-                                        target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
-                <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
-                                        class="nav-link"
-                                        target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
+                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page"
+                                                             class="nav-link"
+                                                             target="_blank"><i class="fa fa-twitter"></i> Twitter</a>
+                </li>
+                <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data"
+                                                             aria-current="page"
+                                                             class="nav-link"
+                                                             target="_blank"><i class="fa fa-github"></i> GitHub</a>
+                </li>
             </ul>
         </div>
+    </div>
 </main>
 <script th:inline="javascript">
     var activeMarketId, lastLoadedMarketId, lastLoadedChartId;
