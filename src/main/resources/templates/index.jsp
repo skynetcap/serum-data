@@ -496,6 +496,7 @@
     $(document).ready(function () {
             var bidTable = $('#bidsTable').DataTable({
                 paging: false,
+                info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/bids',
                     cache: true,
@@ -547,6 +548,7 @@
 
             var askTable = $('#asksTable').DataTable({
                 paging: false,
+                info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/asks',
                     cache: true,
