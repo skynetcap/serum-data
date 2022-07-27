@@ -6,27 +6,25 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.config.Commitment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class MarketManager {
 
     private static final int MARKET_CACHE_TIMEOUT_SECONDS = 30;
+    private static final int ORDER_BOOK_CACHE_DURATION_SECONDS = 1;
+    private static final int EVENT_QUEUE_CACHE_DURATION_MS = 2500;
     private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
-    private final RpcClient bidClient = new RpcClient(RpcUtil.getPublicEndpoint());
-    private final RpcClient askClient = new RpcClient(RpcUtil.getPublicEndpoint());
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarketManager.class);
 
     // Managers
     private final TokenManager tokenManager;
@@ -45,7 +43,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -54,7 +52,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = bidOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = bidClient.getApi()
+                                AccountInfo accountInfo = client.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getBids(),
                                                 Map.of(
@@ -65,7 +63,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("BID new context! " + accountInfo.getContext().getSlot());
                                 bidOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return buildOrderBook(
@@ -77,7 +74,6 @@ public class MarketManager {
                                         cachedMarket
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("bids exception: returning map");
                                 return bidOrderBookLoadingCache.asMap().get(marketPubkey);
                             }
                         }
@@ -85,7 +81,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -94,7 +90,7 @@ public class MarketManager {
                                 Market cachedMarket = marketCache.get(marketPubkey);
                                 long slotToUse = askOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
 
-                                AccountInfo accountInfo = askClient.getApi()
+                                AccountInfo accountInfo = client.getApi()
                                         .getAccountInfo(
                                                 cachedMarket.getAsks(),
                                                 Map.of(
@@ -105,7 +101,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("ASK new context! " + accountInfo.getContext().getSlot());
                                 askOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return buildOrderBook(
@@ -117,14 +112,13 @@ public class MarketManager {
                                         cachedMarket
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("asks exception: returning map");
                                 return askOrderBookLoadingCache.asMap().get(marketPubkey);
                             }
                         }
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(2500, TimeUnit.MILLISECONDS)
+            .refreshAfterWrite(EVENT_QUEUE_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -144,7 +138,6 @@ public class MarketManager {
                                                 )
                                         );
 
-                                // LOGGER.info("EQ new context! " + accountInfo.getContext().getSlot());
                                 eventQueueMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
 
                                 return EventQueue.readEventQueue(
@@ -157,7 +150,6 @@ public class MarketManager {
                                         cachedMarket.getQuoteLotSize()
                                 );
                             } catch (RpcException ex) {
-                                // LOGGER.info("EQ context error, using map cache.");
                                 return eventQueueLoadingCache.asMap().get(marketPubkey);
                             }
                         }
@@ -193,7 +185,7 @@ public class MarketManager {
      * Update marketCache with the latest markets
      */
     public void updateMarkets() {
-        LOGGER.info("Caching all Serum markets.");
+        log.info("Caching all Serum markets.");
         final List<ProgramAccount> programAccounts;
 
         try {
@@ -251,7 +243,10 @@ public class MarketManager {
             marketMapCache.put(market.getBaseMint(), existingMarketList);
         }
 
-        LOGGER.info("All Serum markets cached: " + programAccounts.size());
+        log.info("All Serum markets cached: " + programAccounts.size());
+
+        // Calculate quote mint prices for top 20 quote mints
+        log.info("");
     }
 
     public int numMarketsByToken(PublicKey tokenMint) {
@@ -363,9 +358,15 @@ public class MarketManager {
         return price * totalQuantity;
     }
 
-    // TODO: get real price, for now just use for *rough* sorting of the top markets
+    /**
+     * Top 20 quote mints have their price calculated on startup / interval, used for subsequent calculations
+     *
+     * @param quoteMint token mint
+     * @return best bid for token mint's USDC market
+     */
     private float getQuoteMintPrice(PublicKey quoteMint) {
         // USDC, USDT, USDCet, UXD, soUSDT
+        // TODO: USDH
         if (quoteMint.equals(MarketUtil.USDC_MINT) ||
                 quoteMint.equals(MarketUtil.USDT_MINT) ||
                 quoteMint.equals(PublicKey.valueOf("A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM")) ||
