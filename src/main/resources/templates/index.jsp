@@ -294,6 +294,11 @@
                             <th scope="row">Quote Vault</th>
                             <td><span class="marketDetailsQuoteVault"></span></td>
                         </tr>
+                        <tr>
+                            <th scope="row">Permalink</th>
+                            <td><input style="width: 100%" type="text" readonly="readonly"
+                                       class="marketDetailsPermalink"></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -302,6 +307,11 @@
                 <div class="card-body text-center">
                     <table class="table table-striped table-hover cell-border table-bordered" style="border-color:
                     rgb(29, 29, 29);">
+                        <thead>
+                        <tr>
+                            <h4>Additional Details</h4>
+                        </tr>
+                        </thead>
                         <tbody>
                         <tr>
                             <th scope="row">Market Name</th>

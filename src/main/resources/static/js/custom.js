@@ -177,6 +177,12 @@ function loadMarketDetail() {
             baseLogo = data.baseLogo;
             quoteLogo = data.quoteLogo;
 
+            if (quoteSymbol === 'USDC' || quoteSymbol === 'USDT') {
+                marketCurrencySymbol = '$';
+            } else {
+                marketCurrencySymbol = '';
+            }
+
             $("#baseName").text(baseSymbol);
             $("#priceChartTitle").html("<img class=\"baseLogo img-icon\" style=\"float: left; margin-right: 5px !important;\">" + " <span class=\"livePrice\"></span>" + chartTitle + " Price - " + activeMarketId);
             $("#tradeHistoryTitle").text(baseSymbol + " Trade History")
@@ -192,29 +198,24 @@ function loadMarketDetail() {
             $(".marketDetailsEventQueue").html(explorerLink(data.eventQueue));
             $(".marketDetailsBaseVault").html(explorerLink(data.baseVault));
             $(".marketDetailsQuoteVault").html(explorerLink(data.quoteVault));
-            $(".marketDetailsBaseDepositsTotal").text(data.baseDepositsTotal);
-            $(".marketDetailsQuoteDepositsTotal").text(data.quoteDepositsTotal);
-            $(".marketDetailsQuoteFeesAccrued").text(data.quoteFeesAccrued);
+            $(".marketDetailsBaseDepositsTotal").text(formatter.format(data.baseDepositsFloat).substring(1) + " " + data.baseSymbol);
+            $(".marketDetailsQuoteDepositsTotal").text(marketCurrencySymbol + formatter.format(data.quoteDepositsFloat).substring(1) + " " + data.quoteSymbol);
+            $(".marketDetailsQuoteFeesAccrued").text(marketCurrencySymbol + formatter.format(data.quoteFeesAccruedFloat).substring(1) + " " + data.quoteSymbol);
             $(".marketDetailsBaseLotSize").text(data.baseLotSize);
             $(".marketDetailsQuoteLotSize").text(data.quoteLotSize);
             $(".marketDetailsBaseDecimals").text(data.baseDecimals);
             $(".marketDetailsQuoteDecimals").text(data.quoteDecimals);
-            $(".marketDetailsReferrerRebatesAccrued").text(data.referrerRebatesAccrued);
+            $(".marketDetailsReferrerRebatesAccrued").text(marketCurrencySymbol + formatter.format(data.referrerRebatesAccruedFloat).substring(1) + " " + data.quoteSymbol);
             $(".marketDetailsQuoteDustThreshold").text(data.quoteDustThreshold);
             $(".marketDetailsFeeRateBps").text(data.feeRateBps);
             $(".marketDetailsBaseTokenName").html("<img class=\"baseLogo img-icon\"/>" + data.baseName);
             $(".marketDetailsQuoteTokenName").html("<img class=\"quoteLogo img-icon\"/>" + data.quoteName);
             $(".marketDetailsName").html("<img class=\"baseLogo img-icon\"/>" + baseSymbol + " / " + "<img" +
                 " class=\"quoteLogo img-icon\"/>" + quoteSymbol);
+            $(".marketDetailsPermalink").val("https://openserum.io/" + activeMarketId);
 
             $(".baseLogo").attr("src", baseLogo);
             $(".quoteLogo").attr("src", quoteLogo);
-
-            if (quoteSymbol === 'USDC' || quoteSymbol === 'USDT') {
-                marketCurrencySymbol = '$';
-            } else {
-                marketCurrencySymbol = '';
-            }
         });
 }
 

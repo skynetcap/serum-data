@@ -292,14 +292,21 @@ public class ApiController {
         result.put("baseDepositsTotal", market.getBaseDepositsTotal());
         result.put("quoteDepositsTotal", market.getQuoteDepositsTotal());
         result.put("quoteFeesAccrued", market.getQuoteFeesAccrued());
+        result.put("quoteFeesAccruedFloat", (float) market.getQuoteFeesAccrued() / Math.pow(10,
+                market.getQuoteDecimals()));
         result.put("eventQueue", market.getEventQueueKey().toBase58());
         result.put("baseLotSize", market.getBaseLotSize());
         result.put("quoteLotSize", market.getQuoteLotSize());
         result.put("baseDecimals", market.getBaseDecimals());
         result.put("quoteDecimals", market.getQuoteDecimals());
         result.put("referrerRebatesAccrued", market.getReferrerRebatesAccrued());
+        result.put("referrerRebatesAccruedFloat", (float) market.getReferrerRebatesAccrued() / Math.pow(10,
+                market.getQuoteDecimals()));
         result.put("quoteDustThreshold", market.getQuoteDustThreshold());
         result.put("feeRateBps", market.getFeeRateBps());
+        result.put("baseDepositsFloat", (float) market.getBaseDepositsTotal() / Math.pow(10, market.getBaseDecimals()));
+        result.put("quoteDepositsFloat", (float) market.getQuoteDepositsTotal() / Math.pow(10,
+                market.getQuoteDecimals()));
 
         return result;
     }
