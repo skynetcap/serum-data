@@ -294,11 +294,6 @@
                             <th scope="row">Quote Vault</th>
                             <td><span class="marketDetailsQuoteVault"></span></td>
                         </tr>
-                        <tr>
-                            <th scope="row">Permalink</th>
-                            <td><input style="width: 100%" type="text" readonly="readonly"
-                                       class="marketDetailsPermalink"></td>
-                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -342,20 +337,17 @@
                             <td><span class="marketDetailsQuoteDecimals"></span></td>
                         </tr>
                         <tr>
-                            <th scope="row">Quote Fees Accrued</th>
-                            <td><span class="marketDetailsQuoteFeesAccrued"></span></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Referrer Rebates Accrued</th>
-                            <td><span class="marketDetailsReferrerRebatesAccrued"></span></td>
-                        </tr>
-                        <tr>
                             <th scope="row">Quote Dust Threshold</th>
                             <td><span class="marketDetailsQuoteDustThreshold"></span></td>
                         </tr>
                         <tr>
                             <th scope="row">Fee Rate (bps)</th>
                             <td><span class="marketDetailsFeeRateBps"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Permalink</th>
+                            <td><input style="width: 100%" type="text" readonly="readonly"
+                                       class="marketDetailsPermalink"></td>
                         </tr>
                         </tbody>
                     </table>
