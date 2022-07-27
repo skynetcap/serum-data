@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mmorrell.serumdata.util.MarketUtil;
-import com.mmorrell.serumdata.util.RpcUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -21,18 +20,19 @@ import java.util.concurrent.*;
 @Slf4j
 public class MarketManager {
 
-    private static final int MARKET_CACHE_TIMEOUT_SECONDS = 30;
     private static final int ORDER_BOOK_CACHE_DURATION_SECONDS = 1;
     private static final int EVENT_QUEUE_CACHE_DURATION_MS = 2500;
-    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint(), MARKET_CACHE_TIMEOUT_SECONDS);
 
+    private final RpcClient client;
     // Managers
     private final TokenManager tokenManager;
 
     // <marketPubkey, Market>
     private final Map<PublicKey, Market> marketCache = new HashMap<>();
-    // <tokenMint, List<Market>>
+    // <baseMint, List<Market>>
     private final Map<PublicKey, List<Market>> marketMapCache = new HashMap<>();
+    // <quoteMint, List<Market>>
+    private final Map<PublicKey, List<Market>> marketMapQuoteMintCache = new HashMap<>();
     private final Map<String, CompletableFuture<Void>> tradeHistoryKeyToFutureMap = new HashMap<>();
 
     // Solana Context
@@ -168,8 +168,9 @@ public class MarketManager {
     private static final PublicKey JUPITER_WSOL_WALLET =
             PublicKey.valueOf("61CjGbapEVoyCC51x5tPZGZHCYsgtPSSssCatHEEUWeG");
 
-    public MarketManager(final TokenManager tokenManager) {
+    public MarketManager(final TokenManager tokenManager, final RpcClient rpcClient) {
         this.tokenManager = tokenManager;
+        this.client = rpcClient;
         updateMarkets();
     }
 
@@ -177,8 +178,13 @@ public class MarketManager {
         return new ArrayList<>(marketCache.values());
     }
 
-    public List<Market> getMarketsByMint(PublicKey tokenMint) {
-        return marketMapCache.getOrDefault(tokenMint, new ArrayList<>());
+    public List<Market> getMarketsByTokenMint(PublicKey tokenMint) {
+        final Set<Market> result = new HashSet<>();
+
+        result.addAll(marketMapCache.getOrDefault(tokenMint, new ArrayList<>()));
+        result.addAll(marketMapQuoteMintCache.getOrDefault(tokenMint, new ArrayList<>()));
+
+        return result.stream().toList();
     }
 
     /**
@@ -220,33 +226,22 @@ public class MarketManager {
             );
             marketCache.put(market.getOwnAddress(), market);
 
-            // marketMapCache is a tokenMint to List<Market> map which powers the token search.
+            // marketMapCache is a baseMint to List<Market> map which powers the token search.
             // Get list of existing markets for this base mint. otherwise create a new list and put it there.
-            List<Market> existingMarketList = marketMapCache.getOrDefault(market.getBaseMint(), new ArrayList<>());
+            Set<Market> existingMarketList = new HashSet<>(marketMapCache.getOrDefault(market.getBaseMint(),
+                    new ArrayList<>()));
+            existingMarketList.add(market);
 
-            // Since Market can't be used in a Set yet, find it manually
-            int existingIndex = -1;
-            for (int i = 0; i < existingMarketList.size(); i++) {
-                Market existingMarket = existingMarketList.get(i);
-                if (existingMarket.getOwnAddress().equals(market.getOwnAddress())) {
-                    existingIndex = i;
-                }
-            }
+            // put it as a market for quote mint (as a base)
+            Set<Market> existingMarketQuoteList = new HashSet<>(marketMapQuoteMintCache.getOrDefault(market.getQuoteMint(),
+                    new ArrayList<>()));
+            existingMarketQuoteList.add(market);
 
-            // Replace existing
-            if (existingIndex >= 0) {
-                existingMarketList.set(existingIndex, market);
-            } else {
-                existingMarketList.add(market);
-            }
-
-            marketMapCache.put(market.getBaseMint(), existingMarketList);
+            marketMapCache.put(market.getBaseMint(), existingMarketList.stream().toList());
+            marketMapQuoteMintCache.put(market.getQuoteMint(), existingMarketQuoteList.stream().toList());
         }
 
         log.info("All Serum markets cached: " + programAccounts.size());
-
-        // Calculate quote mint prices for top 20 quote mints
-        log.info("");
     }
 
     public int numMarketsByToken(PublicKey tokenMint) {

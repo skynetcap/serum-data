@@ -54,20 +54,27 @@ public class ApiController {
 
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
-        PublicKey tokenKey = new PublicKey(tokenId);
-        List<Market> markets = marketManager.getMarketsByMint(tokenKey);
+        PublicKey tokenMint = new PublicKey(tokenId);
+        List<Market> markets = marketManager.getMarketsByTokenMint(tokenMint);
 
-        // get total base deposits, for percentage ranking
-        long totalBaseDeposits = 0;
+        // get total deposits, for percentage ranking
+        long totalDeposits = 0;
         for (Market market : markets) {
-            totalBaseDeposits += market.getBaseDepositsTotal();
+            if (market.getBaseMint().equals(tokenMint)) {
+                totalDeposits += market.getBaseDepositsTotal();
+            } else {
+                totalDeposits += market.getQuoteDepositsTotal();
+            }
         }
 
-        // sort by base deposits
-        markets.sort(Comparator.comparingLong(Market::getBaseDepositsTotal).reversed());
+        // sort by deposits
         for (Market market : markets) {
             Map<String, Object> marketMap = convertMarketToMap(market);
-            marketMap.put("percentage", (float) market.getBaseDepositsTotal() / (float) totalBaseDeposits);
+            if (market.getBaseMint().equals(tokenMint)) {
+                marketMap.put("percentage", (float) market.getBaseDepositsTotal() / (float) totalDeposits);
+            } else {
+                marketMap.put("percentage", (float) market.getQuoteDepositsTotal() / (float) totalDeposits);
+            }
             results.add(marketMap);
         }
 

@@ -3,7 +3,6 @@ package com.mmorrell.serumdata.manager;
 import ch.openserum.serum.model.OpenOrdersAccount;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
-import com.mmorrell.serumdata.util.RpcUtil;
 import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -17,8 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityManager {
 
-    private final RpcClient client = new RpcClient(RpcUtil.getPublicEndpoint());
-
+    private final RpcClient client;
     // <ooa, owner>
     private final Map<PublicKey, PublicKey> ownerReverseLookupCache = new HashMap<>();
     private final Map<PublicKey, String> knownEntities = new HashMap<>();
@@ -81,6 +79,10 @@ public class IdentityManager {
                 "Wintermute",
                 "wintermute"
         );
+    }
+
+    public IdentityManager(final RpcClient rpcClient) {
+        this.client = rpcClient;
     }
 
     public void addKnownEntity(String publicKeyString, String name, String icon) {
