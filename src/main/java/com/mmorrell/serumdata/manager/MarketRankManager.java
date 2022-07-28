@@ -77,6 +77,11 @@ public class MarketRankManager {
         return RANK_PLACEHOLDER;
     }
 
+    // Used in Thymeleaf. Needs better solution.
+    public String getImage(String tokenMint) {
+        return "/api/serum/token/" + tokenMint + "/icon";
+    }
+
     public Optional<Market> getMostActiveMarket(PublicKey baseMint) {
         List<Market> markets = marketManager.getMarketsByTokenMint(baseMint);
         if (markets.size() < 1) {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Openserum Market Data</title>
+    <title>Markets - Openserum - Project Serum Market Data</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->

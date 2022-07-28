@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Openserum Market Data</title>
+    <title>Openserum - Project Serum Market Data</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->
@@ -115,7 +115,7 @@
                             <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
                                 <option th:each="token : ${tokens.values()}"
                                         th:value="${token.address}"
-                                        th:attr="data-icon=${token.logoURI},data-rank=${marketRankManager.getMarketRankOfToken(token.address)}"
+                                        th:attr="data-icon=${marketRankManager.getImage(token.address)},data-rank=${marketRankManager.getMarketRankOfToken(token.address)}"
                                         th:text="${token.symbol} + ' (' + ${token.name} + ') (' + ${token.address} + ')'">
                                 </option>
                             </select>
@@ -124,27 +124,27 @@
                             href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');"
                             style="padding-right: 3px;"><img
                             width="20" height="20"
-                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png"
+                            src="/api/serum/token/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/icon"
                             class="img-icon" style="border-radius: 5px; margin-right: 2px">BTC</a> <a
                             href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');"
                             style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/logo.png"
+                                                             src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">ETH</a> <a
                             href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');"
                             style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
+                                                             src="/api/serum/token/So11111111111111111111111111111111111111112/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SOL</a> <a
                             href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');"
                             style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/logo.png"
+                                                             src="/api/serum/token/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SRM</a> <a
                             href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');"
                             style="padding-right: 3px;"><img
                             width="20" height="20"
-                            src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/token.png"
+                            src="/api/serum/token/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/icon"
                             class="img-icon" style="=border-radius: 5px; margin-right: 2px">MNGO</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"

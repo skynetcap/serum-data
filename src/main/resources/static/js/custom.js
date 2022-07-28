@@ -9,7 +9,8 @@ function formatToken(token) {
     }
     if (token.element.dataset.icon != null) {
         return $(
-            '<span><img loading="lazy" src="' + token.element.dataset.icon + '" class="img-icon" /> ' + token.text + '</span>'
+            '<span><img loading="lazy" src="/api/serum/token/' + token.id + '/icon"' +
+            ' class="img-icon" /> ' + token.text + '</span>'
         );
     } else {
         return $(
@@ -51,10 +52,12 @@ function loadMarkets(tokenId) {
                     data: 'base',
                     render: function (data, type, row) {
                         if (row.baseLogo !== "" && row.baseSymbol !== "") {
-                            return "<img style='float: left;' class='img-icon' src='" + row.baseLogo + "'><span" +
+                            return "<img style='float: left;' class='img-icon' src='/api/serum/token/" + row.baseMint + "/icon'><span" +
                                 " style='padding-left: 5px;'>" + row.baseSymbol + "</span>";
                         } else {
-                            return "?";
+                            return "<img style='float: left;' class='img-icon'" +
+                                " src='/api/serum/token/unknown/icon'><span" +
+                                " style='padding-left: 5px;'>?</span>";
                         }
                     }
                 },
@@ -62,7 +65,7 @@ function loadMarkets(tokenId) {
                     data: 'quote',
                     render: function (data, type, row) {
                         if (row.quoteLogo !== "" && row.quoteSymbol !== "") {
-                            return "<img style='float: left;' class='img-icon' src='" + row.quoteLogo + "'><span" +
+                            return "<img style='float: left;' class='img-icon' src='/api/serum/token/" + row.quoteMint + "/icon'><span" +
                                 " style='padding-left: 5px;'>" + row.quoteSymbol + "</span>";
                         } else {
                             return "?";
@@ -106,7 +109,7 @@ function loadMarkets(tokenId) {
                 }
             ]
         });
-        marketList.on('click', 'tbody td', function() {
+        marketList.on('click', 'tbody td', function () {
             var marketId = marketTable.row(this).data()['id'];
             if (marketId) {
                 setMarket(marketId);
@@ -175,8 +178,8 @@ function loadMarketDetail() {
             quoteSymbol = data.quoteSymbol;
             chartTitle = baseSymbol + " / " + data.quoteSymbol;
             lastLoadedMarketId = data.id;
-            baseLogo = data.baseLogo;
-            quoteLogo = data.quoteLogo;
+            baseLogo = "/api/serum/token/" + data.baseMint + "/icon";
+            quoteLogo = "/api/serum/token/" + data.quoteMint + "/icon";
 
             if (quoteSymbol === 'USDC' || quoteSymbol === 'USDT') {
                 marketCurrencySymbol = '$';
@@ -325,7 +328,8 @@ function updateDepthChart() {
                 }
 
                 $(document).attr("title",
-                    marketCurrencySymbol + newData.midpoint.toFixed(3) + ' ' + chartTitle.replace(/\s/g, '') + ' - Openserum'
+                    marketCurrencySymbol + newData.midpoint.toFixed(3) + ' ' + chartTitle.replace(/\s/g, '') + ' -' +
+                    ' Openserum - Project Serum Market Data'
                 );
             });
     }
