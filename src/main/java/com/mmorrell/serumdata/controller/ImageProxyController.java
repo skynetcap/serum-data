@@ -34,15 +34,15 @@ public class ImageProxyController {
                 Token token = optionalToken.get();
                 InputStreamResource tokenImage = tokenManager.getTokenImageInputStream(token);
                 MediaType contentType = switch (token.getImageFormat()) {
-                    case "png" -> MediaType.IMAGE_PNG;
                     case "gif" -> MediaType.IMAGE_GIF;
+                    case "jpg" -> MediaType.IMAGE_JPEG;
                     case "svg" -> MediaType.valueOf("image/svg+xml");
-                    default -> MediaType.IMAGE_JPEG;
+                    default -> MediaType.IMAGE_PNG;
                 };
 
                 // Edge case: in tokenlist, not in listings
                 if (!tokenManager.isImageCached(tokenMint)) {
-                    contentType = MediaType.IMAGE_JPEG;
+                    contentType = MediaType.IMAGE_PNG;
                 }
 
                 return ResponseEntity.ok()
@@ -51,13 +51,13 @@ public class ImageProxyController {
             } else {
                 // Case: Real pubkey, fake token
                 return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
+                        .contentType(MediaType.IMAGE_PNG)
                         .body(new InputStreamResource(new ByteArrayInputStream(tokenManager.getPlaceHolderImage())));
             }
         } catch (Exception ex) {
             // Case: Invalid public key, or other dirty input
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
+                    .contentType(MediaType.IMAGE_PNG)
                     .body(new InputStreamResource(new ByteArrayInputStream(tokenManager.getPlaceHolderImage())));
         }
     }

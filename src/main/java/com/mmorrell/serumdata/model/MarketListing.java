@@ -19,6 +19,6 @@ public class MarketListing {
     @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey baseMint;
 
-    private String baseIcon;
-    private String quoteIcon;
+    @JsonSerialize(using = PublicKeySerializer.class)
+    private PublicKey quoteMint;
 }

@@ -69,7 +69,9 @@ public class MarketRankManager {
      */
     public int getMarketRankOfToken(PublicKey tokenMint) {
         for (int i = 0; i < marketListings.size(); i++) {
-            if (marketListings.get(i).getBaseMint().equals(tokenMint)) {
+            PublicKey baseMint = marketListings.get(i).getBaseMint();
+            PublicKey baseMintChecked = baseMint == null ? MarketUtil.USDC_MINT : baseMint;
+            if (baseMintChecked.equals(tokenMint)) {
                 return i;
             }
         }
@@ -172,9 +174,9 @@ public class MarketRankManager {
                         quoteDecimals = quoteToken.get().getDecimals();
                     }
 
-                    PublicKey baseMint = baseToken.isPresent() ?
-                            baseToken.get().getPublicKey() :
-                            MarketUtil.USDC_MINT;
+                    PublicKey baseMint = baseToken.map(Token::getPublicKey).orElse(null);
+
+                    PublicKey quoteMint = quoteToken.map(Token::getPublicKey).orElse(null);
 
                     return new MarketListing(
                             tokenManager.getMarketNameByMarket(market),
@@ -184,11 +186,19 @@ public class MarketRankManager {
                             baseDecimals,
                             quoteDecimals,
                             baseMint,
-                            tokenManager.getTokenLogoByMint(market.getBaseMint()),
-                            tokenManager.getTokenLogoByMint(market.getQuoteMint())
+                            quoteMint
                     );
                 })
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
                 .toList();
+    }
+
+    // used in thymeleaf
+    public String getMarketListingName(MarketListing market) {
+        String name = market.getName();
+        if (name.startsWith(" -")) {
+            name = name.replaceFirst(" -", "? -");
+        }
+        return name;
     }
 }

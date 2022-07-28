@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -46,6 +47,7 @@ public class TokenManager {
         updateRegistry();
     }
 
+    @Scheduled(initialDelay = 2L, fixedRate = 2L, timeUnit = TimeUnit.HOURS)
     public void updateRegistry() {
         log.info("Caching tokens from solana.tokenlist.json");
         String json = httpGet("https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json");
@@ -250,7 +252,7 @@ public class TokenManager {
     // On startup
     private void cachePlaceHolderImage() {
         try {
-            this.placeHolderImage = Resources.toByteArray(Resources.getResource("static/entities/unknown.jpg"));
+            this.placeHolderImage = Resources.toByteArray(Resources.getResource("static/entities/unknown.png"));
             log.info("Cached placeholder image.");
         } catch (IOException e) {
             log.error(e.getMessage());
