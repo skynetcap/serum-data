@@ -102,3 +102,7 @@ td {
 .nav-link {
     margin-right: 10px;
 }
+
+.paginate_button {
+    padding: 0.5em 0.5em !important;
+}

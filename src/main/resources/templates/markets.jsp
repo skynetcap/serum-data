@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Openserum Market Data</title>
+    <title>Markets - Openserum - Project Serum Market Data</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->
@@ -23,9 +23,7 @@
 
     <!-- JavaScript Bundle with Popper -->
     <script src="static/js/bootstrap.bundle.min.js"></script>
-
-    <script src="static/js/custom.js"></script>
-    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="static/js/jquery.dataTables.min.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H55B3XYLG0"></script>
     <script>
@@ -96,11 +94,13 @@
                             <tbody>
                             <tr th:each="market : ${marketListings}">
                                 <td>
-                                    <img loading="lazy" width="20" height="20" th:src="${market.baseIcon}"
+                                    <img loading="lazy" width="20" height="20"
+                                         th:src="${marketRankManager.getImage(market.baseMint)}"
                                          style="border-radius: 5px;">
-                                    <img loading="lazy" width="20" height="20" th:src="${market.quoteIcon}"
+                                    <img loading="lazy" width="20" height="20"
+                                         th:src="${marketRankManager.getImage(market.quoteMint)}"
                                          style="border-radius: 5px;">
-                                    <span th:text="${market.name}"></span>
+                                    <span th:text="${marketRankManager.getMarketListingName(market)}"></span>
                                 </td>
                                 <td>
                                     <a th:href="@{'/' + ${market.id}}" th:text="${market.id}" target="_blank"></a>
