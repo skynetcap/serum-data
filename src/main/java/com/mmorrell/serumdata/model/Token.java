@@ -2,12 +2,8 @@ package com.mmorrell.serumdata.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mmorrell.serumdata.util.PublicKeySerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.p2p.solanaj.core.PublicKey;
-
-import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +17,8 @@ public class Token {
     private int decimals;
     @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey publicKey;
+    private byte[] iconImage;
+
+    // jpg, png, svg
+    private String imageFormat;
 }
