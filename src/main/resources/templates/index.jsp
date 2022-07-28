@@ -141,11 +141,11 @@
                                                              src="/api/serum/token/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SRM</a> <a
-                            href="#" onClick="loadMarkets('MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac');"
+                            href="#" onClick="loadMarkets('SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp');"
                             style="padding-right: 3px;"><img
                             width="20" height="20"
-                            src="/api/serum/token/MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac/icon"
-                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">MNGO</a>
+                            src="/api/serum/token/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/icon"
+                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">SLND</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
