@@ -6,27 +6,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
-
 
 /**
  * Caches the Solana token registry in-memory
@@ -82,8 +76,6 @@ public class TokenManager {
 
             // update cache, only mainnet tokens
             if (token.getChainId() == CHAIN_ID_MAINNET) {
-                cacheTokenImage(tokenMint, logoURI);
-
                 tokenCache.put(
                         token.getPublicKey(),
                         token
@@ -94,29 +86,40 @@ public class TokenManager {
         log.info("Tokens cached.");
     }
 
-    private void cacheTokenImage(PublicKey tokenMint, String logoURI) {
-        Request request = new Request.Builder()
-                .url(logoURI)
-                .build();
+    public void cacheAllTokenImages(List<PublicKey> tokenMints){
+        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<Callable<Void>> callableTasks = new ArrayList<>();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                // e.printStackTrace();
+        for (PublicKey tokenMint : tokenMints) {
+            Callable<Void> callableTask = () -> {
+                tokenImageCache.put(tokenMint, cacheTokenImage(getTokenLogoByMint(tokenMint)));
+                return (Void) null;
+            };
+            callableTasks.add(callableTask);
+        }
+
+        try {
+            service.invokeAll(callableTasks);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ByteBuffer cacheTokenImage(String logoURI) {
+        try {
+            Request request = new Request.Builder()
+                    .url(logoURI)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                System.out.println("GOT" + logoURI);
+                return ByteBuffer.wrap(response.body().bytes());
+            } catch (Exception ex) {
+                return ByteBuffer.wrap(placeHolderImage);
             }
-
-            @Override public void onResponse(Call call, Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-                    Headers responseHeaders = response.headers();
-                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                    }
-
-                    tokenImageCache.put(tokenMint, ByteBuffer.wrap(responseBody.bytes()));
-                }
-            }
-        });
+        } catch (Exception ex) {
+            return ByteBuffer.wrap(placeHolderImage);
+        }
     }
 
     // Used for formatting media type
@@ -220,6 +223,7 @@ public class TokenManager {
     private void cachePlaceHolderImage() {
         try {
             this.placeHolderImage = Resources.toByteArray(Resources.getResource("static/entities/unknown.jpg"));
+            log.info("Cached placeholder image.");
         } catch (IOException e) {
             log.error(e.getMessage());
         }

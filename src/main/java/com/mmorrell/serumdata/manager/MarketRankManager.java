@@ -42,6 +42,11 @@ public class MarketRankManager {
         this.tokenManager = tokenManager;
 
         updateCachedMarketListings();
+        tokenManager.cacheAllTokenImages(
+                marketListings.stream()
+                        .map(MarketListing::getBaseMint)
+                        .toList()
+        );
     }
 
     @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)

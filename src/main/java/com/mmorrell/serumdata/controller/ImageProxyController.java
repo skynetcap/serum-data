@@ -1,5 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
+import com.mmorrell.serumdata.manager.MarketRankManager;
 import com.mmorrell.serumdata.manager.TokenManager;
 import com.mmorrell.serumdata.model.Token;
 import org.p2p.solanaj.core.PublicKey;
@@ -23,7 +24,7 @@ public class ImageProxyController {
         this.tokenManager = tokenManager;
     }
 
-    @GetMapping(value = "/api/token/icon/{tokenId}")
+    @GetMapping(value = "/api/serum/token/{tokenId}/icon")
     @ResponseBody
     public ResponseEntity<InputStreamResource> getIconByTokenMint(@PathVariable String tokenId) {
         PublicKey tokenMint = new PublicKey(tokenId);

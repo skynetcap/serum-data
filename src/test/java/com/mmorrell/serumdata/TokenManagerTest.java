@@ -16,7 +16,7 @@ public class TokenManagerTest {
 
     public TokenManagerTest() {
         this.tokenManager = new TokenManager(new OkHttpClient.Builder()
-                .callTimeout(3, TimeUnit.SECONDS)
+                .callTimeout(10, TimeUnit.SECONDS)
                 .build());
     }
 

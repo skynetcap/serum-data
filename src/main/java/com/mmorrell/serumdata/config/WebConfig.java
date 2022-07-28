@@ -65,7 +65,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient.Builder()
-                .callTimeout(3, TimeUnit.SECONDS)
+                .callTimeout(5, TimeUnit.SECONDS)
                 .build();
     }
 }
