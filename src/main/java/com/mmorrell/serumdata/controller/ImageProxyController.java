@@ -27,22 +27,35 @@ public class ImageProxyController {
     @GetMapping(value = "/api/serum/token/{tokenId}/icon")
     @ResponseBody
     public ResponseEntity<InputStreamResource> getIconByTokenMint(@PathVariable String tokenId) {
-        PublicKey tokenMint = new PublicKey(tokenId);
-        Optional<Token> optionalToken = tokenManager.getTokenByMint(tokenMint);
-        if (optionalToken.isPresent()) {
-            Token token = optionalToken.get();
-            InputStreamResource tokenImage = tokenManager.getTokenImageInputStream(token);
-            MediaType contentType = switch (token.getImageFormat()) {
-                case "png" -> MediaType.IMAGE_PNG;
-                case "gif" -> MediaType.IMAGE_GIF;
-                case "svg" -> MediaType.valueOf("image/svg+xml");
-                default -> MediaType.IMAGE_JPEG;
-            };
+        try {
+            PublicKey tokenMint = new PublicKey(tokenId);
+            Optional<Token> optionalToken = tokenManager.getTokenByMint(tokenMint);
+            if (optionalToken.isPresent()) {
+                Token token = optionalToken.get();
+                InputStreamResource tokenImage = tokenManager.getTokenImageInputStream(token);
+                MediaType contentType = switch (token.getImageFormat()) {
+                    case "png" -> MediaType.IMAGE_PNG;
+                    case "gif" -> MediaType.IMAGE_GIF;
+                    case "svg" -> MediaType.valueOf("image/svg+xml");
+                    default -> MediaType.IMAGE_JPEG;
+                };
 
-            return ResponseEntity.ok()
-                    .contentType(contentType)
-                    .body(tokenImage);
-        } else {
+                // Edge case: in tokenlist, not in listings
+                if (!tokenManager.isImageCached(tokenMint)) {
+                    contentType = MediaType.IMAGE_JPEG;
+                }
+
+                return ResponseEntity.ok()
+                        .contentType(contentType)
+                        .body(tokenImage);
+            } else {
+                // Case: Real pubkey, fake token
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(new InputStreamResource(new ByteArrayInputStream(tokenManager.getPlaceHolderImage())));
+            }
+        } catch (Exception ex) {
+            // Case: Invalid public key, or other dirty input
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(new InputStreamResource(new ByteArrayInputStream(tokenManager.getPlaceHolderImage())));

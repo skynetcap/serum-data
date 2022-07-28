@@ -17,7 +17,6 @@ public class Token {
     private int decimals;
     @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey publicKey;
-    private byte[] iconImage;
 
     // jpg, png, svg
     private String imageFormat;

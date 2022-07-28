@@ -86,13 +86,20 @@ public class TokenManager {
         log.info("Tokens cached.");
     }
 
+    /**
+     * Creates executor threads to cache ByteBuffer objects of image data into a local Map
+     *
+     * @param tokenMints tokens to cache images of
+     */
     public void cacheAllTokenImages(List<PublicKey> tokenMints){
         ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Callable<Void>> callableTasks = new ArrayList<>();
 
         for (PublicKey tokenMint : tokenMints) {
             Callable<Void> callableTask = () -> {
-                tokenImageCache.put(tokenMint, cacheTokenImage(getTokenLogoByMint(tokenMint)));
+                if (!tokenImageCache.containsKey(tokenMint)) {
+                    tokenImageCache.put(tokenMint, cacheTokenImage(getTokenLogoByMint(tokenMint)));
+                }
                 return (Void) null;
             };
             callableTasks.add(callableTask);
@@ -105,6 +112,10 @@ public class TokenManager {
         }
     }
 
+    public boolean isImageCached(PublicKey tokenMint) {
+        return tokenImageCache.containsKey(tokenMint);
+    }
+
     private ByteBuffer cacheTokenImage(String logoURI) {
         try {
             Request request = new Request.Builder()
@@ -112,12 +123,24 @@ public class TokenManager {
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
-                System.out.println("GOT" + logoURI);
-                return ByteBuffer.wrap(response.body().bytes());
+                byte[] data = response.body().bytes();
+                if (data != null) {
+                    if (data.length > 1) {
+                        return ByteBuffer.wrap(data);
+                    } else {
+                        // Case: Non-null response of 0 or 1 character (invalid image)
+                        return ByteBuffer.wrap(placeHolderImage);
+                    }
+                } else {
+                    // Case: Null response body
+                    return ByteBuffer.wrap(placeHolderImage);
+                }
             } catch (Exception ex) {
+                // Case: HTTP exception
                 return ByteBuffer.wrap(placeHolderImage);
             }
         } catch (Exception ex) {
+            // Case: URL format exception, or unknown
             return ByteBuffer.wrap(placeHolderImage);
         }
     }
@@ -235,6 +258,17 @@ public class TokenManager {
     }
 
     public InputStreamResource getTokenImageInputStream(Token token) {
-        return new InputStreamResource(new ByteArrayInputStream(token.getIconImage()));
+        if (tokenImageCache.containsKey(token.getPublicKey())) {
+            ByteBuffer data = tokenImageCache.get(token.getPublicKey());
+            if (data.hasArray()) {
+                return new InputStreamResource(new ByteArrayInputStream(data.array()));
+            } else {
+                // Case: Empty ByteBuffer object
+                return new InputStreamResource(new ByteArrayInputStream(placeHolderImage));
+            }
+        } else {
+            // Case: Non-cached token (has no markets)
+            return new InputStreamResource(new ByteArrayInputStream(placeHolderImage));
+        }
     }
 }

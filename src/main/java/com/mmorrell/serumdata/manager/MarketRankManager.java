@@ -5,6 +5,7 @@ import ch.openserum.serum.model.SerumUtils;
 import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class MarketRankManager {
 
     private static final int RANK_PLACEHOLDER = 9999999;
@@ -42,11 +44,14 @@ public class MarketRankManager {
         this.tokenManager = tokenManager;
 
         updateCachedMarketListings();
+
+        log.info("Caching token images.");
         tokenManager.cacheAllTokenImages(
                 marketListings.stream()
                         .map(MarketListing::getBaseMint)
                         .toList()
         );
+        log.info("Successfully cached token images: " + marketListings.size());
     }
 
     @Scheduled(initialDelay = 5L, fixedRate = 5L, timeUnit = TimeUnit.MINUTES)
@@ -57,6 +62,7 @@ public class MarketRankManager {
 
     /**
      * Returns rank of tokenMint, the highest rank is 1, based on # of Serum markets`
+     * NOTE: Don't delete, used at the Thymeleaf layer
      *
      * @param tokenMint mint to rank based on # of serum markets
      * @return serum market rank for the given token
