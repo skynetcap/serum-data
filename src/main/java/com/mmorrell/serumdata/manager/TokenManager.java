@@ -123,12 +123,13 @@ public class TokenManager {
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
-                byte[] data = response.body().bytes();
+                ResponseBody responseBody = response.body();
+                byte[] data = responseBody.bytes();
                 if (data != null) {
-                    if (data.length > 1) {
+                    if (data.length > 20 && isAcceptedContentType(responseBody.contentType())) {
                         return ByteBuffer.wrap(data);
                     } else {
-                        // Case: Non-null response of 0 or 1 character (invalid image)
+                        // Case: Non-null response of <20 characters (invalid image)
                         return ByteBuffer.wrap(placeHolderImage);
                     }
                 } else {
@@ -143,6 +144,10 @@ public class TokenManager {
             // Case: URL format exception, or unknown
             return ByteBuffer.wrap(placeHolderImage);
         }
+    }
+
+    private boolean isAcceptedContentType(MediaType contentType) {
+        return contentType.type().contains("image");
     }
 
     // Used for formatting media type
