@@ -80,7 +80,9 @@
 <div class="container-fluid" style="max-width: 1500px !important;">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-            <span class="fs-4" style="color: rgb(225, 225, 225);"><img src="static/serum-srm-logo.png" width="32"
+            <span class="coloredlink" style="font-size: calc(1.4rem + .3vw)!important;"><img
+                    src="static/serum-srm-logo.png"
+                                                                                  width="32"
                                                                        height="32"
                                                                        style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
@@ -510,7 +512,8 @@
                                 return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name;
                             } else {
-                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                return "<a class='coloredlink' href=\"https://solscan.io/account/" + row.owner.publicKey
+                                    + "\" target=_blank>" +
                                     row.owner.publicKey.substring(0, 3) +
                                     ".." +
                                     row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
@@ -540,10 +543,23 @@
                     },
                     {
                         targets: [2],
-                        className: 'table-success dt-right',
+                        className: 'dt-right',
                         width: '25%'
                     }
-                ]
+                ],
+                rowCallback: function (row, data, displayNum, displayIndex, dataIndex) {
+                    // Calculate percentage of bids for this row
+                    // Global has this calculated callled `totalBids`
+                    var total = totalBids ?? 0;
+                    if (total !== 0) {
+                        // 1.5 percentage of lead, since top of book can look empty
+                        var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
+                        var rowSelector = $(row);
+                        rowSelector.css("background", "linear-gradient(270deg, #118005 " + percentage.toFixed(0) +
+                            "%, rgba(0, 0, 0, 0.00) 0%)"
+                        );
+                    }
+                }
             });
 
             var askTable = $('#asksTable').DataTable({
@@ -569,7 +585,8 @@
                                 return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name;
                             } else {
-                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
+                                return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                    row.owner.publicKey + "\" target=_blank>" +
                                     row.owner.publicKey.substring(0, 3) +
                                     ".." +
                                     row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
@@ -582,7 +599,7 @@
                 columnDefs: [
                     {
                         targets: [0],
-                        className: 'dt-left table-danger',
+                        className: 'dt-left',
                         width: '25%'
                     },
                     {
@@ -595,7 +612,20 @@
                         className: 'dt-left',
                         width: '50%'
                     }
-                ]
+                ],
+                rowCallback: function (row, data, displayNum, displayIndex, dataIndex) {
+                    // Calculate percentage of bids for this row
+                    // Global has this calculated callled `totalBids`
+                    var total = totalAsks ?? 0;
+                    if (total !== 0) {
+                        // 1.5 percentage of lead, since top of book can look empty
+                        var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
+                        var rowSelector = $(row);
+                        rowSelector.css("background", "linear-gradient(90deg, #990603 " + percentage.toFixed(0) +
+                            "%, rgba(0, 0, 0, 0.00) 0%)"
+                        );
+                    }
+                }
             });
 
             // Trade history table
@@ -624,11 +654,16 @@
                                 return "<img src=\"static/entities/" + row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.takerEntityName;
                             } else {
-                                return "<a href=\"https://solscan.io/account/" + row.owner.publicKey + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
-                                    ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
-                                    "</a>";
+                                if (row.owner) {
+                                    return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                        row.owner.publicKey + "\" target=_blank>" +
+                                        row.owner.publicKey.substring(0, 3) +
+                                        ".." +
+                                        row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                        "</a>";
+                                } else {
+                                    return "Unknown";
+                                }
                             }
                         }
                     },
@@ -640,13 +675,14 @@
                                     row.makerEntityName;
                             } else {
                                 if (row.makerOwner) {
-                                    return "<a href=\"https://solscan.io/account/" + row.makerOwner.publicKey + "\" target=_blank>" +
+                                    return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                        row.makerOwner.publicKey + "\" target=_blank>" +
                                         row.makerOwner.publicKey.substring(0, 3) +
                                         ".." +
                                         row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
                                         "</a>";
                                 } else {
-                                    return "Deleted";
+                                    return "Unknown";
                                 }
                             }
                         }

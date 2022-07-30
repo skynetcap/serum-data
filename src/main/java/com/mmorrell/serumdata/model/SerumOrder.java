@@ -15,12 +15,12 @@ public class SerumOrder {
     private float quantity;
 
     // Possible keys: "entityName", "entityIcon" (for the known entity)
-    private final Map<String, String> metadata = new HashMap<>();
+    private final Map<String, Object> metadata = new HashMap<>();
 
     @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey owner;
 
-    public void addMetadata(String key, String value) {
+    public void addMetadata(String key, Object value) {
         metadata.put(key, value);
     }
 }
