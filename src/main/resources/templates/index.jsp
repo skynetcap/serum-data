@@ -555,11 +555,9 @@
                         // 1.5 percentage of lead, since top of book can look empty
                         var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
                         var rowSelector = $(row);
-                        rowSelector.css("background", "linear-gradient(270deg, green " + percentage.toFixed(0) +
+                        rowSelector.css("background", "linear-gradient(270deg, #118005 " + percentage.toFixed(0) +
                             "%, rgba(0, 0, 0, 0.00) 0%)"
-                        )
-                        rowSelector.attr("alt", (data.price * data.quantity) + " notional (quote), " +
-                            ((data.metadata.percent ?? 0) * 100) + "% of bids")
+                        );
                     }
                 }
             });
@@ -601,7 +599,7 @@
                 columnDefs: [
                     {
                         targets: [0],
-                        className: 'dt-left table-danger',
+                        className: 'dt-left',
                         width: '25%'
                     },
                     {
@@ -614,7 +612,20 @@
                         className: 'dt-left',
                         width: '50%'
                     }
-                ]
+                ],
+                rowCallback: function (row, data, displayNum, displayIndex, dataIndex) {
+                    // Calculate percentage of bids for this row
+                    // Global has this calculated callled `totalBids`
+                    var total = totalAsks ?? 0;
+                    if (total !== 0) {
+                        // 1.5 percentage of lead, since top of book can look empty
+                        var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
+                        var rowSelector = $(row);
+                        rowSelector.css("background", "linear-gradient(90deg, #990603 " + percentage.toFixed(0) +
+                            "%, rgba(0, 0, 0, 0.00) 0%)"
+                        );
+                    }
+                }
             });
 
             // Trade history table

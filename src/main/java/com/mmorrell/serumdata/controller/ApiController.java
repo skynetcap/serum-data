@@ -141,6 +141,19 @@ public class ApiController {
 
         if (orderBook.isPresent()) {
             List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), false);
+
+            // Calculate aggregate percentages for each quote, add to metadata
+            float aggregateNotional = serumOrders.stream()
+                    .map(order -> order.getQuantity() * order.getPrice())
+                    .reduce(0f, Float::sum);
+
+            float currentTotal = 0.0f;
+            for (SerumOrder order : serumOrders) {
+                float notional = order.getPrice() * order.getQuantity();
+                currentTotal += notional;
+                order.addMetadata("percent", currentTotal / aggregateNotional);
+            }
+
             identityManager.reverseOwnerLookup(serumOrders);
             return serumOrders;
         } else {
