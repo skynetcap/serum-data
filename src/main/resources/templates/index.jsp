@@ -621,7 +621,7 @@
                         // 0.5 percentage of lead, since top of book can look empty
                         var percentage = ((data.metadata.percent ?? 0) * 100) + 0.5;
                         var rowSelector = $(row);
-                        rowSelector.css("background", "linear-gradient(90deg, #990603 " + percentage.toFixed(0) +
+                        rowSelector.css("background", "linear-gradient(90deg, rgb(199 6 2) " + percentage.toFixed(0) +
                             "%, rgba(0, 0, 0, 0.00) 0%)"
                         );
                     }
