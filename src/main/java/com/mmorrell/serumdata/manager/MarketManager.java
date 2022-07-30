@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -176,7 +177,7 @@ public class MarketManager {
         result.addAll(marketMapCache.getOrDefault(tokenMint, new ArrayList<>()));
         result.addAll(marketMapQuoteMintCache.getOrDefault(tokenMint, new ArrayList<>()));
 
-        return result.stream().toList();
+        return new ArrayList<>(result);
     }
 
     /**
