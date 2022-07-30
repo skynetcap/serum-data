@@ -106,3 +106,10 @@ td {
 .paginate_button {
     padding: 0.5em 0.5em !important;
 }
+
+.coloredlink {
+    background-image: linear-gradient(60deg, #00FFA3, #03E1FF, #DC1FFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 500;
+}
