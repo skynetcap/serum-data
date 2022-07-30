@@ -197,7 +197,7 @@
                                 <tr>
                                     <th scope="col">Owner</th>
                                     <th scope="col">Size</th>
-                                    <th scope="col">Price</th>
+                                    <th scope="col" style="color: #118005">Price</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -209,7 +209,7 @@
                                    style="width: 100%; table-layout: fixed;">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Price</th>
+                                    <th scope="col" style="color: #990603">Price</th>
                                     <th scope="col">Size</th>
                                     <th scope="col">Owner</th>
                                 </tr>
@@ -552,8 +552,8 @@
                     // Global has this calculated callled `totalBids`
                     var total = totalBids ?? 0;
                     if (total !== 0) {
-                        // 1.5 percentage of lead, since top of book can look empty
-                        var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
+                        // 0.5 percentage of lead, since top of book can look empty
+                        var percentage = ((data.metadata.percent ?? 0) * 100) + 0.5;
                         var rowSelector = $(row);
                         rowSelector.css("background", "linear-gradient(270deg, #118005 " + percentage.toFixed(0) +
                             "%, rgba(0, 0, 0, 0.00) 0%)"
@@ -618,8 +618,8 @@
                     // Global has this calculated callled `totalBids`
                     var total = totalAsks ?? 0;
                     if (total !== 0) {
-                        // 1.5 percentage of lead, since top of book can look empty
-                        var percentage = ((data.metadata.percent ?? 0) * 100) + 1.5;
+                        // 0.5 percentage of lead, since top of book can look empty
+                        var percentage = ((data.metadata.percent ?? 0) * 100) + 0.5;
                         var rowSelector = $(row);
                         rowSelector.css("background", "linear-gradient(90deg, #990603 " + percentage.toFixed(0) +
                             "%, rgba(0, 0, 0, 0.00) 0%)"
