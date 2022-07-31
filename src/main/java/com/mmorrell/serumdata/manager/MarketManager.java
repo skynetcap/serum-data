@@ -171,6 +171,11 @@ public class MarketManager {
         return new ArrayList<>(marketCache.values());
     }
 
+    public List<Market> getMarketsByBaseMint(PublicKey tokenMint) {
+        final Set<Market> result = new HashSet<>(marketMapCache.getOrDefault(tokenMint, new ArrayList<>()));
+        return new ArrayList<>(result);
+    }
+
     public List<Market> getMarketsByTokenMint(PublicKey tokenMint) {
         final Set<Market> result = new HashSet<>();
 
