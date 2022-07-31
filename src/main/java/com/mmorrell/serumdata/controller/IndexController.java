@@ -127,8 +127,12 @@ public class IndexController {
             for (Token baseToken : possibleBaseTokens) {
                 // compile list of markets, return one with most fees accrued.
                 Optional<Market> optionalMarket = marketRankManager.getMostActiveMarket(baseToken.getPublicKey());
-                optionalMarket.ifPresent(activeMarkets::add);
-
+                if (optionalMarket.isPresent()) {
+                    Market foundMarket = optionalMarket.get();
+                    if (foundMarket.getBaseMint().equals(baseToken.getPublicKey())) {
+                        activeMarkets.add(foundMarket);
+                    }
+                }
             }
             activeMarkets.sort(Comparator.comparingLong(Market::getQuoteFeesAccrued).reversed());
 

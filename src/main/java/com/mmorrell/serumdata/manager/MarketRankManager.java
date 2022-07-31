@@ -85,7 +85,7 @@ public class MarketRankManager {
     }
 
     public Optional<Market> getMostActiveMarket(PublicKey baseMint) {
-        List<Market> markets = marketManager.getMarketsByTokenMint(baseMint);
+        List<Market> markets = marketManager.getMarketsByBaseMint(baseMint);
         if (markets.size() < 1) {
             return Optional.empty();
         }
