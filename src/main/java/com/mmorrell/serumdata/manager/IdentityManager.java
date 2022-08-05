@@ -72,6 +72,11 @@ public class IdentityManager {
                 "Jump",
                 "jump"
         );
+        addKnownEntity(
+                "5yv6Vh8FNx93TXeSS94xy8VLZMbTqx4vXp7Zg5bDLZtE",
+                "Jump",
+                "jump"
+        );
 
         // Wintermute Trading
         addKnownEntity(

@@ -82,9 +82,9 @@
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="coloredlink" style="font-size: calc(1.4rem + .3vw)!important;"><img
                     src="static/serum-srm-logo.png"
-                                                                                  width="32"
-                                                                       height="32"
-                                                                       style="margin-right: 0.5rem!important;">Openserum Market Data</span>
+                    width="32"
+                    height="32"
+                    style="margin-right: 0.5rem!important;">Openserum Market Data</span>
         </a>
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
@@ -723,15 +723,18 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 400);
+            }, 410);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 400);
+            }, 410);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
-            }, 2500);
+            }, 410);
+            setInterval(function () {
+                updateSlot();
+            }, 250);
         }
     );
     /*]]>*/

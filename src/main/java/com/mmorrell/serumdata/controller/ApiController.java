@@ -9,6 +9,11 @@ import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,11 +24,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@Slf4j
 public class ApiController {
 
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
+    private final OkHttpClient okHttpClient;
 
     // Cache headers
     private final static String CACHE_CONTROL_HEADER_NAME = "Cache-Control";
@@ -41,10 +48,12 @@ public class ApiController {
     // Auto-injected beans created by Component annotation
     public ApiController(TokenManager tokenManager,
                          MarketManager marketManager,
-                         IdentityManager identityManager) {
+                         IdentityManager identityManager,
+                         OkHttpClient okHttpClient) {
         this.tokenManager = tokenManager;
         this.marketManager = marketManager;
         this.identityManager = identityManager;
+        this.okHttpClient = okHttpClient;
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
@@ -102,7 +111,7 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
     public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
+        // response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
@@ -130,6 +139,25 @@ public class ApiController {
             return Collections.emptyList();
         }
     }
+
+    @GetMapping(value = "/api/serum/market/{marketId}/slot")
+    public Map<String, Object> getSlot(@PathVariable String marketId) {
+        Request request = new Request.Builder()
+                .url("https://api.openserum.io/api/serum/slot/" + new PublicKey(marketId).toBase58())
+                .build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            ResponseBody responseBody = response.body();
+            String data = responseBody.string();
+            return Map.of("slot", data);
+        } catch (Exception ex) {
+            // Case: HTTP exception
+            log.error(ex.getMessage());
+        }
+
+        return Map.of("slot", 0);
+    }
+
 
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
     public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
@@ -301,8 +329,8 @@ public class ApiController {
                 .asks(floatAsks)
                 .bids(floatBids)
                 .midpoint(midPoint)
-                .bidContextSlot(marketManager.getBidContext(marketPubkey))
-                .askContextSlot(marketManager.getAskContext(marketPubkey))
+                .bidContextSlot(1337)
+                .askContextSlot(1337)
                 .build();
     }
 

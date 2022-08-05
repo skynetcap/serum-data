@@ -233,10 +233,10 @@ function updateDepthChart() {
         // bids + asks
         $.get({url: apiUrl, cache: true})
             .done(function (newData) {
-                bidContextSlot = newData.bidContextSlot;
-                askContextSlot = newData.askContextSlot;
-
-                $(".marketContext").text("Slot: " + bidContextSlot)
+                // bidContextSlot = newData.bidContextSlot;
+                // askContextSlot = newData.askContextSlot;
+                //
+                // $(".marketContext").text("Slot: " + bidContextSlot)
 
                 // loop total bids, total each level, total all that
                 totalBids = newData.bids.reduce(
@@ -333,4 +333,14 @@ function updateDepthChart() {
                 );
             });
     }
+}
+
+function updateSlot() {
+    let apiUrl = "/api/serum/market/" + activeMarketId + "/slot";
+    // bids + asks
+    $.get({url: apiUrl, cache: false})
+        .done(function (newData) {
+            bidContextSlot = newData.slot;
+            $(".marketContext").text("Slot: " + bidContextSlot);
+        });
 }

@@ -7,6 +7,10 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.util.MarketUtil;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -14,6 +18,7 @@ import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -26,6 +31,7 @@ public class MarketManager {
     private static final int EVENT_QUEUE_CACHE_DURATION_MS = 2500;
 
     private final RpcClient client;
+    private final OkHttpClient okHttpClient;
     // Managers
     private final TokenManager tokenManager;
 
@@ -49,121 +55,101 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
+            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
-                            try {
-                                Market cachedMarket = marketCache.get(marketPubkey);
-                                long slotToUse = bidOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+                            Market cachedMarket = marketCache.get(marketPubkey);
 
-                                AccountInfo accountInfo = client.getApi()
-                                        .getAccountInfo(
-                                                cachedMarket.getBids(),
-                                                Map.of(
-                                                        "minContextSlot",
-                                                        slotToUse,
-                                                        "commitment",
-                                                        Commitment.CONFIRMED
-                                                )
-                                        );
+                            Request request = new Request.Builder()
+                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getBids().toBase58())
+                                    .build();
 
-                                bidOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
-
+                            try (Response response = okHttpClient.newCall(request).execute()) {
+                                ResponseBody responseBody = response.body();
+                                byte[] data = responseBody.bytes();
                                 return buildOrderBook(
-                                        Base64.getDecoder().decode(
-                                                accountInfo.getValue()
-                                                        .getData()
-                                                        .get(0)
-                                        ),
+                                        Base64.getDecoder().decode(data),
                                         cachedMarket
                                 );
-                            } catch (RpcException ex) {
-                                return bidOrderBookLoadingCache.asMap().get(marketPubkey);
+
+                            } catch (Exception ex) {
+                                // Case: HTTP exception
+                                log.error(ex.getMessage());
                             }
+
+                            // fall-back to old entry
+                            return bidOrderBookLoadingCache.asMap().get(marketPubkey);
                         }
                     });
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
+            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
-                            try {
-                                Market cachedMarket = marketCache.get(marketPubkey);
-                                long slotToUse = askOrderBookMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+                            Market cachedMarket = marketCache.get(marketPubkey);
 
-                                AccountInfo accountInfo = client.getApi()
-                                        .getAccountInfo(
-                                                cachedMarket.getAsks(),
-                                                Map.of(
-                                                        "minContextSlot",
-                                                        slotToUse,
-                                                        "commitment",
-                                                        Commitment.CONFIRMED
-                                                )
-                                        );
+                            Request request = new Request.Builder()
+                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getAsks().toBase58())
+                                    .build();
 
-                                askOrderBookMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
-
+                            try (Response response = okHttpClient.newCall(request).execute()) {
+                                ResponseBody responseBody = response.body();
+                                byte[] data = responseBody.bytes();
                                 return buildOrderBook(
-                                        Base64.getDecoder().decode(
-                                                accountInfo.getValue()
-                                                        .getData()
-                                                        .get(0)
-                                        ),
+                                        Base64.getDecoder().decode(data),
                                         cachedMarket
                                 );
-                            } catch (RpcException ex) {
-                                return askOrderBookLoadingCache.asMap().get(marketPubkey);
+
+                            } catch (Exception ex) {
+                                // Case: HTTP exception
+                                log.error(ex.getMessage());
                             }
+
+                            // fall-back to old entry
+                            return askOrderBookLoadingCache.asMap().get(marketPubkey);
                         }
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(EVENT_QUEUE_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
+            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public EventQueue load(PublicKey marketPubkey) {
-                            try {
-                                Market cachedMarket = marketCache.get(marketPubkey);
-                                long slotToUse = eventQueueMinContextSlot.getOrDefault(marketPubkey, DEFAULT_MIN_CONTEXT_SLOT);
+                            Market cachedMarket = marketCache.get(marketPubkey);
 
-                                AccountInfo accountInfo = client.getApi()
-                                        .getAccountInfo(
-                                                cachedMarket.getEventQueueKey(),
-                                                Map.of(
-                                                        "minContextSlot",
-                                                        slotToUse,
-                                                        "commitment",
-                                                        Commitment.CONFIRMED
-                                                )
-                                        );
+                            Request request = new Request.Builder()
+                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getEventQueueKey().toBase58())
+                                    .build();
 
-                                eventQueueMinContextSlot.put(marketPubkey, accountInfo.getContext().getSlot());
-
+                            try (Response response = okHttpClient.newCall(request).execute()) {
+                                ResponseBody responseBody = response.body();
+                                byte[] data = responseBody.bytes();
                                 return EventQueue.readEventQueue(
-                                        Base64.getDecoder().decode(
-                                                accountInfo.getValue().getData().get(0)
-                                        ),
+                                        Base64.getDecoder().decode(data),
                                         cachedMarket.getBaseDecimals(),
                                         cachedMarket.getQuoteDecimals(),
                                         cachedMarket.getBaseLotSize(),
                                         cachedMarket.getQuoteLotSize()
                                 );
-                            } catch (RpcException ex) {
-                                return eventQueueLoadingCache.asMap().get(marketPubkey);
+
+                            } catch (Exception ex) {
+                                // Case: HTTP exception
+                                log.error(ex.getMessage());
                             }
+                            return eventQueueLoadingCache.asMap().get(marketPubkey);
                         }
                     });
 
-    public MarketManager(final TokenManager tokenManager, final RpcClient rpcClient) {
+    public MarketManager(final TokenManager tokenManager, final RpcClient rpcClient, final OkHttpClient okHttpClient) {
         this.tokenManager = tokenManager;
         this.client = rpcClient;
+        this.okHttpClient = okHttpClient;
         updateMarkets();
     }
 
