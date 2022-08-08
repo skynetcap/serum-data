@@ -501,7 +501,7 @@
                 info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/bids',
-                    cache: true,
+                    cache: false,
                     dataSrc: ''
                 },
                 columns: [
@@ -567,7 +567,7 @@
                 info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/asks',
-                    cache: true,
+                    cache: false,
                     dataSrc: ''
                 },
                 columns: [
@@ -636,7 +636,7 @@
                 info: false,
                 ajax: {
                     url: '/api/serum/market/' + activeMarketId + '/tradeHistory',
-                    cache: true,
+                    cache: false,
                     dataSrc: ''
                 },
                 columns: [
