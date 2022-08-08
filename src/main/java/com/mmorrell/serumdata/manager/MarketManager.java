@@ -44,6 +44,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -71,6 +72,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -97,6 +99,7 @@ public class MarketManager {
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
