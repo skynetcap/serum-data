@@ -143,7 +143,7 @@ public class ApiController {
     @GetMapping(value = "/api/serum/market/{marketId}/slot")
     public Map<String, Object> getSlot(@PathVariable String marketId) {
         Request request = new Request.Builder()
-                .url("https://api.openserum.io/api/serum/slot/" + new PublicKey(marketId).toBase58())
+                .url("http://host.docker.internal:8082/serum/slot/" + new PublicKey(marketId).toBase58())
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {

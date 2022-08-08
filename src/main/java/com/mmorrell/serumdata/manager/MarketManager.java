@@ -63,7 +63,7 @@ public class MarketManager {
                             Market cachedMarket = marketCache.get(marketPubkey);
 
                             Request request = new Request.Builder()
-                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getBids().toBase58())
+                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getBids().toBase58())
                                     .build();
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
@@ -94,7 +94,7 @@ public class MarketManager {
                             Market cachedMarket = marketCache.get(marketPubkey);
 
                             Request request = new Request.Builder()
-                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getAsks().toBase58())
+                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getAsks().toBase58())
                                     .build();
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
@@ -124,7 +124,7 @@ public class MarketManager {
                             Market cachedMarket = marketCache.get(marketPubkey);
 
                             Request request = new Request.Builder()
-                                    .url("https://api.openserum.io/api/serum/account/" + cachedMarket.getEventQueueKey().toBase58())
+                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getEventQueueKey().toBase58())
                                     .build();
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
