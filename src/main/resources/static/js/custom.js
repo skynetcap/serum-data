@@ -231,7 +231,7 @@ function updateDepthChart() {
     if (activeMarketId) {
         let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
         // bids + asks
-        $.get({url: apiUrl, cache: true})
+        $.get({url: apiUrl, cache: false})
             .done(function (newData) {
                 // bidContextSlot = newData.bidContextSlot;
                 // askContextSlot = newData.askContextSlot;
