@@ -723,18 +723,18 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 205);
+            }, 350);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 205);
+            }, 350);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
             }, 750);
             setInterval(function () {
                 updateSlot();
-            }, 300);
+            }, 350);
         }
     );
     /*]]>*/
