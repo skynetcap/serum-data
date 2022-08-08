@@ -32,18 +32,6 @@ public class ApiController {
     private final IdentityManager identityManager;
     private final OkHttpClient okHttpClient;
 
-    // Cache headers
-    private final static String CACHE_CONTROL_HEADER_NAME = "Cache-Control";
-    private final static String CACHE_CONTROL_HEADER_VALUE = "no-cache";
-    private final static String CACHE_HEADER_NAME = "Cloudflare-CDN-Cache-Control";
-    private final static String CACHE_HEADER_VALUE = "max-age=";
-    private final static int CACHE_MAX_DURATION_SECONDS = 1;
-    private final static String CACHE_HEADER_VALUE_FORMATTED = String.format(
-            "%s%d",
-            CACHE_HEADER_VALUE,
-            CACHE_MAX_DURATION_SECONDS
-    );
-
     // Called on startup, loads our caches first etc
     // Auto-injected beans created by Component annotation
     public ApiController(TokenManager tokenManager,
@@ -58,9 +46,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
     public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
         PublicKey tokenMint = new PublicKey(tokenId);
@@ -97,9 +82,6 @@ public class ApiController {
      */
     @GetMapping(value = "/api/serum/market/{marketId}")
     public Map<String, Object> getMarket(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         final Optional<Market> market = marketManager.getMarketById(marketId);
 
         if (market.isEmpty()) {
@@ -111,8 +93,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
     public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
 
@@ -160,8 +140,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
     public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
 
@@ -189,8 +167,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
     public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         final List<TradeHistoryEvent> result = new ArrayList<>();
         final PublicKey marketKey = new PublicKey(marketId);
 
@@ -271,8 +247,6 @@ public class ApiController {
     // Only works for cached markets.
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
     public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
         final PublicKey marketPubkey = new PublicKey(marketId);
         CompletableFuture<Optional<OrderBook>> bidFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedBidOrderBook(marketPubkey));
         CompletableFuture<Optional<OrderBook>> askFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedAskOrderBook(marketPubkey));
