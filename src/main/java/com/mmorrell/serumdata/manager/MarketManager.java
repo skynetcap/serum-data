@@ -6,6 +6,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.util.MarketUtil;
+import com.mmorrell.serumdata.util.RpcUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,20 +16,14 @@ import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.*;
-import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.springframework.stereotype.Component;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class MarketManager {
-
-    private static final int ORDER_BOOK_CACHE_DURATION_SECONDS = 1;
-    private static final int EVENT_QUEUE_CACHE_DURATION_MS = 2500;
 
     private final RpcClient client;
     private final OkHttpClient okHttpClient;
@@ -47,24 +42,14 @@ public class MarketManager {
     private static final int MINIMUM_REQUIRED_MARKETS_FOR_PRICING = 2;
     private final Map<PublicKey, Float> priceCache = new HashMap<>();
 
-    // Solana Context
-    private final long DEFAULT_MIN_CONTEXT_SLOT = 0L;
-    private final Map<PublicKey, Long> askOrderBookMinContextSlot = new HashMap<>();
-    private final Map<PublicKey, Long> bidOrderBookMinContextSlot = new HashMap<>();
-    private final Map<PublicKey, Long> eventQueueMinContextSlot = new HashMap<>();
-
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-
-                            Request request = new Request.Builder()
-                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getBids().toBase58())
-                                    .build();
+                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -86,16 +71,12 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-
-                            Request request = new Request.Builder()
-                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getAsks().toBase58())
-                                    .build();
+                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -116,16 +97,12 @@ public class MarketManager {
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
-            .refreshAfterWrite(405, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public EventQueue load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-
-                            Request request = new Request.Builder()
-                                    .url("http://host.docker.internal:8082/serum/account/" + cachedMarket.getEventQueueKey().toBase58())
-                                    .build();
+                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -373,13 +350,5 @@ public class MarketManager {
         orderBook.setQuoteLotSize(market.getQuoteLotSize());
 
         return orderBook;
-    }
-
-    public long getBidContext(PublicKey publicKey) {
-        return bidOrderBookMinContextSlot.getOrDefault(publicKey, DEFAULT_MIN_CONTEXT_SLOT);
-    }
-
-    public long getAskContext(PublicKey publicKey) {
-        return bidOrderBookMinContextSlot.getOrDefault(publicKey, DEFAULT_MIN_CONTEXT_SLOT);
     }
 }

@@ -111,7 +111,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
     public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
-        // response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
@@ -161,7 +160,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
     public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
@@ -191,7 +189,6 @@ public class ApiController {
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
     public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final List<TradeHistoryEvent> result = new ArrayList<>();
@@ -274,7 +271,6 @@ public class ApiController {
     // Only works for cached markets.
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
     public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
         response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
 
         final PublicKey marketPubkey = new PublicKey(marketId);

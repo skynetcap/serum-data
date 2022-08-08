@@ -1,5 +1,8 @@
 package com.mmorrell.serumdata.util;
 
+import okhttp3.Request;
+import org.jetbrains.annotations.NotNull;
+import org.p2p.solanaj.core.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,5 +42,13 @@ public class RpcUtil {
 
         LOGGER.info("Using fallback endpoint: " + DEFAULT_CLUSTER.getEndpoint());
         return DEFAULT_CLUSTER.getEndpoint();
+    }
+
+
+    @NotNull
+    public static Request buildGetAccountInfoSerumDbRequest(PublicKey publicKey) {
+        return new Request.Builder()
+                .url("http://host.docker.internal:8082/serum/account/" + publicKey.toBase58())
+                .build();
     }
 }
