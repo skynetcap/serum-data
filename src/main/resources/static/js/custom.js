@@ -224,7 +224,7 @@ function loadMarketDetail() {
 }
 
 function explorerLink(accountId) {
-    return "<a target=_blank href=\"https://solscan.io/account/" + accountId + "\">" + accountId + "</a>";
+    return "<a target=_blank href=\"https://solana.fm/account/" + accountId + "\">" + accountId + "</a>";
 }
 
 function updateDepthChart() {
