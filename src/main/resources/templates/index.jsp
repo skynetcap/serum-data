@@ -733,7 +733,13 @@
                 tradeHistoryTable.ajax.reload();
             }, 750);
             setInterval(function () {
-                updateSlot();
+                let apiUrl = "/api/serum/market/" + activeMarketId + "/slot";
+                // bids + asks
+                $.get({url: apiUrl, cache: false})
+                    .done(function (newData) {
+                        bidContextSlot = newData.slot;
+                        $(".marketContext").text("Slot: " + bidContextSlot);
+                    });
             }, 350);
         }
     );
