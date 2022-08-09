@@ -113,3 +113,7 @@ td {
     -webkit-text-fill-color: transparent;
     font-weight: 500;
 }
+
+tbody a {
+    color: rgb(225, 225, 225) !important;
+}

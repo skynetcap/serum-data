@@ -31,6 +31,4 @@ public class TradeHistoryEvent {
     private boolean bid;
     private boolean maker;
 
-    // TX metadata/forensics
-    private String jupiterTx;
 }
