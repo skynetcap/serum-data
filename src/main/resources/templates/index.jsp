@@ -509,10 +509,11 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
-                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.metadata.name;
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name + "</a>";
                             } else {
-                                return "<a class='coloredlink' href=\"https://solscan.io/account/" + row.owner.publicKey
+                                return "<a class='coloredlink' href=\"https://solana.fm/account/" + row.owner.publicKey
                                     + "\" target=_blank>" +
                                     row.owner.publicKey.substring(0, 3) +
                                     ".." +
@@ -582,10 +583,11 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
-                                return "<img src=\"static/entities/" + row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.metadata.name;
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.metadata.name + "</a>";
                             } else {
-                                return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                return "<a class='coloredlink' href=\"https://solana.fm/account/" +
                                     row.owner.publicKey + "\" target=_blank>" +
                                     row.owner.publicKey.substring(0, 3) +
                                     ".." +
@@ -651,11 +653,12 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (row.takerEntityName) {
-                                return "<img src=\"static/entities/" + row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.takerEntityName;
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.takerEntityName + "</a>";
                             } else {
                                 if (row.owner) {
-                                    return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                    return "<a class='coloredlink' href=\"https://solana.fm/account/" +
                                         row.owner.publicKey + "\" target=_blank>" +
                                         row.owner.publicKey.substring(0, 3) +
                                         ".." +
@@ -671,11 +674,13 @@
                         data: 'maker',
                         render: function (data, type, row) {
                             if (row.makerEntityName) {
-                                return "<img src=\"static/entities/" + row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.makerEntityName;
+                                return "<a target=_blank href=\"https://solana.fm/account/" +
+                                    row.makerOwner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                    row.makerEntityName + "</a>";
                             } else {
                                 if (row.makerOwner) {
-                                    return "<a class='coloredlink' href=\"https://solscan.io/account/" +
+                                    return "<a class='coloredlink' href=\"https://solana.fm/account/" +
                                         row.makerOwner.publicKey + "\" target=_blank>" +
                                         row.makerOwner.publicKey.substring(0, 3) +
                                         ".." +
