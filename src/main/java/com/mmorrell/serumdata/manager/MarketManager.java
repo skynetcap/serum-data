@@ -42,9 +42,12 @@ public class MarketManager {
     private static final int MINIMUM_REQUIRED_MARKETS_FOR_PRICING = 2;
     private final Map<PublicKey, Float> priceCache = new HashMap<>();
 
+    // Caching
+    private static final int GEYSER_CACHE_DURATION_MS = 200;
+
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
+            .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -72,7 +75,7 @@ public class MarketManager {
 
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> askOrderBookLoadingCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
+            .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -99,7 +102,7 @@ public class MarketManager {
                     });
 
     final LoadingCache<PublicKey, EventQueue> eventQueueLoadingCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(200, TimeUnit.MILLISECONDS)
+            .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
