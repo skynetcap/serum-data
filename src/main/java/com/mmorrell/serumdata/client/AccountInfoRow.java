@@ -19,6 +19,10 @@ public class AccountInfoRow {
     private long slot;
 
     public byte[] getDecodedData() {
+        if (data == null) {
+            return new byte[]{};
+        }
+
         return Base64.getDecoder().decode(data);
     }
 

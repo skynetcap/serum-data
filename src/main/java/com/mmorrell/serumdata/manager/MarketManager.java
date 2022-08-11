@@ -268,7 +268,7 @@ public class MarketManager {
         quoteMintsToPrice.forEach(mintToPrice -> {
             if (accountData.containsKey(mintToBidOrderBook.get(mintToPrice))) {
                 ByteBuffer buffer = accountData.get(mintToBidOrderBook.get(mintToPrice));
-                if (buffer.hasArray() && buffer.array().length > 0) {
+                if (buffer != null && buffer.hasArray() && buffer.array().length > 0) {
                     Market market = mintToUsdcMarketPubkey.get(mintToPrice);
                     OrderBook bidOrderbook = OrderBook.readOrderBook(buffer.array());
 

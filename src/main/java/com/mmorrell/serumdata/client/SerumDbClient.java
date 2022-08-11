@@ -64,6 +64,8 @@ public class SerumDbClient {
                     );
                 }
             }
+
+            return result;
         } catch (Exception ex) {
             // Case: HTTP exception
             log.error(ex.getMessage());

@@ -166,7 +166,7 @@ public class IdentityManager {
         Map<PublicKey, ByteBuffer> accountDataList = serumDbClient.getMultipleAccounts(keysToSearch);
         for (PublicKey ooaKey : keysToSearch) {
             ByteBuffer ooaAccountData = accountDataList.get(ooaKey);
-            if (ooaAccountData.hasArray() && ooaAccountData.array().length > 0) {
+            if (ooaAccountData != null && ooaAccountData.hasArray() && ooaAccountData.array().length > 0) {
                 final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
                         ooaAccountData.array()
                 );
