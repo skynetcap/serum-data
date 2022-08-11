@@ -1,6 +1,7 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -200,22 +201,10 @@ public class MarketManager {
      */
     public void updateMarkets() {
         log.info("Caching all Serum markets.");
-        final List<ProgramAccount> programAccounts;
+        final List<AccountInfoRow> accountInfoRows = getAllMarkets();
 
-        try {
-            programAccounts = new ArrayList<>(
-                    client.getApi().getProgramAccounts(
-                            SerumUtils.SERUM_PROGRAM_ID_V3,
-                            Collections.emptyList(),
-                            SerumUtils.MARKET_ACCOUNT_SIZE
-                    )
-            );
-        } catch (RpcException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (ProgramAccount programAccount : programAccounts) {
-            Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
+        for (AccountInfoRow accountInfoRow : accountInfoRows) {
+            Market market = Market.readMarket(accountInfoRow.getDecodedData());
 
             // Ignore fake/erroneous market accounts
             if (market.getOwnAddress().equals(new PublicKey("11111111111111111111111111111111"))) {
@@ -320,7 +309,7 @@ public class MarketManager {
             }
         });
 
-        log.info("All Serum markets cached: " + programAccounts.size());
+        log.info("All Serum markets cached: " + accountInfoRows.size());
     }
 
     public int numMarketsByToken(PublicKey tokenMint) {
@@ -401,5 +390,23 @@ public class MarketManager {
 
     public long getCurrentSlot() {
         return currentSlot;
+    }
+
+    private List<AccountInfoRow> getAllMarkets() {
+        Request request = new Request.Builder()
+                .url("http://host.docker.internal:8082/serum/markets")
+                .build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            ResponseBody responseBody = response.body();
+            byte[] data = responseBody.bytes();
+
+            return objectMapper.readValue(data, new TypeReference<>(){});
+        } catch (Exception ex) {
+            // Case: HTTP exception
+            log.error(ex.getMessage());
+        }
+
+        return Collections.emptyList();
     }
 }
