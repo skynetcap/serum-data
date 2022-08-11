@@ -336,7 +336,6 @@ function updateDepthChart() {
 }
 
 function updateSlot(slot) {
-    console.log('new slot: ' + slot);
     contextSlot = slot;
     $(".marketContext").text("Slot: " + contextSlot);
 }
