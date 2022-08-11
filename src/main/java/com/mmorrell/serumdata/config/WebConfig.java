@@ -1,5 +1,7 @@
 package com.mmorrell.serumdata.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mmorrell.serumdata.util.RpcUtil;
 import okhttp3.OkHttpClient;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -67,5 +69,12 @@ public class WebConfig implements WebMvcConfigurer {
         return new OkHttpClient.Builder()
                 .callTimeout(5, TimeUnit.SECONDS)
                 .build();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return objectMapper;
     }
 }

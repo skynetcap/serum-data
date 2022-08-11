@@ -1,10 +1,12 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.mmorrell.serumdata.client.AccountInfoRow;
 import com.mmorrell.serumdata.util.MarketUtil;
 import com.mmorrell.serumdata.util.RpcUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ public class MarketManager {
 
     private final RpcClient client;
     private final OkHttpClient okHttpClient;
+    private final ObjectMapper objectMapper;
     // Managers
     private final TokenManager tokenManager;
 
@@ -58,8 +61,14 @@ public class MarketManager {
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
                                 byte[] data = responseBody.bytes();
+
+                                AccountInfoRow accountInfoRow = objectMapper.readValue(
+                                        data,
+                                        AccountInfoRow.class
+                                );
+
                                 return buildOrderBook(
-                                        Base64.getDecoder().decode(data),
+                                        Base64.getDecoder().decode(accountInfoRow.getData()),
                                         cachedMarket
                                 );
 
@@ -86,8 +95,14 @@ public class MarketManager {
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
                                 byte[] data = responseBody.bytes();
+
+                                AccountInfoRow accountInfoRow = objectMapper.readValue(
+                                        data,
+                                        AccountInfoRow.class
+                                );
+
                                 return buildOrderBook(
-                                        Base64.getDecoder().decode(data),
+                                        Base64.getDecoder().decode(accountInfoRow.getData()),
                                         cachedMarket
                                 );
 
@@ -113,8 +128,13 @@ public class MarketManager {
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
                                 byte[] data = responseBody.bytes();
+                                AccountInfoRow accountInfoRow = objectMapper.readValue(
+                                        data,
+                                        AccountInfoRow.class
+                                );
+
                                 return EventQueue.readEventQueue(
-                                        Base64.getDecoder().decode(data),
+                                        Base64.getDecoder().decode(accountInfoRow.getData()),
                                         cachedMarket.getBaseDecimals(),
                                         cachedMarket.getQuoteDecimals(),
                                         cachedMarket.getBaseLotSize(),
@@ -129,10 +149,14 @@ public class MarketManager {
                         }
                     });
 
-    public MarketManager(final TokenManager tokenManager, final RpcClient rpcClient, final OkHttpClient okHttpClient) {
+    public MarketManager(final TokenManager tokenManager,
+                         final RpcClient rpcClient,
+                         final OkHttpClient okHttpClient,
+                         final ObjectMapper objectMapper) {
         this.tokenManager = tokenManager;
         this.client = rpcClient;
         this.okHttpClient = okHttpClient;
+        this.objectMapper = objectMapper;
         updateMarkets();
     }
 

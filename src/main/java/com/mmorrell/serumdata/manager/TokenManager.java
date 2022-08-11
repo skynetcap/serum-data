@@ -32,7 +32,7 @@ public class TokenManager {
     private static final int CHAIN_ID_MAINNET = 101;
 
     private final OkHttpClient client;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     // <tokenMint string, token>
     private final Map<PublicKey, Token> tokenCache = new HashMap<>();
@@ -40,9 +40,9 @@ public class TokenManager {
     private byte[] placeHolderImage;
 
     // Loads tokens from github repo into memory when this constructor is called. (e.g. during Bean creation)
-    public TokenManager(final OkHttpClient client) {
+    public TokenManager(final OkHttpClient client, final ObjectMapper objectMapper) {
         this.client = client;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper = objectMapper;
         cachePlaceHolderImage();
         updateRegistry();
     }
