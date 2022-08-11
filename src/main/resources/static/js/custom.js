@@ -1,7 +1,7 @@
 $.fn.dataTable.ext.errMode = 'none';
 $.fn.DataTable.ext.pager.numbers_length = 5;
 
-var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot, marketTable;
+var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, contextSlot, marketTable;
 
 function formatToken(token) {
     if (!token.id) {
@@ -233,7 +233,7 @@ function updateDepthChart() {
         // bids + asks
         $.get({url: apiUrl, cache: false})
             .done(function (newData) {
-                // bidContextSlot = newData.bidContextSlot;
+                updateSlot(newData.contextSlot);
                 // askContextSlot = newData.askContextSlot;
                 //
                 // $(".marketContext").text("Slot: " + bidContextSlot)
@@ -333,4 +333,10 @@ function updateDepthChart() {
                 );
             });
     }
+}
+
+function updateSlot(slot) {
+    console.log('new slot: ' + slot);
+    contextSlot = slot;
+    $(".marketContext").text("Slot: " + contextSlot);
 }

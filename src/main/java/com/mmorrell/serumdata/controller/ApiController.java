@@ -45,7 +45,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
-    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId, HttpServletResponse response) {
+    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
         PublicKey tokenMint = new PublicKey(tokenId);
@@ -81,7 +81,7 @@ public class ApiController {
      * @return map with market metadata
      */
     @GetMapping(value = "/api/serum/market/{marketId}")
-    public Map<String, Object> getMarket(@PathVariable String marketId, HttpServletResponse response) {
+    public Map<String, Object> getMarket(@PathVariable String marketId) {
         final Optional<Market> market = marketManager.getMarketById(marketId);
 
         if (market.isEmpty()) {
@@ -92,7 +92,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
-    public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
+    public List<SerumOrder> getMarketBids(@PathVariable String marketId) {
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
 
@@ -119,27 +119,8 @@ public class ApiController {
         }
     }
 
-    @GetMapping(value = "/api/serum/market/{marketId}/slot")
-    public Map<String, Object> getSlot(@PathVariable String marketId) {
-        Request request = new Request.Builder()
-                .url("http://host.docker.internal:8082/serum/slot/" + new PublicKey(marketId).toBase58())
-                .build();
-
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            ResponseBody responseBody = response.body();
-            String data = responseBody.string();
-            return Map.of("slot", data);
-        } catch (Exception ex) {
-            // Case: HTTP exception
-            log.error(ex.getMessage());
-        }
-
-        return Map.of("slot", 0);
-    }
-
-
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
-    public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
+    public List<SerumOrder> getMarketAsks(@PathVariable String marketId) {
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
 
@@ -166,7 +147,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
-    public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
+    public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId) {
         final List<TradeHistoryEvent> result = new ArrayList<>();
         final PublicKey marketKey = new PublicKey(marketId);
 
@@ -246,7 +227,7 @@ public class ApiController {
 
     // Only works for cached markets.
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
-    public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
+    public MarketDepth getMarketDepth(@PathVariable String marketId) {
         final PublicKey marketPubkey = new PublicKey(marketId);
         CompletableFuture<Optional<OrderBook>> bidFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedBidOrderBook(marketPubkey));
         CompletableFuture<Optional<OrderBook>> askFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedAskOrderBook(marketPubkey));
@@ -299,8 +280,7 @@ public class ApiController {
                 .asks(floatAsks)
                 .bids(floatBids)
                 .midpoint(midPoint)
-                .bidContextSlot(1337)
-                .askContextSlot(1337)
+                .contextSlot(marketManager.getCurrentSlot())
                 .build();
     }
 

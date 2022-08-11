@@ -48,6 +48,8 @@ public class MarketManager {
     // Caching
     private static final int GEYSER_CACHE_DURATION_MS = 200;
 
+    private long currentSlot = 0;
+
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
             .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
@@ -66,6 +68,11 @@ public class MarketManager {
                                         data,
                                         AccountInfoRow.class
                                 );
+
+                                long slot = accountInfoRow.getSlot();
+                                if (slot > currentSlot) {
+                                    currentSlot = slot;
+                                }
 
                                 return buildOrderBook(
                                         Base64.getDecoder().decode(accountInfoRow.getData()),
@@ -101,6 +108,11 @@ public class MarketManager {
                                         AccountInfoRow.class
                                 );
 
+                                long slot = accountInfoRow.getSlot();
+                                if (slot > currentSlot) {
+                                    currentSlot = slot;
+                                }
+
                                 return buildOrderBook(
                                         Base64.getDecoder().decode(accountInfoRow.getData()),
                                         cachedMarket
@@ -132,6 +144,11 @@ public class MarketManager {
                                         data,
                                         AccountInfoRow.class
                                 );
+
+                                long slot = accountInfoRow.getSlot();
+                                if (slot > currentSlot) {
+                                    currentSlot = slot;
+                                }
 
                                 return EventQueue.readEventQueue(
                                         Base64.getDecoder().decode(accountInfoRow.getData()),
@@ -380,5 +397,9 @@ public class MarketManager {
         orderBook.setQuoteLotSize(market.getQuoteLotSize());
 
         return orderBook;
+    }
+
+    public long getCurrentSlot() {
+        return currentSlot;
     }
 }

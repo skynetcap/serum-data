@@ -489,7 +489,7 @@
         }]
     });
 
-    setInterval(updateDepthChart, 550);
+    setInterval(updateDepthChart, 250);
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
@@ -728,24 +728,15 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 350);
+            }, 250);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 350);
+            }, 250);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
-            }, 750);
-            setInterval(function () {
-                let apiUrl = "/api/serum/market/" + activeMarketId + "/slot";
-                // bids + asks
-                $.get({url: apiUrl, cache: false})
-                    .done(function (newData) {
-                        bidContextSlot = newData.slot;
-                        $(".marketContext").text("Slot: " + bidContextSlot);
-                    });
-            }, 350);
+            }, 450);
         }
     );
     /*]]>*/

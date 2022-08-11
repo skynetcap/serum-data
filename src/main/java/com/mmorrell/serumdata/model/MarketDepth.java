@@ -9,5 +9,5 @@ public class MarketDepth {
 
     private float[][] bids, asks;
     private float midpoint;
-    private long bidContextSlot, askContextSlot;
+    private long contextSlot;
 }
