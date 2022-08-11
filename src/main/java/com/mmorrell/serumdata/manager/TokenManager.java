@@ -3,7 +3,6 @@ package com.mmorrell.serumdata.manager;
 import ch.openserum.serum.model.Market;
 import ch.openserum.serum.model.SerumUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;

@@ -1,26 +1,23 @@
 package com.mmorrell.serumdata.manager;
 
 import ch.openserum.serum.model.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.client.AccountInfoRow;
+import com.mmorrell.serumdata.client.SerumDbClient;
+import com.mmorrell.serumdata.util.ClientUtil;
 import com.mmorrell.serumdata.util.MarketUtil;
-import com.mmorrell.serumdata.util.RpcUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.*;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -28,9 +25,9 @@ import java.util.concurrent.*;
 @Slf4j
 public class MarketManager {
 
-    private final RpcClient client;
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
+    private final SerumDbClient serumDbClient;
     // Managers
     private final TokenManager tokenManager;
 
@@ -59,7 +56,7 @@ public class MarketManager {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
+                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -98,7 +95,7 @@ public class MarketManager {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
+                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -136,7 +133,7 @@ public class MarketManager {
                         @Override
                         public EventQueue load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = RpcUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
+                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -168,13 +165,13 @@ public class MarketManager {
                     });
 
     public MarketManager(final TokenManager tokenManager,
-                         final RpcClient rpcClient,
                          final OkHttpClient okHttpClient,
-                         final ObjectMapper objectMapper) {
+                         final ObjectMapper objectMapper,
+                         final SerumDbClient serumDbClient) {
         this.tokenManager = tokenManager;
-        this.client = rpcClient;
         this.okHttpClient = okHttpClient;
         this.objectMapper = objectMapper;
+        this.serumDbClient = serumDbClient;
         updateMarkets();
     }
 
@@ -201,7 +198,7 @@ public class MarketManager {
      */
     public void updateMarkets() {
         log.info("Caching all Serum markets.");
-        final List<AccountInfoRow> accountInfoRows = getAllMarkets();
+        final List<AccountInfoRow> accountInfoRows = serumDbClient.getAllMarkets();
 
         for (AccountInfoRow accountInfoRow : accountInfoRows) {
             Market market = Market.readMarket(accountInfoRow.getDecodedData());
@@ -211,16 +208,8 @@ public class MarketManager {
                 continue;
             }
 
-            market.setBaseDecimals(
-                    (byte) tokenManager.getDecimals(
-                            market.getBaseMint()
-                    )
-            );
-            market.setQuoteDecimals(
-                    (byte) tokenManager.getDecimals(
-                            market.getQuoteMint()
-                    )
-            );
+            market.setBaseDecimals((byte) tokenManager.getDecimals(market.getBaseMint()));
+            market.setQuoteDecimals((byte) tokenManager.getDecimals(market.getQuoteMint()));
             marketCache.put(market.getOwnAddress(), market);
 
             // marketMapCache is a baseMint to List<Market> map which powers the token search.
@@ -272,27 +261,17 @@ public class MarketManager {
         });
 
         // Request data for all bid orderbooks, for best usdc markets, for token mints with > 3 markets
-        Map<PublicKey, Optional<AccountInfo.Value>> accountData = new HashMap<>();
         Collection<PublicKey> bidOrderBooks = mintToBidOrderBook.values();
-        List<List<PublicKey>> accountsToSearchList = Lists.partition(bidOrderBooks.stream().toList(), 100);
-        for (List<PublicKey> publicKeys : accountsToSearchList) {
-            try {
-                accountData.putAll(client.getApi().getMultipleAccountsMap(
-                                new ArrayList<>(publicKeys)
-                        )
-                );
-            } catch (RpcException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        List<PublicKey> accountsToSearch = bidOrderBooks.stream().toList();
+        Map<PublicKey, ByteBuffer> accountData = serumDbClient.getMultipleAccounts(accountsToSearch);
 
         quoteMintsToPrice.forEach(mintToPrice -> {
             if (accountData.containsKey(mintToBidOrderBook.get(mintToPrice))) {
-                Optional<AccountInfo.Value> data = accountData.get(mintToBidOrderBook.get(mintToPrice));
-                if (data.isPresent()) {
+                ByteBuffer buffer = accountData.get(mintToBidOrderBook.get(mintToPrice));
+                if (buffer.hasArray() && buffer.array().length > 0) {
                     Market market = mintToUsdcMarketPubkey.get(mintToPrice);
-                    byte[] decoded = Base64.getDecoder().decode(data.get().getData().get(0));
-                    OrderBook bidOrderbook = OrderBook.readOrderBook(decoded);
+                    OrderBook bidOrderbook = OrderBook.readOrderBook(buffer.array());
+
                     bidOrderbook.setBaseDecimals(market.getBaseDecimals());
                     bidOrderbook.setQuoteDecimals(market.getQuoteDecimals());
                     bidOrderbook.setBaseLotSize(market.getBaseLotSize());
@@ -390,23 +369,5 @@ public class MarketManager {
 
     public long getCurrentSlot() {
         return currentSlot;
-    }
-
-    private List<AccountInfoRow> getAllMarkets() {
-        Request request = new Request.Builder()
-                .url("http://host.docker.internal:8082/serum/markets")
-                .build();
-
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            ResponseBody responseBody = response.body();
-            byte[] data = responseBody.bytes();
-
-            return objectMapper.readValue(data, new TypeReference<>(){});
-        } catch (Exception ex) {
-            // Case: HTTP exception
-            log.error(ex.getMessage());
-        }
-
-        return Collections.emptyList();
     }
 }

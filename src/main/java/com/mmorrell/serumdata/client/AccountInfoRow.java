@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.p2p.solanaj.core.PublicKey;
 
 import java.util.Base64;
 
@@ -19,6 +20,10 @@ public class AccountInfoRow {
 
     public byte[] getDecodedData() {
         return Base64.getDecoder().decode(data);
+    }
+
+    public PublicKey getDecodedPublicKey() {
+        return new PublicKey(publicKey);
     }
 
 }

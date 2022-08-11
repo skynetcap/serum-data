@@ -4,7 +4,6 @@ import ch.openserum.serum.model.Market;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.MarketRankManager;
 import com.mmorrell.serumdata.manager.TokenManager;
-import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class IndexController {
