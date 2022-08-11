@@ -8,12 +8,7 @@ import com.mmorrell.serumdata.model.MarketDepth;
 import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,18 +25,15 @@ public class ApiController {
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
-    private final OkHttpClient okHttpClient;
 
     // Called on startup, loads our caches first etc
     // Auto-injected beans created by Component annotation
     public ApiController(TokenManager tokenManager,
                          MarketManager marketManager,
-                         IdentityManager identityManager,
-                         OkHttpClient okHttpClient) {
+                         IdentityManager identityManager) {
         this.tokenManager = tokenManager;
         this.marketManager = marketManager;
         this.identityManager = identityManager;
-        this.okHttpClient = okHttpClient;
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
