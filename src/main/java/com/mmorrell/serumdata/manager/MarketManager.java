@@ -7,7 +7,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mmorrell.serumdata.client.AccountInfoRow;
 import com.mmorrell.serumdata.client.SerumDbClient;
-import com.mmorrell.serumdata.util.ClientUtil;
 import com.mmorrell.serumdata.util.MarketUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -56,7 +55,7 @@ public class MarketManager {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
+                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -95,7 +94,7 @@ public class MarketManager {
                         @Override
                         public OrderBook load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
+                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();
@@ -133,7 +132,7 @@ public class MarketManager {
                         @Override
                         public EventQueue load(PublicKey marketPubkey) {
                             Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = ClientUtil.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
+                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
 
                             try (Response response = okHttpClient.newCall(request).execute()) {
                                 ResponseBody responseBody = response.body();

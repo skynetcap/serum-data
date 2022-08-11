@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +17,9 @@ import java.util.*;
 public class SerumDbClient {
 
     private final OkHttpClient httpClient;
-    private final ObjectMapper objectMapper;
+    private static final String SERUM_DB_ENDPOINT = "http://host.docker.internal:8082";
 
+    private final ObjectMapper objectMapper;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public SerumDbClient(final OkHttpClient httpClient, final ObjectMapper objectMapper) {
@@ -42,7 +44,7 @@ public class SerumDbClient {
         }
 
         Request request = new Request.Builder()
-                .url("http://host.docker.internal:8082/serum/accounts")
+                .url(String.format("%s/serum/accounts", SERUM_DB_ENDPOINT))
                 .post(body)
                 .build();
 
@@ -76,7 +78,7 @@ public class SerumDbClient {
 
     public List<AccountInfoRow> getAllMarkets() {
         Request request = new Request.Builder()
-                .url("http://host.docker.internal:8082/serum/markets")
+                .url(String.format("%s/serum/markets", SERUM_DB_ENDPOINT))
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
@@ -91,6 +93,13 @@ public class SerumDbClient {
         }
 
         return Collections.emptyList();
+    }
+
+    @NotNull
+    public static Request buildGetAccountInfoSerumDbRequest(PublicKey publicKey) {
+        return new Request.Builder()
+                .url(String.format("%s/serum/account/%s", SERUM_DB_ENDPOINT, publicKey.toBase58()))
+                .build();
     }
 
 }
