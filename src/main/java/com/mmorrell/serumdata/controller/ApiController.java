@@ -183,6 +183,7 @@ public class ApiController {
                     .price(event.getFloatPrice())
                     .quantity(event.getFloatQuantity())
                     .owner(taker)
+                    .takerOoa(event.getOpenOrders())
                     .build();
 
             // Known entity e.g. Wintermute
@@ -195,6 +196,7 @@ public class ApiController {
             // Maker metadata
             if (makerPubkey.isPresent()) {
                 Optional<PublicKey> makerOwner = owners.get(makerPubkey.get());
+                tradeHistoryEvent.setMakerOoa(makerPubkey.get());
                 if (makerOwner.isPresent()) {
                     tradeHistoryEvent.setMakerOwner(makerOwner.get());
                     if (identityManager.hasReverseLookup(makerOwner.get())) {
