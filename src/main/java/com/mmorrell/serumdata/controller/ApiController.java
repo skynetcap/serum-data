@@ -1,6 +1,9 @@
 package com.mmorrell.serumdata.controller;
 
-import com.mmorrell.serum.model.*;
+import com.mmorrell.serum.model.EventQueue;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.OrderBook;
+import com.mmorrell.serum.model.TradeEvent;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
@@ -8,34 +11,28 @@ import com.mmorrell.serumdata.model.MarketDepth;
 import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@Slf4j
 public class ApiController {
 
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final IdentityManager identityManager;
-
-    // Cache headers
-    private final static String CACHE_CONTROL_HEADER_NAME = "Cache-Control";
-    private final static String CACHE_CONTROL_HEADER_VALUE = "no-cache";
-    private final static String CACHE_HEADER_NAME = "Cloudflare-CDN-Cache-Control";
-    private final static String CACHE_HEADER_VALUE = "max-age=";
-    private final static int CACHE_MAX_DURATION_SECONDS = 1;
-    private final static String CACHE_HEADER_VALUE_FORMATTED = String.format(
-            "%s%d",
-            CACHE_HEADER_VALUE,
-            CACHE_MAX_DURATION_SECONDS
-    );
 
     // Called on startup, loads our caches first etc
     // Auto-injected beans created by Component annotation
@@ -48,10 +45,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/token/{tokenId}")
-    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public List<Map<String, Object>> getMarketsByBaseMint(@PathVariable String tokenId) {
         // return a list of Maps, similar to getMarket, instead of a direct list of Markets.
         List<Map<String, Object>> results = new ArrayList<>();
         PublicKey tokenMint = new PublicKey(tokenId);
@@ -87,10 +81,7 @@ public class ApiController {
      * @return map with market metadata
      */
     @GetMapping(value = "/api/serum/market/{marketId}")
-    public Map<String, Object> getMarket(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public Map<String, Object> getMarket(@PathVariable String marketId) {
         final Optional<Market> market = marketManager.getMarketById(marketId);
 
         if (market.isEmpty()) {
@@ -101,10 +92,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/bids")
-    public List<SerumOrder> getMarketBids(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public List<SerumOrder> getMarketBids(@PathVariable String marketId) {
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
 
@@ -132,10 +120,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/asks")
-    public List<SerumOrder> getMarketAsks(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public List<SerumOrder> getMarketAsks(@PathVariable String marketId) {
         final PublicKey marketPublicKey = PublicKey.valueOf(marketId);
         final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
 
@@ -162,10 +147,7 @@ public class ApiController {
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")
-    public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public List<TradeHistoryEvent> getMarketTradeHistory(@PathVariable String marketId) {
         final List<TradeHistoryEvent> result = new ArrayList<>();
         final PublicKey marketKey = new PublicKey(marketId);
 
@@ -247,10 +229,7 @@ public class ApiController {
 
     // Only works for cached markets.
     @GetMapping(value = "/api/serum/market/{marketId}/depth")
-    public MarketDepth getMarketDepth(@PathVariable String marketId, HttpServletResponse response) {
-        response.addHeader(CACHE_HEADER_NAME, CACHE_HEADER_VALUE_FORMATTED);
-        response.addHeader(CACHE_CONTROL_HEADER_NAME, CACHE_CONTROL_HEADER_VALUE);
-
+    public MarketDepth getMarketDepth(@PathVariable String marketId) {
         final PublicKey marketPubkey = new PublicKey(marketId);
         CompletableFuture<Optional<OrderBook>> bidFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedBidOrderBook(marketPubkey));
         CompletableFuture<Optional<OrderBook>> askFuture = CompletableFuture.supplyAsync(() -> marketManager.getCachedAskOrderBook(marketPubkey));
@@ -303,8 +282,7 @@ public class ApiController {
                 .asks(floatAsks)
                 .bids(floatBids)
                 .midpoint(midPoint)
-                .bidContextSlot(marketManager.getBidContext(marketPubkey))
-                .askContextSlot(marketManager.getAskContext(marketPubkey))
+                .contextSlot(marketManager.getCurrentSlot())
                 .build();
     }
 

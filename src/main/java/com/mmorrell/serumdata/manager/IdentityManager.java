@@ -1,22 +1,25 @@
 package com.mmorrell.serumdata.manager;
 
 import com.mmorrell.serum.model.OpenOrdersAccount;
-import com.google.common.collect.Lists;
+import com.mmorrell.serumdata.client.SerumDbClient;
 import com.mmorrell.serumdata.model.SerumOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
+@Slf4j
 public class IdentityManager {
 
-    private final RpcClient client;
+    private final SerumDbClient serumDbClient;
     // <ooa, owner>
     private final Map<PublicKey, PublicKey> ownerReverseLookupCache = new HashMap<>();
     private final Map<PublicKey, String> knownEntities = new HashMap<>();
@@ -86,8 +89,8 @@ public class IdentityManager {
         );
     }
 
-    public IdentityManager(final RpcClient rpcClient) {
-        this.client = rpcClient;
+    public IdentityManager(final SerumDbClient serumDbClient) {
+        this.serumDbClient = serumDbClient;
     }
 
     public void addKnownEntity(String publicKeyString, String name, String icon) {
@@ -146,6 +149,7 @@ public class IdentityManager {
 
     /**
      * Retrieves owners and updates cache. Returns the new cache, if needed.
+     *
      * @param openOrdersAccounts ooa pubkeys to lookup
      * @return map <ooa, optional<owner>>
      */
@@ -157,10 +161,8 @@ public class IdentityManager {
         for (PublicKey ooa : openOrdersAccounts) {
             boolean hasOwner = ownerReverseLookupCache.containsKey(ooa);
             if (hasOwner) {
-                // LOGGER.info("hasOwner (not searching): " + ooa.toBase58() + ", " + ownerReverseLookupCache.get(ooa));
                 resultMap.put(ooa, Optional.of(ownerReverseLookupCache.get(ooa)));
             } else {
-                // LOGGER.info("Going to search: " + ooa.toBase58());
                 resultMap.put(ooa, Optional.empty());
             }
         }
@@ -169,34 +171,22 @@ public class IdentityManager {
         List<PublicKey> keysToSearch = resultMap.entrySet().stream()
                 .filter(entry -> entry.getValue().isEmpty())
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
 
-        List<List<PublicKey>> accountsToSearchList = Lists.partition(keysToSearch, 100);
+        Map<PublicKey, ByteBuffer> accountDataList = serumDbClient.getMultipleAccounts(keysToSearch);
+        for (PublicKey ooaKey : keysToSearch) {
+            ByteBuffer ooaAccountData = accountDataList.get(ooaKey);
+            if (ooaAccountData != null && ooaAccountData.hasArray() && ooaAccountData.array().length > 0) {
+                final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
+                        ooaAccountData.array()
+                );
 
-        for (List<PublicKey> publicKeys : accountsToSearchList) {
-            try {
-                Map<PublicKey, Optional<AccountInfo.Value>> accountDataList = client.getApi().getMultipleAccountsMap(publicKeys);
-                for (PublicKey ooaKey : publicKeys) {
-                    Optional<AccountInfo.Value> ooaAccountData = accountDataList.get(ooaKey);
-
-                    if (ooaAccountData.isPresent()) {
-                        final OpenOrdersAccount ooa = OpenOrdersAccount.readOpenOrdersAccount(
-                                Base64.getDecoder().decode(
-                                        ooaAccountData.get().getData().get(0)
-                                )
-                        );
-
-                        resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
-                        ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
-                    } else {
-                        // OOA was closed or otherwise deleted (rare).
-                        resultMap.put(ooaKey, Optional.of(ooaKey));
-                        ownerReverseLookupCache.put(ooaKey, ooaKey);
-                    }
-
-                }
-            } catch (RpcException e) {
-                throw new RuntimeException(e);
+                resultMap.put(ooaKey, Optional.of(ooa.getOwner()));
+                ownerReverseLookupCache.put(ooaKey, ooa.getOwner());
+            } else {
+                // OOA was closed or otherwise deleted (rare).
+                resultMap.put(ooaKey, Optional.of(ooaKey));
+                ownerReverseLookupCache.put(ooaKey, ooaKey);
             }
         }
 

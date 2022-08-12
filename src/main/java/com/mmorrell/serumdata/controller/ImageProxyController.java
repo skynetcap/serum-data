@@ -1,6 +1,5 @@
 package com.mmorrell.serumdata.controller;
 
-import com.mmorrell.serumdata.manager.MarketRankManager;
 import com.mmorrell.serumdata.manager.TokenManager;
 import com.mmorrell.serumdata.model.Token;
 import org.p2p.solanaj.core.PublicKey;

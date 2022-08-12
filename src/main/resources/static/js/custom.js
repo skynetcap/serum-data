@@ -1,7 +1,7 @@
 $.fn.dataTable.ext.errMode = 'none';
 $.fn.DataTable.ext.pager.numbers_length = 5;
 
-var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, bidContextSlot, askContextSlot, marketTable;
+var chartTitle = "", baseSymbol, quoteSymbol, baseLogo, quoteLogo, contextSlot, marketTable;
 
 function formatToken(token) {
     if (!token.id) {
@@ -231,12 +231,12 @@ function updateDepthChart() {
     if (activeMarketId) {
         let apiUrl = "/api/serum/market/" + activeMarketId + "/depth";
         // bids + asks
-        $.get({url: apiUrl, cache: true})
+        $.get({url: apiUrl, cache: false})
             .done(function (newData) {
-                bidContextSlot = newData.bidContextSlot;
-                askContextSlot = newData.askContextSlot;
-
-                $(".marketContext").text("Slot: " + bidContextSlot)
+                updateSlot(newData.contextSlot);
+                // askContextSlot = newData.askContextSlot;
+                //
+                // $(".marketContext").text("Slot: " + bidContextSlot)
 
                 // loop total bids, total each level, total all that
                 totalBids = newData.bids.reduce(
@@ -333,4 +333,9 @@ function updateDepthChart() {
                 );
             });
     }
+}
+
+function updateSlot(slot) {
+    contextSlot = slot;
+    $(".marketContext").text("Slot: " + contextSlot);
 }

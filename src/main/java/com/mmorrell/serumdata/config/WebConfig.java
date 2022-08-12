@@ -1,8 +1,8 @@
 package com.mmorrell.serumdata.config;
 
-import com.mmorrell.serumdata.util.RpcUtil;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
-import org.p2p.solanaj.rpc.RpcClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private static final int HTTP_TIMEOUT_SECONDS = 30;
+    private static final int HTTP_CALL_TIMEOUT_SECONDS = 5;
 
     @Bean
     public ViewResolver viewResolver() {
@@ -54,18 +54,18 @@ public class WebConfig implements WebMvcConfigurer {
         return threadPoolTaskScheduler;
     }
 
-    /**
-     * Used for updating market listings every 5 minutes.
-     */
-    @Bean
-    public RpcClient backgroundRpcClient() {
-        return new RpcClient(RpcUtil.getPublicEndpoint(), HTTP_TIMEOUT_SECONDS);
-    }
-
     @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient.Builder()
-                .callTimeout(5, TimeUnit.SECONDS)
+                .callTimeout(HTTP_CALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .build();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return objectMapper;
     }
 }

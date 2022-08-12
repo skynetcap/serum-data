@@ -45,6 +45,16 @@ curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/bl
 curl -sSL https://raw.githubusercontent.com/skynetcap/serum-data/main/scripts/green_start.sh | sh
 ```
 
+### Geyser Configuration
+- For version 2.0 and beyond, `serum-data` **requires** a Postgres-backed data source instead of standard Solana RPC.
+- You will need to run the `serum-db` API server, pointed to a Postgres database, being streamed in all Serum v3 
+  accounts.
+- `serum-db` can be found here: [https://github.com/skynetcap/serum-db](https://github.com/skynetcap/serum-db)
+- It is ran using the included Dockerfile on port `8082` on the same host as this application.
+- `docs/accounts_export.csv` can be used to load the 4 required accounts for SOL/USDC, the bare minimum needed 
+  for a local testing environment.
+- Note: Using the Geyser Postgres plugin requires a very high-end server.
+
 ## Special Thanks
 YourKit for providing us with a free profiler open source license.
 

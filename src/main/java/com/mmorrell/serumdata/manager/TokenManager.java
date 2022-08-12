@@ -3,14 +3,17 @@ package com.mmorrell.serumdata.manager;
 import com.mmorrell.serum.model.Market;
 import com.mmorrell.serum.model.SerumUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,8 +22,17 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +44,7 @@ public class TokenManager {
     private static final int CHAIN_ID_MAINNET = 101;
 
     private final OkHttpClient client;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     // <tokenMint string, token>
     private final Map<PublicKey, Token> tokenCache = new HashMap<>();
@@ -40,9 +52,9 @@ public class TokenManager {
     private byte[] placeHolderImage;
 
     // Loads tokens from github repo into memory when this constructor is called. (e.g. during Bean creation)
-    public TokenManager(final OkHttpClient client) {
+    public TokenManager(final OkHttpClient client, final ObjectMapper objectMapper) {
         this.client = client;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper = objectMapper;
         cachePlaceHolderImage();
         updateRegistry();
     }
