@@ -6,7 +6,7 @@ FROM maven:3.8.6-eclipse-temurin-17 AS build
 # serum-data
 COPY src /home/app/src
 COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package -DskipTests
+RUN mvn -T 1C -f /home/app/pom.xml clean package -DskipTests -Dmaven.test.skip
 
 
 #
