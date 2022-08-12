@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.util;
 
-import ch.openserum.serum.model.OrderBook;
+import com.mmorrell.serum.model.OrderBook;
 import com.mmorrell.serumdata.model.SerumOrder;
 import org.p2p.solanaj.core.PublicKey;
 

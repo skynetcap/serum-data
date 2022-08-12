@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.OpenOrdersAccount;
+import com.mmorrell.serum.model.OpenOrdersAccount;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
 import org.jetbrains.annotations.NotNull;
@@ -124,12 +124,18 @@ public class IdentityManager {
         for (SerumOrder order : orders) {
             // do we have the true owner?
             if (ownerReverseLookupCache.containsKey(order.getOwner())) {
-                PublicKey owner = ownerReverseLookupCache.get(order.getOwner());
+                PublicKey ooa = order.getOwner();
+                PublicKey owner = ownerReverseLookupCache.get(ooa);
                 order.setOwner(owner);
 
                 if (knownEntities.containsKey(owner)) {
-                    order.addMetadata("name", knownEntities.get(owner));
+                    String entityName = knownEntities.get(owner);
+                    order.addMetadata("name", entityName);
                     order.addMetadata("icon", knownEntitiesIcons.get(owner));
+
+                    if (entityName.equalsIgnoreCase("Mango")) {
+                        order.addMetadata("mangoKey", ooa.toBase58());
+                    }
                 }
             } else {
                 // add to list for later processing

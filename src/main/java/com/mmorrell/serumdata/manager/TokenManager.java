@@ -1,7 +1,7 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.Market;
-import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.SerumUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -509,6 +509,14 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
+                                if (row.metadata.name === 'Mango') {
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' +
+                                        row.metadata.mangoKey;
+                                    return "<a target=_blank href=\"" + externalUrl + "\"><img src=\"static/entities/" +
+                                        row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                        row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
+                                }
+
                                 return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
@@ -583,6 +591,13 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (typeof row.metadata.name !== 'undefined') {
+                                if (row.metadata.name === 'Mango') {
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.metadata.mangoKey;
+                                    return "<a target=_blank href=\"" + externalUrl + "\"><img src=\"static/entities/" +
+                                        row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
+                                        row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
+                                }
+
                                 return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
@@ -653,9 +668,22 @@
                         data: 'owner',
                         render: function (data, type, row) {
                             if (row.takerEntityName) {
+                                var externalLink = '';
+                                if (row.takerEntityName === 'Mango') {
+                                    // Add external link
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.takerOoa.publicKey;
+                                    externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
+                                        "<img src=\"static/entities/" +
+                                        row.takerEntityIcon +
+                                        ".png\" width=16 height=16 style=\"margin-right: 6px;\"></a>"
+                                    return externalLink +
+                                        "<a target=_blank href=\"" + externalUrl + "\">" +
+                                        row.takerEntityName + "</a>";
+                                }
+
                                 return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
                                     row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                    row.takerEntityName + "</a>";
+                                    row.takerEntityName + "</a>" + externalLink;
                             } else {
                                 if (row.owner) {
                                     return "<a class='coloredlink' href=\"https://solana.fm/account/" +
@@ -674,6 +702,19 @@
                         data: 'maker',
                         render: function (data, type, row) {
                             if (row.makerEntityName) {
+                                var externalLink = '';
+                                if (row.makerEntityName === 'Mango') {
+                                    // Add external link
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.makerOoa.publicKey;
+                                    externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
+                                        "<img src=\"static/entities/" +
+                                        row.makerEntityIcon +
+                                        ".png\" width=16 height=16 style=\"margin-right: 6px;\"></a>"
+                                    return externalLink +
+                                        "<a target=_blank href=\"" + externalUrl + "\">" +
+                                        row.makerEntityName + "</a>";
+                                }
+
                                 return "<a target=_blank href=\"https://solana.fm/account/" +
                                     row.makerOwner.publicKey + "\"><img src=\"static/entities/" +
                                     row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +

@@ -1,7 +1,7 @@
 package com.mmorrell.serumdata;
 
-import ch.openserum.serum.model.Market;
-import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.SerumUtils;
 import com.mmorrell.serumdata.util.RpcUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

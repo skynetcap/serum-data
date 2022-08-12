@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
-import ch.openserum.serum.model.*;
+import com.mmorrell.serum.model.*;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
@@ -209,6 +209,7 @@ public class ApiController {
                     .price(event.getFloatPrice())
                     .quantity(event.getFloatQuantity())
                     .owner(taker)
+                    .takerOoa(event.getOpenOrders())
                     .build();
 
             // Known entity e.g. Wintermute
@@ -221,6 +222,7 @@ public class ApiController {
             // Maker metadata
             if (makerPubkey.isPresent()) {
                 Optional<PublicKey> makerOwner = owners.get(makerPubkey.get());
+                tradeHistoryEvent.setMakerOoa(makerPubkey.get());
                 if (makerOwner.isPresent()) {
                     tradeHistoryEvent.setMakerOwner(makerOwner.get());
                     if (identityManager.hasReverseLookup(makerOwner.get())) {
