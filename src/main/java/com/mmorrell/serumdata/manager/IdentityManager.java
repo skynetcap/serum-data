@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.OpenOrdersAccount;
+import com.mmorrell.serum.model.OpenOrdersAccount;
 import com.mmorrell.serumdata.client.SerumDbClient;
 import com.mmorrell.serumdata.model.SerumOrder;
 import lombok.extern.slf4j.Slf4j;

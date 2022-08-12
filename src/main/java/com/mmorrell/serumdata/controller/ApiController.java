@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.controller;
 
-import ch.openserum.serum.model.*;
+import com.mmorrell.serum.model.*;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;

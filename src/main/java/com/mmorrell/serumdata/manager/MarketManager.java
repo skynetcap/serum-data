@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.*;
+import com.mmorrell.serum.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
