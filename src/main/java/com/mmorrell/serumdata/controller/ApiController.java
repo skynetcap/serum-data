@@ -1,6 +1,9 @@
 package com.mmorrell.serumdata.controller;
 
-import com.mmorrell.serum.model.*;
+import com.mmorrell.serum.model.EventQueue;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.OrderBook;
+import com.mmorrell.serum.model.TradeEvent;
 import com.mmorrell.serumdata.manager.IdentityManager;
 import com.mmorrell.serumdata.manager.MarketManager;
 import com.mmorrell.serumdata.manager.TokenManager;
@@ -14,7 +17,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 

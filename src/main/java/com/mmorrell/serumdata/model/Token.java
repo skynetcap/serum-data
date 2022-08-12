@@ -2,7 +2,9 @@ package com.mmorrell.serumdata.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mmorrell.serumdata.util.PublicKeySerializer;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import org.p2p.solanaj.core.PublicKey;
 
 @Data

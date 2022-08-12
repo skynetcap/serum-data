@@ -1,10 +1,13 @@
 package com.mmorrell.serumdata.manager;
 
-import com.mmorrell.serum.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.mmorrell.serum.model.EventQueue;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.OrderBook;
+import com.mmorrell.serum.model.SerumUtils;
 import com.mmorrell.serumdata.client.AccountInfoRow;
 import com.mmorrell.serumdata.client.SerumDbClient;
 import com.mmorrell.serumdata.util.MarketUtil;
@@ -18,8 +21,18 @@ import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
