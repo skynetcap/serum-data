@@ -14,6 +14,12 @@ public class TradeHistoryEvent {
     private float quantity;
 
     @JsonSerialize(using = PublicKeySerializer.class)
+    private PublicKey takerOoa;
+
+    @JsonSerialize(using = PublicKeySerializer.class)
+    private PublicKey makerOoa;
+
+    @JsonSerialize(using = PublicKeySerializer.class)
     private PublicKey owner;
 
     @JsonSerialize(using = PublicKeySerializer.class)
