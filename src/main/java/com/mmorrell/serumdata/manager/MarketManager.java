@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,7 @@ public class MarketManager {
     // Caching
     private static final int GEYSER_CACHE_DURATION_MS = 200;
 
+    // Solana context
     private long currentSlot = 0;
 
     // Caching for individual bid and asks orderbooks.
@@ -52,37 +54,10 @@ public class MarketManager {
             .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
+                        @NotNull
                         @Override
-                        public OrderBook load(PublicKey marketPubkey) {
-                            Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getBids());
-
-                            try (Response response = okHttpClient.newCall(request).execute()) {
-                                ResponseBody responseBody = response.body();
-                                byte[] data = responseBody.bytes();
-
-                                AccountInfoRow accountInfoRow = objectMapper.readValue(
-                                        data,
-                                        AccountInfoRow.class
-                                );
-
-                                long slot = accountInfoRow.getSlot();
-                                if (slot > currentSlot) {
-                                    currentSlot = slot;
-                                }
-
-                                return buildOrderBook(
-                                        Base64.getDecoder().decode(accountInfoRow.getData()),
-                                        cachedMarket
-                                );
-
-                            } catch (Exception ex) {
-                                // Case: HTTP exception
-                                log.error(ex.getMessage());
-                            }
-
-                            // fall-back to old entry
-                            return bidOrderBookLoadingCache.asMap().get(marketPubkey);
+                        public OrderBook load(@NotNull PublicKey marketPubkey) {
+                            return retrieveOrderBook(marketPubkey, true);
                         }
                     });
 
@@ -91,37 +66,10 @@ public class MarketManager {
             .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
+                        @NotNull
                         @Override
-                        public OrderBook load(PublicKey marketPubkey) {
-                            Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getAsks());
-
-                            try (Response response = okHttpClient.newCall(request).execute()) {
-                                ResponseBody responseBody = response.body();
-                                byte[] data = responseBody.bytes();
-
-                                AccountInfoRow accountInfoRow = objectMapper.readValue(
-                                        data,
-                                        AccountInfoRow.class
-                                );
-
-                                long slot = accountInfoRow.getSlot();
-                                if (slot > currentSlot) {
-                                    currentSlot = slot;
-                                }
-
-                                return buildOrderBook(
-                                        Base64.getDecoder().decode(accountInfoRow.getData()),
-                                        cachedMarket
-                                );
-
-                            } catch (Exception ex) {
-                                // Case: HTTP exception
-                                log.error(ex.getMessage());
-                            }
-
-                            // fall-back to old entry
-                            return askOrderBookLoadingCache.asMap().get(marketPubkey);
+                        public OrderBook load(@NotNull PublicKey marketPubkey) {
+                            return retrieveOrderBook(marketPubkey, false);
                         }
                     });
 
@@ -129,37 +77,10 @@ public class MarketManager {
             .expireAfterWrite(GEYSER_CACHE_DURATION_MS, TimeUnit.MILLISECONDS)
             .build(
                     new CacheLoader<>() {
+                        @NotNull
                         @Override
-                        public EventQueue load(PublicKey marketPubkey) {
-                            Market cachedMarket = marketCache.get(marketPubkey);
-                            Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
-
-                            try (Response response = okHttpClient.newCall(request).execute()) {
-                                ResponseBody responseBody = response.body();
-                                byte[] data = responseBody.bytes();
-                                AccountInfoRow accountInfoRow = objectMapper.readValue(
-                                        data,
-                                        AccountInfoRow.class
-                                );
-
-                                long slot = accountInfoRow.getSlot();
-                                if (slot > currentSlot) {
-                                    currentSlot = slot;
-                                }
-
-                                return EventQueue.readEventQueue(
-                                        Base64.getDecoder().decode(accountInfoRow.getData()),
-                                        cachedMarket.getBaseDecimals(),
-                                        cachedMarket.getQuoteDecimals(),
-                                        cachedMarket.getBaseLotSize(),
-                                        cachedMarket.getQuoteLotSize()
-                                );
-
-                            } catch (Exception ex) {
-                                // Case: HTTP exception
-                                log.error(ex.getMessage());
-                            }
-                            return eventQueueLoadingCache.asMap().get(marketPubkey);
+                        public EventQueue load(@NotNull PublicKey marketPubkey) {
+                            return retrieveEventQueue(marketPubkey);
                         }
                     });
 
@@ -368,5 +289,74 @@ public class MarketManager {
 
     public long getCurrentSlot() {
         return currentSlot;
+    }
+
+    private OrderBook retrieveOrderBook(PublicKey marketPubkey, boolean isBid) {
+        Market cachedMarket = marketCache.get(marketPubkey);
+        Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(isBid ? cachedMarket.getBids() :
+                cachedMarket.getAsks());
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            ResponseBody responseBody = response.body();
+            byte[] data = responseBody.bytes();
+
+            AccountInfoRow accountInfoRow = objectMapper.readValue(
+                    data,
+                    AccountInfoRow.class
+            );
+
+            long slot = accountInfoRow.getSlot();
+            if (slot > currentSlot) {
+                currentSlot = slot;
+            }
+
+            return buildOrderBook(
+                    Base64.getDecoder().decode(accountInfoRow.getData()),
+                    cachedMarket
+            );
+
+        } catch (Exception ex) {
+            // Case: HTTP exception
+            log.error(ex.getMessage());
+        }
+
+        // fall-back to old entry
+        if (isBid) {
+            return bidOrderBookLoadingCache.asMap().get(marketPubkey);
+        } else {
+            return askOrderBookLoadingCache.asMap().get(marketPubkey);
+        }
+    }
+
+    private EventQueue retrieveEventQueue(PublicKey marketPubkey) {
+        Market cachedMarket = marketCache.get(marketPubkey);
+        Request request = SerumDbClient.buildGetAccountInfoSerumDbRequest(cachedMarket.getEventQueueKey());
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            ResponseBody responseBody = response.body();
+            byte[] data = responseBody.bytes();
+            AccountInfoRow accountInfoRow = objectMapper.readValue(
+                    data,
+                    AccountInfoRow.class
+            );
+
+            long slot = accountInfoRow.getSlot();
+            if (slot > currentSlot) {
+                currentSlot = slot;
+            }
+
+            return EventQueue.readEventQueue(
+                    Base64.getDecoder().decode(accountInfoRow.getData()),
+                    cachedMarket.getBaseDecimals(),
+                    cachedMarket.getQuoteDecimals(),
+                    cachedMarket.getBaseLotSize(),
+                    cachedMarket.getQuoteLotSize()
+            );
+
+        } catch (Exception ex) {
+            // Case: HTTP exception
+            log.error(ex.getMessage());
+        }
+        return eventQueueLoadingCache.asMap().get(marketPubkey);
     }
 }
