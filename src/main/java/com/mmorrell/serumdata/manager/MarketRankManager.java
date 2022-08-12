@@ -1,7 +1,7 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.Market;
-import ch.openserum.serum.model.SerumUtils;
+import com.mmorrell.serum.model.Market;
+import com.mmorrell.serum.model.SerumUtils;
 import com.mmorrell.serumdata.model.MarketListing;
 import com.mmorrell.serumdata.model.Token;
 import com.mmorrell.serumdata.util.MarketUtil;

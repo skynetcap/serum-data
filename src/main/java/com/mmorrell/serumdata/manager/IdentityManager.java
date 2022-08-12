@@ -1,6 +1,6 @@
 package com.mmorrell.serumdata.manager;
 
-import ch.openserum.serum.model.OpenOrdersAccount;
+import com.mmorrell.serum.model.OpenOrdersAccount;
 import com.google.common.collect.Lists;
 import com.mmorrell.serumdata.model.SerumOrder;
 import org.jetbrains.annotations.NotNull;
