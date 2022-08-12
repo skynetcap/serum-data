@@ -513,7 +513,7 @@
                                     var externalUrl = location.href + 'mango/lookup/' + row.metadata.mangoKey;
                                     return "<a target=_blank href=\"" + externalUrl + "\"><img src=\"static/entities/" +
                                         row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                        row.metadata.name + "</a>";
+                                        row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
                                 return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
@@ -594,7 +594,7 @@
                                     var externalUrl = location.href + 'mango/lookup/' + row.metadata.mangoKey;
                                     return "<a target=_blank href=\"" + externalUrl + "\"><img src=\"static/entities/" +
                                         row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
-                                        row.metadata.name + "</a>";
+                                        row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
                                 return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
