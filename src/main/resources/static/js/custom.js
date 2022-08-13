@@ -132,33 +132,34 @@ function setMarket(marketId) {
 
 function loadTradeHistory(marketId) {
     let apiUrl = "/api/serum/market/" + marketId + "/tradeHistory";
-    $.get(apiUrl, function (data) {
-        // reset chart
-        myChart.data = {
-            labels: [],
-            datasets: [{
-                label: 'Price',
-                data: [],
-                fill: false,
-                borderColor: 'rgb(41,98,255)',
-                tension: 0.1
-            }]
-        };
-        myChart.update();
+    $.get({url: apiUrl, cache: false})
+        .done(function (data) {
+            // reset chart
+            myChart.data = {
+                labels: [],
+                datasets: [{
+                    label: 'Price',
+                    data: [],
+                    fill: false,
+                    borderColor: 'rgb(41,98,255)',
+                    tension: 0.1
+                }]
+            };
+            myChart.update();
 
-        $.each(data, function (k, v) {
-            if (!v.maker) {
-                addData(k, v.price, false);
-            }
+            $.each(data, function (k, v) {
+                if (!v.maker) {
+                    addData(k, v.price, false);
+                }
+            });
+
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.reverse();
+            });
+            myChart.update();
+
+            lastLoadedChartId = marketId;
         });
-
-        myChart.data.datasets.forEach((dataset) => {
-            dataset.data.reverse();
-        });
-        myChart.update();
-
-        lastLoadedChartId = marketId;
-    });
 }
 
 function loadMarketDetail() {
