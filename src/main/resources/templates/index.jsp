@@ -56,7 +56,6 @@
                 templateSelection: formatToken
             });
 
-            // todo - async?
             loadMarkets(defaultTokenId);
             setMarket(initialMarketId);
             updateDepthChart();
@@ -117,7 +116,7 @@
                             <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
                                 <option th:each="token : ${tokens.values()}"
                                         th:value="${token.address}"
-                                        th:attr="data-icon=${marketRankManager.getImage(token.address)}"
+                                        th:attr="data-icon=${marketRankManager.getImage(token.address)},data-rank=${marketRankManager.getRankByToken(token.address)}"
                                         th:text="${token.symbol} + ' (' + ${token.name} + ') (' + ${token.address} + ')'">
                                 </option>
                             </select>
@@ -517,15 +516,15 @@
                                         row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
                             } else {
-                                return "<a class='coloredlink' href=\"https://solana.fm/account/" + row.owner.publicKey
+                                return "<a class='coloredlink' href=\"https://solana.fm/account/" + row.owner
                                     + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
+                                    row.owner.substring(0, 3) +
                                     ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    row.owner.substring(row.owner.toString().length - 3) +
                                     "</a>";
                             }
                         }
@@ -598,15 +597,15 @@
                                         row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
                             } else {
                                 return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                    row.owner.publicKey + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
+                                    row.owner + "\" target=_blank>" +
+                                    row.owner.substring(0, 3) +
                                     ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    row.owner.substring(row.owner.toString().length - 3) +
                                     "</a>";
                             }
                         }
@@ -681,16 +680,16 @@
                                         row.takerEntityName + "</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.takerEntityName + "</a>" + externalLink;
                             } else {
                                 if (row.owner) {
                                     return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                        row.owner.publicKey + "\" target=_blank>" +
-                                        row.owner.publicKey.substring(0, 3) +
+                                        row.owner + "\" target=_blank>" +
+                                        row.owner.substring(0, 3) +
                                         ".." +
-                                        row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                        row.owner.substring(row.owner.toString().length - 3) +
                                         "</a>";
                                 } else {
                                     return "Unknown";

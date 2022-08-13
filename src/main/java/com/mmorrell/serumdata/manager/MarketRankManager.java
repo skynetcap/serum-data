@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class MarketRankManager {
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
     private List<MarketListing> marketListings;
+    private final Map<PublicKey, Integer> marketRankMap = new HashMap<>();
 
     public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
         this.marketManager = marketManager;
@@ -174,6 +176,25 @@ public class MarketRankManager {
                 })
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
                 .toList();
+
+        // update sorted token map
+        if (marketListings.size() > 0) {
+            for (int i = 0; i < marketListings.size(); i++) {
+                MarketListing listing = marketListings.get(i);
+                PublicKey baseMint = listing.getBaseMint();
+                if (marketRankMap.containsKey(baseMint)) {
+                    // lower rank is better: 1, 2, 3, etc
+                    // only update if it's better (don't give a lowly-sorted market for a good coin a bad rank)
+                    int rank = marketRankMap.get(baseMint);
+                    if (i < rank) {
+                        marketRankMap.put(baseMint, i + 1);
+                    }
+
+                } else {
+                    marketRankMap.put(baseMint, i + 1);
+                }
+            }
+        }
     }
 
     // used in thymeleaf
@@ -183,5 +204,9 @@ public class MarketRankManager {
             name = name.replaceFirst(" -", "? -");
         }
         return name;
+    }
+
+    public int getRankByToken(PublicKey baseMint) {
+        return marketRankMap.getOrDefault(baseMint, 99999);
     }
 }
