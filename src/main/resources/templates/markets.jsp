@@ -56,7 +56,7 @@
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #e15300, #a12100); color:white;
-                                                         text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
+                                                         text-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;"><img
                     src="static/entities/solend.ico" width="20"
                     height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
@@ -69,7 +69,7 @@
     </header>
 </div>
 <main class="container">
-    <div class="p-5 rounded" style="padding-top: 0px!important;">
+    <div class="p-5 rounded" style="padding-top: 0!important;">
         <div class="row">
             <div class="col">
                 <div class="card">

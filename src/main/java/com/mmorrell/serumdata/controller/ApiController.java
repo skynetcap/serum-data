@@ -12,6 +12,7 @@ import com.mmorrell.serumdata.model.SerumOrder;
 import com.mmorrell.serumdata.model.TradeHistoryEvent;
 import com.mmorrell.serumdata.util.MarketUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.p2p.solanaj.core.PublicKey;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -100,20 +101,7 @@ public class ApiController {
             List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), true);
 
             // Calculate aggregate percentages for each quote, add to metadata
-            float aggregateNotional = serumOrders.stream()
-                    .map(order -> order.getQuantity() * order.getPrice())
-                    .reduce(0f, Float::sum);
-
-            float currentTotal = 0.0f;
-            for (SerumOrder order : serumOrders) {
-                float notional = order.getPrice() * order.getQuantity();
-                currentTotal += notional;
-                order.addMetadata("percent", currentTotal / aggregateNotional);
-            }
-
-
-            identityManager.reverseOwnerLookup(serumOrders);
-            return serumOrders;
+            return buildSerumOrders(serumOrders);
         } else {
             return Collections.emptyList();
         }
@@ -128,22 +116,27 @@ public class ApiController {
             List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), false);
 
             // Calculate aggregate percentages for each quote, add to metadata
-            float aggregateNotional = serumOrders.stream()
-                    .map(order -> order.getQuantity() * order.getPrice())
-                    .reduce(0f, Float::sum);
-
-            float currentTotal = 0.0f;
-            for (SerumOrder order : serumOrders) {
-                float notional = order.getPrice() * order.getQuantity();
-                currentTotal += notional;
-                order.addMetadata("percent", currentTotal / aggregateNotional);
-            }
-
-            identityManager.reverseOwnerLookup(serumOrders);
-            return serumOrders;
+            return buildSerumOrders(serumOrders);
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @NotNull
+    private List<SerumOrder> buildSerumOrders(List<SerumOrder> serumOrders) {
+        float aggregateNotional = serumOrders.stream()
+                .map(order -> order.getQuantity() * order.getPrice())
+                .reduce(0f, Float::sum);
+
+        float currentTotal = 0.0f;
+        for (SerumOrder order : serumOrders) {
+            float notional = order.getPrice() * order.getQuantity();
+            currentTotal += notional;
+            order.addMetadata("percent", currentTotal / aggregateNotional);
+        }
+
+        identityManager.reverseOwnerLookup(serumOrders);
+        return serumOrders;
     }
 
     @GetMapping(value = "/api/serum/market/{marketId}/tradeHistory")

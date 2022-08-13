@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org" class="dark">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://thymeleaf.org" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -94,7 +94,7 @@
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #e15300, #a12100); color:white;
-                                                         text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
+                                                         text-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;"><img
                     src="static/entities/solend.ico" width="20"
                     height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
@@ -107,7 +107,7 @@
     </header>
 </div>
 <main class="container-fluid" style="max-width: 1500px !important;">
-    <div class="p-5 rounded" style="padding-top: 0px!important;">
+    <div class="p-5 rounded" style="padding-top: 0!important;">
         <div class="row">
             <div class="col-sm-4">
                 <div class="card">
@@ -117,7 +117,7 @@
                             <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
                                 <option th:each="token : ${tokens.values()}"
                                         th:value="${token.address}"
-                                        th:attr="data-icon=${marketRankManager.getImage(token.address)},data-rank=${marketRankManager.getMarketRankOfToken(token.address)}"
+                                        th:attr="data-icon=${marketRankManager.getImage(token.address)}"
                                         th:text="${token.symbol} + ' (' + ${token.name} + ') (' + ${token.address} + ')'">
                                 </option>
                             </select>
@@ -163,8 +163,8 @@
                             <th>Quote</th>
                             <th>Activity</th>
                             <th></th>
-                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
                             </thead>
+                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
                         </table>
                     </div>
                 </div>

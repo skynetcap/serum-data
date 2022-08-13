@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class MarketRankManager {
 
-    private static final int RANK_PLACEHOLDER = 9999999;
-
     // Top tokens list, for quicker resolution from symbol.
     private static final Map<String, Token> TOP_TOKENS = Map.of(
             "SOL", Token.builder()
@@ -62,25 +60,6 @@ public class MarketRankManager {
     public void updateMarketsScheduled() {
         marketManager.updateMarkets();
         updateCachedMarketListings();
-    }
-
-    /**
-     * Returns rank of tokenMint, the highest rank is 1, based on # of Serum markets`
-     * NOTE: Don't delete, used at the Thymeleaf layer
-     *
-     * @param tokenMint mint to rank based on # of serum markets
-     * @return serum market rank for the given token
-     */
-    public int getMarketRankOfToken(PublicKey tokenMint) {
-        for (int i = 0; i < marketListings.size(); i++) {
-            PublicKey baseMint = marketListings.get(i).getBaseMint();
-            PublicKey baseMintChecked = baseMint == null ? MarketUtil.USDC_MINT : baseMint;
-            if (baseMintChecked.equals(tokenMint)) {
-                return i;
-            }
-        }
-
-        return RANK_PLACEHOLDER;
     }
 
     // Used in Thymeleaf. Needs better solution.

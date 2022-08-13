@@ -15,11 +15,6 @@ public class PublicKeySerializer extends JsonSerializer<PublicKey> {
     public void serialize(PublicKey publicKey, JsonGenerator jsonGenerator,
                           SerializerProvider serializerProvider) throws IOException {
 
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField(
-                "publicKey",
-                publicKey.toBase58()
-        );
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeString(publicKey.toBase58());
     }
 }
