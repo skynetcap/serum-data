@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +40,7 @@ public class MarketRankManager {
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
     private List<MarketListing> marketListings;
-    private final Map<PublicKey, Integer> marketRankMap = new HashMap<>();
+    private List<Token> activeTokens;
 
     public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
         this.marketManager = marketManager;
@@ -160,7 +159,6 @@ public class MarketRankManager {
                     }
 
                     PublicKey baseMint = baseToken.map(Token::getPublicKey).orElse(null);
-
                     PublicKey quoteMint = quoteToken.map(Token::getPublicKey).orElse(null);
 
                     return new MarketListing(
@@ -177,24 +175,8 @@ public class MarketRankManager {
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
                 .toList();
 
-        // update sorted token map
-        if (marketListings.size() > 0) {
-            for (int i = 0; i < marketListings.size(); i++) {
-                MarketListing listing = marketListings.get(i);
-                PublicKey baseMint = listing.getBaseMint();
-                if (marketRankMap.containsKey(baseMint)) {
-                    // lower rank is better: 1, 2, 3, etc
-                    // only update if it's better (don't give a lowly-sorted market for a good coin a bad rank)
-                    int rank = marketRankMap.get(baseMint);
-                    if (i < rank) {
-                        marketRankMap.put(baseMint, i + 1);
-                    }
-
-                } else {
-                    marketRankMap.put(baseMint, i + 1);
-                }
-            }
-        }
+        // active tokens (so homepage stays updated)
+        activeTokens = buildActiveTokens();
     }
 
     // used in thymeleaf
@@ -206,7 +188,19 @@ public class MarketRankManager {
         return name;
     }
 
-    public int getRankByToken(PublicKey baseMint) {
-        return marketRankMap.getOrDefault(baseMint, 99999);
+    private List<Token> buildActiveTokens() {
+        return getMarketListings().stream()
+                .map(listing -> Token.builder()
+                        .publicKey(listing.getBaseMint())
+                        .name(tokenManager.getTokenNameByMint(listing.getBaseMint()))
+                        .symbol(tokenManager.getTokenSymbolByMint(listing.getBaseMint()))
+                        .address(listing.getBaseMint() == null ? null : listing.getBaseMint().toBase58())
+                        .build())
+                .distinct()
+                .toList();
+    }
+
+    public List<Token> getActiveTokens() {
+        return activeTokens;
     }
 }

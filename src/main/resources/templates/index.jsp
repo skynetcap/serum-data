@@ -41,16 +41,6 @@
 
 
         $(document).ready(function () {
-            var options = $("#tokenSelect option");                    // Collect options
-            options.detach().sort(function (a, b) {               // Detach from select, then Sort
-                var at = $(a).data("rank");
-                var bt = $(b).data("rank");
-                return (at > bt) ? 1 : ((at < bt) ? -1 : 0);            // Tell the sort function how to order
-            });
-            options.appendTo("#tokenSelect");                          // Re-attach to select
-            $("#tokenSelect").val($("#tokenSelect option:first").val());
-            $("#tokenSelect").show();
-
             $('#tokenSelect').select2({
                 templateResult: formatToken,
                 templateSelection: formatToken
@@ -113,10 +103,10 @@
                     <div class="card-body">
                         <h5 class="card-title" style="float: left; margin-right: 10px">Token</h5>
                         <p class="card-text">
-                            <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
-                                <option th:each="token : ${tokens.values()}"
+                            <select class="form-control" id="tokenSelect" style="width: 75%;">
+                                <option th:each="token : ${tokens}"
                                         th:value="${token.address}"
-                                        th:attr="data-icon=${marketRankManager.getImage(token.address)},data-rank=${marketRankManager.getRankByToken(token.address)}"
+                                        th:attr="data-icon=${marketRankManager.getImage(token.address)}"
                                         th:text="${token.symbol} + ' (' + ${token.name} + ') (' + ${token.address} + ')'">
                                 </option>
                             </select>
@@ -488,7 +478,7 @@
         }]
     });
 
-    setInterval(updateDepthChart, 250);
+    setInterval(updateDepthChart, 320);
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
@@ -670,7 +660,7 @@
                                 var externalLink = '';
                                 if (row.takerEntityName === 'Mango') {
                                     // Add external link
-                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.takerOoa.publicKey;
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.takerOoa;
                                     externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
                                         "<img src=\"static/entities/" +
                                         row.takerEntityIcon +
@@ -704,7 +694,7 @@
                                 var externalLink = '';
                                 if (row.makerEntityName === 'Mango') {
                                     // Add external link
-                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.makerOoa.publicKey;
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.makerOoa;
                                     externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
                                         "<img src=\"static/entities/" +
                                         row.makerEntityIcon +
@@ -715,16 +705,16 @@
                                 }
 
                                 return "<a target=_blank href=\"https://solana.fm/account/" +
-                                    row.makerOwner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.makerOwner + "\"><img src=\"static/entities/" +
                                     row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.makerEntityName + "</a>";
                             } else {
                                 if (row.makerOwner) {
                                     return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                        row.makerOwner.publicKey + "\" target=_blank>" +
-                                        row.makerOwner.publicKey.substring(0, 3) +
+                                        row.makerOwner + "\" target=_blank>" +
+                                        row.makerOwner.substring(0, 3) +
                                         ".." +
-                                        row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
+                                        row.makerOwner.substring(row.makerOwner.toString().length - 3) +
                                         "</a>";
                                 } else {
                                     return "Unknown";
@@ -768,11 +758,11 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 250);
+            }, 320);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 250);
+            }, 320);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
