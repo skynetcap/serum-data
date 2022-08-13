@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -31,7 +29,6 @@ public class IndexController {
     private final TokenManager tokenManager;
     private final MarketManager marketManager;
     private final MarketRankManager marketRankManager;
-    private final Map<PublicKey, Token> activeTokenMap = new HashMap<>();
 
     public IndexController(TokenManager tokenManager,
                            MarketManager marketManager,
@@ -39,13 +36,6 @@ public class IndexController {
         this.tokenManager = tokenManager;
         this.marketManager = marketManager;
         this.marketRankManager = marketRankManager;
-
-        // Only list Tokens with an active Serum market.
-        tokenManager.getRegistry().forEach((tokenMint, token) -> {
-            if (marketManager.numMarketsByToken(tokenMint) > 0) {
-                activeTokenMap.put(tokenMint, token);
-            }
-        });
     }
 
     @RequestMapping("/")
@@ -53,7 +43,7 @@ public class IndexController {
         model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, DEFAULT_TOKEN_SEARCH.toBase58());
         model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, DEFAULT_MARKET.toBase58());
 
-        model.addAttribute("tokens", activeTokenMap);
+        model.addAttribute("tokens", marketRankManager.getActiveTokens());
         model.addAttribute(marketRankManager);
 
         return "index";
@@ -61,7 +51,7 @@ public class IndexController {
 
     @RequestMapping("/markets")
     public String markets(Model model) {
-        model.addAttribute("tokens", activeTokenMap);
+        model.addAttribute("tokens", marketRankManager.getActiveTokens());
         model.addAttribute(marketRankManager);
         model.addAttribute("marketListings", marketRankManager.getMarketListings());
 
@@ -145,7 +135,7 @@ public class IndexController {
             }
         }
 
-        model.addAttribute("tokens", activeTokenMap);
+        model.addAttribute("tokens", marketRankManager.getActiveTokens());
         model.addAttribute(marketRankManager);
 
         return "index";

@@ -89,10 +89,6 @@ html.dark .table>:not(:first-child) {
     border-top: 0;
 }
 
-.dataTables_wrapper {
-    color: white !important;
-}
-
 td {
     overflow: hidden;
     white-space: nowrap;
@@ -101,10 +97,6 @@ td {
 
 .nav-link {
     margin-right: 10px;
-}
-
-.paginate_button {
-    padding: 0.5em 0.5em !important;
 }
 
 .coloredlink {

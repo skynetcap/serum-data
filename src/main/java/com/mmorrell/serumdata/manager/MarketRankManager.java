@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class MarketRankManager {
 
-    private static final int RANK_PLACEHOLDER = 9999999;
-
     // Top tokens list, for quicker resolution from symbol.
     private static final Map<String, Token> TOP_TOKENS = Map.of(
             "SOL", Token.builder()
@@ -42,6 +40,7 @@ public class MarketRankManager {
     private final MarketManager marketManager;
     private final TokenManager tokenManager;
     private List<MarketListing> marketListings;
+    private List<Token> activeTokens;
 
     public MarketRankManager(MarketManager marketManager, TokenManager tokenManager) {
         this.marketManager = marketManager;
@@ -62,25 +61,6 @@ public class MarketRankManager {
     public void updateMarketsScheduled() {
         marketManager.updateMarkets();
         updateCachedMarketListings();
-    }
-
-    /**
-     * Returns rank of tokenMint, the highest rank is 1, based on # of Serum markets`
-     * NOTE: Don't delete, used at the Thymeleaf layer
-     *
-     * @param tokenMint mint to rank based on # of serum markets
-     * @return serum market rank for the given token
-     */
-    public int getMarketRankOfToken(PublicKey tokenMint) {
-        for (int i = 0; i < marketListings.size(); i++) {
-            PublicKey baseMint = marketListings.get(i).getBaseMint();
-            PublicKey baseMintChecked = baseMint == null ? MarketUtil.USDC_MINT : baseMint;
-            if (baseMintChecked.equals(tokenMint)) {
-                return i;
-            }
-        }
-
-        return RANK_PLACEHOLDER;
     }
 
     // Used in Thymeleaf. Needs better solution.
@@ -179,7 +159,6 @@ public class MarketRankManager {
                     }
 
                     PublicKey baseMint = baseToken.map(Token::getPublicKey).orElse(null);
-
                     PublicKey quoteMint = quoteToken.map(Token::getPublicKey).orElse(null);
 
                     return new MarketListing(
@@ -195,6 +174,9 @@ public class MarketRankManager {
                 })
                 .sorted((o1, o2) -> (int) (o2.getQuoteNotional() - o1.getQuoteNotional()))
                 .toList();
+
+        // active tokens (so homepage stays updated)
+        activeTokens = buildActiveTokens();
     }
 
     // used in thymeleaf
@@ -204,5 +186,21 @@ public class MarketRankManager {
             name = name.replaceFirst(" -", "? -");
         }
         return name;
+    }
+
+    private List<Token> buildActiveTokens() {
+        return getMarketListings().stream()
+                .map(listing -> Token.builder()
+                        .publicKey(listing.getBaseMint())
+                        .name(tokenManager.getTokenNameByMint(listing.getBaseMint()))
+                        .symbol(tokenManager.getTokenSymbolByMint(listing.getBaseMint()))
+                        .address(listing.getBaseMint() == null ? null : listing.getBaseMint().toBase58())
+                        .build())
+                .distinct()
+                .toList();
+    }
+
+    public List<Token> getActiveTokens() {
+        return activeTokens;
     }
 }

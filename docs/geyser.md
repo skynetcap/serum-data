@@ -18,7 +18,7 @@ Related:
 - Geyser config:
   - Private neworking pointed to: serum-db-va 
   - Accounts Owner Selector w/ only Serum v3 Program ID.
-  - ```json
+  - ```
     "accounts_selector": {"owners" : [SERUM_V3]}
     ```
   - Postgres tables will store all Serum program account data, accounts such as: bid/ask order book, event queue 

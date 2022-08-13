@@ -3,6 +3,7 @@ package com.mmorrell.serumdata.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -41,7 +42,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NotNull final ResourceHandlerRegistry registry) {
         WebMvcConfigurer.super.addResourceHandlers(registry);
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org" class="dark">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://thymeleaf.org" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,22 +41,11 @@
 
 
         $(document).ready(function () {
-            var options = $("#tokenSelect option");                    // Collect options
-            options.detach().sort(function (a, b) {               // Detach from select, then Sort
-                var at = $(a).data("rank");
-                var bt = $(b).data("rank");
-                return (at > bt) ? 1 : ((at < bt) ? -1 : 0);            // Tell the sort function how to order
-            });
-            options.appendTo("#tokenSelect");                          // Re-attach to select
-            $("#tokenSelect").val($("#tokenSelect option:first").val());
-            $("#tokenSelect").show();
-
             $('#tokenSelect').select2({
                 templateResult: formatToken,
                 templateSelection: formatToken
             });
 
-            // todo - async?
             loadMarkets(defaultTokenId);
             setMarket(initialMarketId);
             updateDepthChart();
@@ -94,7 +83,7 @@
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #e15300, #a12100); color:white;
-                                                         text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
+                                                         text-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;"><img
                     src="static/entities/solend.ico" width="20"
                     height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
@@ -107,17 +96,17 @@
     </header>
 </div>
 <main class="container-fluid" style="max-width: 1500px !important;">
-    <div class="p-5 rounded" style="padding-top: 0px!important;">
+    <div class="p-5 rounded" style="padding-top: 0!important;">
         <div class="row">
             <div class="col-sm-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title" style="float: left; margin-right: 10px">Token</h5>
                         <p class="card-text">
-                            <select class="form-control" id="tokenSelect" style="display: none; width: 75%;">
-                                <option th:each="token : ${tokens.values()}"
+                            <select class="form-control" id="tokenSelect" style="width: 75%;">
+                                <option th:each="token : ${tokens}"
                                         th:value="${token.address}"
-                                        th:attr="data-icon=${marketRankManager.getImage(token.address)},data-rank=${marketRankManager.getMarketRankOfToken(token.address)}"
+                                        th:attr="data-icon=${marketRankManager.getImage(token.address)}"
                                         th:text="${token.symbol} + ' (' + ${token.name} + ') (' + ${token.address} + ')'">
                                 </option>
                             </select>
@@ -163,8 +152,8 @@
                             <th>Quote</th>
                             <th>Activity</th>
                             <th></th>
-                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
                             </thead>
+                            <tbody style="font-size: 18px; cursor: pointer;"></tbody>
                         </table>
                     </div>
                 </div>
@@ -489,7 +478,7 @@
         }]
     });
 
-    setInterval(updateDepthChart, 250);
+    setInterval(updateDepthChart, 320);
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
@@ -517,15 +506,15 @@
                                         row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
                             } else {
-                                return "<a class='coloredlink' href=\"https://solana.fm/account/" + row.owner.publicKey
+                                return "<a class='coloredlink' href=\"https://solana.fm/account/" + row.owner
                                     + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
+                                    row.owner.substring(0, 3) +
                                     ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    row.owner.substring(row.owner.toString().length - 3) +
                                     "</a>";
                             }
                         }
@@ -598,15 +587,15 @@
                                         row.metadata.name + " (" + row.metadata.mangoKey.substring(0, 3) + ")</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.metadata.icon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.metadata.name + "</a>";
                             } else {
                                 return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                    row.owner.publicKey + "\" target=_blank>" +
-                                    row.owner.publicKey.substring(0, 3) +
+                                    row.owner + "\" target=_blank>" +
+                                    row.owner.substring(0, 3) +
                                     ".." +
-                                    row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                    row.owner.substring(row.owner.toString().length - 3) +
                                     "</a>";
                             }
                         }
@@ -671,7 +660,7 @@
                                 var externalLink = '';
                                 if (row.takerEntityName === 'Mango') {
                                     // Add external link
-                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.takerOoa.publicKey;
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.takerOoa;
                                     externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
                                         "<img src=\"static/entities/" +
                                         row.takerEntityIcon +
@@ -681,16 +670,16 @@
                                         row.takerEntityName + "</a>";
                                 }
 
-                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner.publicKey + "\"><img src=\"static/entities/" +
+                                return "<a target=_blank href=\"https://solana.fm/account/" + row.owner + "\"><img src=\"static/entities/" +
                                     row.takerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.takerEntityName + "</a>" + externalLink;
                             } else {
                                 if (row.owner) {
                                     return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                        row.owner.publicKey + "\" target=_blank>" +
-                                        row.owner.publicKey.substring(0, 3) +
+                                        row.owner + "\" target=_blank>" +
+                                        row.owner.substring(0, 3) +
                                         ".." +
-                                        row.owner.publicKey.substring(row.owner.publicKey.toString().length - 3) +
+                                        row.owner.substring(row.owner.toString().length - 3) +
                                         "</a>";
                                 } else {
                                     return "Unknown";
@@ -705,7 +694,7 @@
                                 var externalLink = '';
                                 if (row.makerEntityName === 'Mango') {
                                     // Add external link
-                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.makerOoa.publicKey;
+                                    var externalUrl = location.href.replace("#", "") + 'mango/lookup/' + row.makerOoa;
                                     externalLink = "<a href=\"" + externalUrl + "\" target=_blank>" +
                                         "<img src=\"static/entities/" +
                                         row.makerEntityIcon +
@@ -716,16 +705,16 @@
                                 }
 
                                 return "<a target=_blank href=\"https://solana.fm/account/" +
-                                    row.makerOwner.publicKey + "\"><img src=\"static/entities/" +
+                                    row.makerOwner + "\"><img src=\"static/entities/" +
                                     row.makerEntityIcon + ".png\" width=16 height=16 style=\"margin-right: 6px;\">" +
                                     row.makerEntityName + "</a>";
                             } else {
                                 if (row.makerOwner) {
                                     return "<a class='coloredlink' href=\"https://solana.fm/account/" +
-                                        row.makerOwner.publicKey + "\" target=_blank>" +
-                                        row.makerOwner.publicKey.substring(0, 3) +
+                                        row.makerOwner + "\" target=_blank>" +
+                                        row.makerOwner.substring(0, 3) +
                                         ".." +
-                                        row.makerOwner.publicKey.substring(row.makerOwner.publicKey.toString().length - 3) +
+                                        row.makerOwner.substring(row.makerOwner.toString().length - 3) +
                                         "</a>";
                                 } else {
                                     return "Unknown";
@@ -769,11 +758,11 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 250);
+            }, 320);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 250);
+            }, 320);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
