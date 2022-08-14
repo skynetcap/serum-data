@@ -64,6 +64,8 @@
 
         gtag('config', 'G-H55B3XYLG0');
     </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5953035831251215"
+            crossorigin="anonymous"></script>
 </head>
 <body class="dark">
 <div class="container-fluid" style="max-width: 1500px !important;">
