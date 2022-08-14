@@ -1,8 +1,9 @@
 # serum-data
 A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
+
 For version 2.0 and greater, `serum-data` uses a Geyser + Postgres-based data source.
-Version 1.X and the `latest-rpc` branch will be maintained for a simple, portable interface to run locally, without any 
-database or validator dependencies, and can run on a public RPC.
+
+Version 1.X and the `rpc` branch will be maintained for a simple, portable interface to run locally, without any database or validator dependencies, and can run on a public RPC.
 
 ![img.png](img.png)
 
