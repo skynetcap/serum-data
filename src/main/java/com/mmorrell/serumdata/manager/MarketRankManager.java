@@ -190,11 +190,12 @@ public class MarketRankManager {
 
     private List<Token> buildActiveTokens() {
         return getMarketListings().stream()
+                .filter(marketListing -> marketListing.getBaseMint() != null)
                 .map(listing -> Token.builder()
                         .publicKey(listing.getBaseMint())
                         .name(tokenManager.getTokenNameByMint(listing.getBaseMint()))
                         .symbol(tokenManager.getTokenSymbolByMint(listing.getBaseMint()))
-                        .address(listing.getBaseMint() == null ? null : listing.getBaseMint().toBase58())
+                        .address(listing.getBaseMint().toBase58())
                         .build())
                 .distinct()
                 .toList();
