@@ -478,7 +478,7 @@
         }]
     });
 
-    setInterval(updateDepthChart, 380);
+    setInterval(updateDepthChart, 410);
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
@@ -758,11 +758,11 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 380);
+            }, 410);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 380);
+            }, 410);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
