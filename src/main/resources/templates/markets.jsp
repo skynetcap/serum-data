@@ -53,20 +53,11 @@
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link active">Markets</a></li>
-            <li class="nav-item"><a href="https://solend.fi/dashboard?ref=HNeQJpqqhfgHcrRfEiBMsLDHVKLsWrpQGCveiRZDeikz"
-                                    aria-current="page"
-                                    class="nav-link"
-                                    target="_blank" style="background-image:
-                                                         linear-gradient(45deg, #e15300, #a12100); color:white;
-                                                         text-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;"><img
-                    src="static/entities/solend.ico" width="20"
-                    height="20">Solend</a></li>
-            <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
-                                    class="nav-link"
-                                    target="_blank" style="background-image:
-                                                         linear-gradient(45deg, #ff9500, #ff0000); color:white;"><img
-                    src="static/entities/mango.ico" width="20"
-                    height="20">Mango Markets</a></li>
+            <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
+                                                         target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
+                                                         class="nav-link"
+                                                         target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
         </ul>
     </header>
 </div>
@@ -115,16 +106,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div style="margin-top: 15px">
-            <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
-                <li class="nav-item" style="float: right"><a href="#" aria-current="page" class="nav-link">API</a></li>
-                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
-                                                             target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
-                <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
-                                                             class="nav-link"
-                                                             target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
-            </ul>
         </div>
     </div>
 </main>
