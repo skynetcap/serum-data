@@ -143,7 +143,7 @@ public class IndexController {
     }
 
     // Required by adsense
-    @RequestMapping("/ads.txt")
+    @RequestMapping(value = "/ads.txt", produces = "text/plain")
     @ResponseBody
     public String adsTxt() {
         return "google.com, pub-5953035831251215, DIRECT, f08c47fec0942fa0";
