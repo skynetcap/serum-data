@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -139,5 +140,12 @@ public class IndexController {
         model.addAttribute(marketRankManager);
 
         return "index";
+    }
+
+    // Required by adsense
+    @RequestMapping("/ads.txt")
+    @ResponseBody
+    public String adsTxt() {
+        return "google.com, pub-5953035831251215, DIRECT, f08c47fec0942fa0";
     }
 }
