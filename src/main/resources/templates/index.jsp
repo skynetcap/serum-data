@@ -64,8 +64,6 @@
 
         gtag('config', 'G-H55B3XYLG0');
     </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5953035831251215"
-            crossorigin="anonymous"></script>
 </head>
 <body class="dark">
 <div class="container-fluid" style="max-width: 1500px !important;">
@@ -457,7 +455,7 @@
         }]
     });
 
-    setInterval(updateDepthChart, 410);
+    setInterval(updateDepthChart, 300);
 
 </script>
 <script src="static/js/darkmode.min.js"></script>
@@ -737,15 +735,15 @@
             setInterval(function () {
                 bidTable.ajax.url('/api/serum/market/' + activeMarketId + '/bids');
                 bidTable.ajax.reload();
-            }, 410);
+            }, 300);
             setInterval(function () {
                 askTable.ajax.url('/api/serum/market/' + activeMarketId + '/asks');
                 askTable.ajax.reload();
-            }, 410);
+            }, 300);
             setInterval(function () {
                 tradeHistoryTable.ajax.url('/api/serum/market/' + activeMarketId + '/tradeHistory');
                 tradeHistoryTable.ajax.reload();
-            }, 450);
+            }, 340);
         }
     );
     /*]]>*/
