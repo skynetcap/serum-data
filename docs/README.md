@@ -16,12 +16,6 @@ Version 1.X and the `rpc` branch will be maintained for a simple, portable inter
 mvn clean install
 ```
 
-## Running in Docker container (RPC Version)
-```
-docker pull mmorrell/serum-data:latest-rpc
-docker run -p 8080:8080 serum-data
-```
-
 ## Running in Docker container (self-build)
 ```
 docker build -t serum-data .
