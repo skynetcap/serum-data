@@ -109,7 +109,8 @@ public class ApiController {
         final Optional<OrderBook> orderBook = marketManager.getCachedBidOrderBook(marketPublicKey);
 
         if (orderBook.isPresent()) {
-            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), true);
+            boolean isZeta = marketManager.isZetaMarket(marketPublicKey);
+            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), true, isZeta);
 
             // Calculate aggregate percentages for each quote, add to metadata
             float aggregateNotional = serumOrders.stream()
@@ -140,7 +141,8 @@ public class ApiController {
         final Optional<OrderBook> orderBook = marketManager.getCachedAskOrderBook(marketPublicKey);
 
         if (orderBook.isPresent()) {
-            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), false);
+            boolean isZeta = marketManager.isZetaMarket(marketPublicKey);
+            List<SerumOrder> serumOrders = MarketUtil.convertOrderBookToSerumOrders(orderBook.get(), false, isZeta);
 
             // Calculate aggregate percentages for each quote, add to metadata
             float aggregateNotional = serumOrders.stream()
@@ -271,8 +273,9 @@ public class ApiController {
         }
 
         // isBid = false on the bids since chart JS library expects ascending order
-        final List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook.get(), false);
-        final List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook.get(), false);
+        boolean isZeta = marketManager.isZetaMarket(marketPubkey);
+        final List<SerumOrder> bids = MarketUtil.convertOrderBookToSerumOrders(bidOrderBook.get(), false, isZeta);
+        final List<SerumOrder> asks = MarketUtil.convertOrderBookToSerumOrders(askOrderBook.get(), false, isZeta);
 
         float bestBid = bids.size() > 0 ? bidOrderBook.get().getBestBid().getFloatPrice() : 0.0f;
         float bestAsk = asks.size() > 0 ? askOrderBook.get().getBestAsk().getFloatPrice() : 0.0f;

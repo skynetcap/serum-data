@@ -5,32 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
     <title>Openserum - Project Serum Market Data</title>
-    <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
+    <link rel="shortcut icon" type="image/png" href="/static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->
     <meta name="color-scheme" content="dark">
-    <link href="static/css/bootstrap-nightshade.min.css" rel="stylesheet">
-    <link href="static/css/custom.css" rel="stylesheet">
-    <link href="static/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-nightshade.min.css" rel="stylesheet">
+    <link href="/static/css/custom.css" rel="stylesheet">
+    <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
     <!-- end dark mode -->
 
     <!-- github/twitter icons -->
-    <link rel="stylesheet" href="static/css/font-awesome.min.css">
-    <link href="static/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link href="/static/css/select2.min.css" rel="stylesheet"/>
 
     <!-- jquery & chartjs -->
-    <script src="static/js/jquery-3.6.0.min.js"></script>
-    <script src="static/js/chart.min.js"></script>
+    <script src="/static/js/jquery-3.6.0.min.js"></script>
+    <script src="/static/js/chart.min.js"></script>
 
     <!-- depth -->
-    <script src="static/highcharts.js"></script>
-    <script src="static/plugin.js"></script>
+    <script src="/static/highcharts.js"></script>
+    <script src="/static/plugin.js"></script>
 
-    <script src="static/js/select2.min.js"></script>
+    <script src="/static/js/select2.min.js"></script>
     <!-- JavaScript Bundle with Popper -->
-    <script src="static/js/bootstrap.bundle.min.js"></script>
-    <script src="static/js/jquery.dataTables.min.js"></script>
-    <script src="static/js/custom.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/custom.js"></script>
 
     <!-- inlined vars from controller -->
     <script th:inline="javascript">
@@ -81,7 +81,7 @@
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="coloredlink" style="font-size: calc(1.4rem + .3vw)!important;"><img
-                    src="static/serum-srm-logo.png"
+                    src="/static/serum-srm-logo.png"
                                                                                   width="32"
                                                                        height="32"
                                                                        style="margin-right: 0.5rem!important;">Openserum Market Data</span>
@@ -95,13 +95,13 @@
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #e15300, #a12100); color:white;
                                                          text-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"><img
-                    src="static/entities/solend.ico" width="20"
+                    src="/static/entities/solend.ico" width="20"
                     height="20">Solend</a></li>
             <li class="nav-item"><a href="https://trade.mango.markets?ref=openserum" aria-current="page"
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #ff9500, #ff0000); color:white;"><img
-                    src="static/entities/mango.ico" width="20"
+                    src="/static/entities/mango.ico" width="20"
                     height="20">Mango Markets</a></li>
         </ul>
     </header>
@@ -251,7 +251,7 @@
                     rgb(29, 29, 29);">
                         <thead>
                         <tr>
-                            <h4><img src="static/serum-srm-logo.png" width="32" height="32" style="margin-right:
+                            <h4><img src="/static/serum-srm-logo.png" width="32" height="32" style="margin-right:
                             0.5rem!important;">Market Information</h4>
                         </tr>
                         </thead>
@@ -492,7 +492,7 @@
     setInterval(updateDepthChart, 550);
 
 </script>
-<script src="static/js/darkmode.min.js"></script>
+<script src="/static/js/darkmode.min.js"></script>
 <script type="text/javascript" th:inline="none" class="init">
     /*<![CDATA[*/
     $(document).ready(function () {

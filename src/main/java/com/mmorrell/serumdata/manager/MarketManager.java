@@ -47,6 +47,8 @@ public class MarketManager {
     private final Map<PublicKey, Long> bidOrderBookMinContextSlot = new HashMap<>();
     private final Map<PublicKey, Long> eventQueueMinContextSlot = new HashMap<>();
 
+    private List<ProgramAccount> zetaAccounts = new ArrayList<>();
+
     // Caching for individual bid and asks orderbooks.
     final LoadingCache<PublicKey, OrderBook> bidOrderBookLoadingCache = CacheBuilder.newBuilder()
             .refreshAfterWrite(ORDER_BOOK_CACHE_DURATION_SECONDS, TimeUnit.SECONDS)
@@ -204,6 +206,21 @@ public class MarketManager {
             throw new RuntimeException(e);
         }
 
+        try {
+            List<ProgramAccount> zetaAccounts = new ArrayList<>(
+                    client.getApi().getProgramAccounts(
+                            new PublicKey("zDEXqXEG7gAyxb1Kg9mK5fPnUdENCGKzWrM21RMdWRq"),
+                            Collections.emptyList(),
+                            1476
+                    )
+            );
+
+            this.zetaAccounts = zetaAccounts;
+            programAccounts.addAll(zetaAccounts);
+        } catch (RpcException e) {
+            throw new RuntimeException(e);
+        }
+
         for (ProgramAccount programAccount : programAccounts) {
             Market market = Market.readMarket(programAccount.getAccount().getDecodedData());
 
@@ -212,16 +229,22 @@ public class MarketManager {
                 continue;
             }
 
-            market.setBaseDecimals(
-                    (byte) tokenManager.getDecimals(
-                            market.getBaseMint()
-                    )
-            );
-            market.setQuoteDecimals(
-                    (byte) tokenManager.getDecimals(
-                            market.getQuoteMint()
-                    )
-            );
+            if (!zetaAccounts.contains(programAccount)) {
+                market.setBaseDecimals(
+                        (byte) tokenManager.getDecimals(
+                                market.getBaseMint()
+                        )
+                );
+                market.setQuoteDecimals(
+                        (byte) tokenManager.getDecimals(
+                                market.getQuoteMint()
+                        )
+                );
+            } else {
+                // zeta, hardcode decimals for poc
+                market.setBaseDecimals((byte) 0);
+                market.setQuoteDecimals((byte) 6);
+            }
             marketCache.put(market.getOwnAddress(), market);
 
             // marketMapCache is a baseMint to List<Market> map which powers the token search.
@@ -395,5 +418,10 @@ public class MarketManager {
 
     public long getAskContext(PublicKey publicKey) {
         return bidOrderBookMinContextSlot.getOrDefault(publicKey, DEFAULT_MIN_CONTEXT_SLOT);
+    }
+
+    public boolean isZetaMarket(PublicKey marketPublicKey) {
+        return zetaAccounts.stream()
+                .anyMatch(programAccount -> programAccount.getPubkey().equalsIgnoreCase(marketPublicKey.toBase58()));
     }
 }

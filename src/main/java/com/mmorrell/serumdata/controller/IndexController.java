@@ -65,6 +65,20 @@ public class IndexController {
         return "markets";
     }
 
+    @RequestMapping("/zeta/{market}")
+    public String zetaMarket(Model model, @PathVariable String market) {
+        String sanitized = market.replaceAll("[^a-zA-Z\\d]", "");
+        PublicKey zetaMarketPublicKey = new PublicKey(sanitized);
+
+        model.addAttribute(DEFAULT_TOKEN_ATTRIBUTE_NAME, DEFAULT_TOKEN_SEARCH.toBase58());
+        model.addAttribute("tokens", activeTokenMap);
+        model.addAttribute(marketRankManager);
+
+        model.addAttribute(MARKET_ID_ATTRIBUTE_NAME, zetaMarketPublicKey.toBase58());
+
+        return "index";
+    }
+
     // for now, return index with the market determined.
     @RequestMapping("/{market}")
     public String market(Model model, @PathVariable String market) {
