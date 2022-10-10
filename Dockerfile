@@ -15,6 +15,6 @@ RUN mvn -f /home/app/pom.xml clean package -DskipTests
 FROM openjdk:17.0.2-slim
 COPY --from=build /home/app/target/serum-data-1.2.0-SNAPSHOT.jar /usr/local/lib/serumdata.jar
 ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,address=*:8000,server=y,suspend=n
-ENV OPENSERUM_ENDPOINT=GENESYSGO
+ENV OPENSERUM_ENDPOINT=PROJECT_SERUM
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/usr/local/lib/serumdata.jar"]

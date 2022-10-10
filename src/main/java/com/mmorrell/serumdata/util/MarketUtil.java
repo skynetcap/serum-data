@@ -26,12 +26,12 @@ public class MarketUtil {
             PublicKey.valueOf("61CjGbapEVoyCC51x5tPZGZHCYsgtPSSssCatHEEUWeG");
 
 
-    public static List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook, boolean isBid) {
+    public static List<SerumOrder> convertOrderBookToSerumOrders(OrderBook orderBook, boolean isBid, boolean isZeta) {
         return orderBook.getOrders().stream()
                 .map(order -> {
                     SerumOrder serumOrder = new SerumOrder();
                     serumOrder.setPrice(order.getFloatPrice());
-                    serumOrder.setQuantity(order.getFloatQuantity());
+                    serumOrder.setQuantity(isZeta ? order.getFloatQuantity() / 1000 : order.getFloatQuantity());
                     serumOrder.setOwner(order.getOwner());
                     return serumOrder;
                 })
