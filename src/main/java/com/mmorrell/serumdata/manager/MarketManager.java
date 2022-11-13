@@ -195,7 +195,7 @@ public class MarketManager {
         try {
             programAccounts = new ArrayList<>(
                     client.getApi().getProgramAccounts(
-                            SerumUtils.SERUM_PROGRAM_ID_V3,
+                            new PublicKey("srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX"),
                             Collections.emptyList(),
                             SerumUtils.MARKET_ACCOUNT_SIZE
                     )

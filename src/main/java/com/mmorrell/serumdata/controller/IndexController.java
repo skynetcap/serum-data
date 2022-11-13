@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class IndexController {
 
     private static final PublicKey DEFAULT_MARKET =
-            PublicKey.valueOf("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
+            PublicKey.valueOf("8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6");
     private static final PublicKey DEFAULT_TOKEN_SEARCH =
             PublicKey.valueOf("So11111111111111111111111111111111111111112");
     private static final String MARKET_ID_ATTRIBUTE_NAME = "marketId";
