@@ -52,6 +52,8 @@ public class IndexController {
 
         model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
+        model.addAttribute("marketUrl",
+                "https://dex.solape.io/#/market/".concat(String.valueOf(model.getAttribute(MARKET_ID_ATTRIBUTE_NAME))));
 
         return "index";
     }
@@ -144,6 +146,8 @@ public class IndexController {
 
         model.addAttribute("tokens", activeTokenMap);
         model.addAttribute(marketRankManager);
+        model.addAttribute("marketUrl",
+                "https://dex.solape.io/#/market/".concat(String.valueOf(model.getAttribute(MARKET_ID_ATTRIBUTE_NAME))));
 
         return "index";
     }
