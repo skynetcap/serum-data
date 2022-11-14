@@ -115,22 +115,26 @@
                             </select>
                         </p>
                         Popular:  <a
-                            href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');"
+                            href="#"
+                            onClick="loadMarkets('So11111111111111111111111111111111111111112'); setMarket('8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6');"
                             style="padding-right: 3px;"><img width="20" height="20"
                                                              src="/api/serum/token/So11111111111111111111111111111111111111112/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SOL</a> <a
-                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');"
+                            href="#"
+                            onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs'); setMarket('FZxi3yWkE5mMjyaZj6utmYL54QQYfMCKMcLaQZq4UwnA');"
                             style="padding-right: 3px;"><img width="20" height="20"
                                                              src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">ETH</a> <a
-                            href="#" onClick="loadMarkets('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So');"
+                            href="#"
+                            onClick="loadMarkets('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So'); setMarket('9Lyhks5bQQxb9EyyX55NtgKQzpM4WK7JCmeaWuQ5MoXD');"
                             style="padding-right: 3px;"><img width="20" height="20"
                                                              src="/api/serum/token/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">mSOL</a> <a
-                            href="#" onClick="loadMarkets('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');"
+                            href="#"
+                            onClick="loadMarkets('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'); setMarket('B2na8Awyd7cpC59iEU43FagJAPLigr3AP3s38KM982bu');"
                             style="padding-right: 3px;"><img
                             width="20" height="20"
                             src="/api/serum/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/icon"
