@@ -122,12 +122,6 @@
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SOL</a> <a
                             href="#"
-                            onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs'); setMarket('FZxi3yWkE5mMjyaZj6utmYL54QQYfMCKMcLaQZq4UwnA');"
-                            style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
-                                                             class="img-icon"
-                                                             style="border-radius: 5px; margin-right: 2px">ETH</a> <a
-                            href="#"
                             onClick="loadMarkets('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So'); setMarket('9Lyhks5bQQxb9EyyX55NtgKQzpM4WK7JCmeaWuQ5MoXD');"
                             style="padding-right: 3px;"><img width="20" height="20"
                                                              src="/api/serum/token/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So/icon"
@@ -138,7 +132,13 @@
                             style="padding-right: 3px;"><img
                             width="20" height="20"
                             src="/api/serum/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/icon"
-                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">USDT</a>
+                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">USDT</a> <a
+                            href="#"
+                            onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs'); setMarket('FZxi3yWkE5mMjyaZj6utmYL54QQYfMCKMcLaQZq4UwnA');"
+                            style="padding-right: 3px;"><img width="20" height="20"
+                                                             src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
+                                                             class="img-icon"
+                                                             style="border-radius: 5px; margin-right: 2px">ETH</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
