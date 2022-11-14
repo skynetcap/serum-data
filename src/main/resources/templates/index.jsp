@@ -114,32 +114,27 @@
                                 </option>
                             </select>
                         </p>
-                        Popular: <a
-                            href="#" onClick="loadMarkets('9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E');"
-                            style="padding-right: 3px;"><img
-                            width="20" height="20"
-                            src="/api/serum/token/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/icon"
-                            class="img-icon" style="border-radius: 5px; margin-right: 2px">BTC</a> <a
-                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');"
-                            style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
-                                                             class="img-icon"
-                                                             style="border-radius: 5px; margin-right: 2px">ETH</a> <a
+                        Popular:  <a
                             href="#" onClick="loadMarkets('So11111111111111111111111111111111111111112');"
                             style="padding-right: 3px;"><img width="20" height="20"
                                                              src="/api/serum/token/So11111111111111111111111111111111111111112/icon"
                                                              class="img-icon"
                                                              style="border-radius: 5px; margin-right: 2px">SOL</a> <a
-                            href="#" onClick="loadMarkets('SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt');"
+                            href="#" onClick="loadMarkets('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs');"
                             style="padding-right: 3px;"><img width="20" height="20"
-                                                             src="/api/serum/token/SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt/icon"
+                                                             src="/api/serum/token/7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs/icon"
                                                              class="img-icon"
-                                                             style="border-radius: 5px; margin-right: 2px">SRM</a> <a
-                            href="#" onClick="loadMarkets('SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp');"
+                                                             style="border-radius: 5px; margin-right: 2px">ETH</a> <a
+                            href="#" onClick="loadMarkets('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So');"
+                            style="padding-right: 3px;"><img width="20" height="20"
+                                                             src="/api/serum/token/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So/icon"
+                                                             class="img-icon"
+                                                             style="border-radius: 5px; margin-right: 2px">mSOL</a> <a
+                            href="#" onClick="loadMarkets('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');"
                             style="padding-right: 3px;"><img
                             width="20" height="20"
-                            src="/api/serum/token/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/icon"
-                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">SLND</a>
+                            src="/api/serum/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/icon"
+                            class="img-icon" style="=border-radius: 5px; margin-right: 2px">USDT</a>
                         <hr>
                         <input type="button" class="btn btn-primary" value="Search for Markets" id="searchForMarkets"
                                style="width: 100%">
