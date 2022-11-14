@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -46,11 +47,17 @@ public class MarketRankManager {
         updateCachedMarketListings();
 
         log.info("Caching token images.");
-        tokenManager.cacheAllTokenImages(
-                marketListings.stream()
-                        .map(MarketListing::getBaseMint)
-                        .toList()
-        );
+        List<PublicKey> mintImagesToCache = marketListings.stream()
+                .map(MarketListing::getBaseMint)
+                .collect(Collectors.toList());
+
+        // Always add USDC
+        mintImagesToCache.add(new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"));
+
+        // Dedupe
+        Set<PublicKey> deDupedMintImagesToCache = new HashSet<>(mintImagesToCache);
+        tokenManager.cacheAllTokenImages(deDupedMintImagesToCache.stream().toList());
+
         log.info("Successfully cached token images: " + marketListings.size());
     }
 
