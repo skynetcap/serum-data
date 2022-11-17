@@ -108,7 +108,7 @@
         </div>
         <div style="margin-top: 15px">
             <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
-                <li class="nav-item" style="float: right"><a href="https://twitter.com/openbook-dex"
+                <li class="nav-item" style="float: right"><a href="https://twitter.com/openbookdex"
                                                              aria-current="page" class="nav-link"
                                                              target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
                 <li class="nav-item" style="float: right"><a href="https://github.com/openbook-dex/resources" aria-current="page"
