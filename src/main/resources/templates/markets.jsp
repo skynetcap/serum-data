@@ -111,7 +111,7 @@
                 <li class="nav-item" style="float: right"><a href="https://twitter.com/openbook-dex"
                                                              aria-current="page" class="nav-link"
                                                              target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
-                <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
+                <li class="nav-item" style="float: right"><a href="https://github.com/openbook-dex/resources" aria-current="page"
                                                              class="nav-link"
                                                              target="_blank"><i class="fa fa-github"></i> GitHub</a></li>
             </ul>
