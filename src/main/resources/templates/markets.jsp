@@ -66,7 +66,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h1 class="card-title">Serum Markets</h1>
+                        <h1 class="card-title">openbook-dex Markets</h1>
                         <hr>
                         <p>
                         <table id="marketListings" class="table table-dark table-striped">
