@@ -1,3 +1,5 @@
+@charset "utf-8";
+
 table.dataTable td.dt-control {
     text-align: center;
     cursor: pointer
