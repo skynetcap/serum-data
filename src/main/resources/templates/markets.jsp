@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Markets - Openserum - Project Serum Market Data</title>
+    <title>openbook-dex Market Data - Markets - OpenSerum</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->
@@ -45,7 +45,7 @@
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <span class="coloredlink" style="font-size: calc(1.4rem + .3vw)!important;"><img src="static/serum-srm-logo.png" width="32"
                                                                        height="32"
-                                                                       style="margin-right: 0.5rem!important;">Openserum Market Data</span>
+                                                                       style="margin-right: 0.5rem!important;">openbook-dex Market Data</span>
         </a>
 
         <ul class="nav nav-pills">
@@ -108,8 +108,8 @@
         </div>
         <div style="margin-top: 15px">
             <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
-                <li class="nav-item" style="float: right"><a href="#" aria-current="page" class="nav-link">API</a></li>
-                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page" class="nav-link"
+                <li class="nav-item" style="float: right"><a href="https://twitter.com/openbook-dex"
+                                                             aria-current="page" class="nav-link"
                                                              target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
                 <li class="nav-item" style="float: right"><a href="https://github.com/skynetcap/serum-data" aria-current="page"
                                                              class="nav-link"

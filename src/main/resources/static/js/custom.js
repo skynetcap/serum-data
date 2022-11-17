@@ -216,7 +216,7 @@ function loadMarketDetail() {
             $(".marketDetailsQuoteTokenName").html("<img class=\"quoteLogo img-icon\"/>" + data.quoteName);
             $(".marketDetailsName").html("<img class=\"baseLogo img-icon\"/>" + baseSymbol + " / " + "<img" +
                 " class=\"quoteLogo img-icon\"/>" + quoteSymbol);
-            $(".marketDetailsPermalink").val("https://openserum.io/" + activeMarketId);
+            $(".marketDetailsPermalink").val("https://alpha.openserum.io/" + activeMarketId);
 
             $(".baseLogo").attr("src", baseLogo);
             $(".quoteLogo").attr("src", quoteLogo);
@@ -329,7 +329,7 @@ function updateDepthChart() {
 
                 $(document).attr("title",
                     marketCurrencySymbol + newData.midpoint.toFixed(3) + ' ' + chartTitle.replace(/\s/g, '') + ' -' +
-                    ' Openserum - Project Serum Market Data'
+                    ' openbook-dex Market Data - OpenSerum'
                 );
             });
     }

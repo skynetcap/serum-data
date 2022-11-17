@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project Serum market data">
-    <title>Openserum - Project Serum Market Data</title>
+    <title>openbook-dex Market Data - OpenSerum</title>
     <link rel="shortcut icon" type="image/png" href="static/serum-srm-logo.png"/>
 
     <!-- DARK MODE -->
@@ -84,7 +84,7 @@
                     src="static/serum-srm-logo.png"
                                                                                   width="32"
                                                                        height="32"
-                                                                       style="margin-right: 0.5rem!important;">Openserum Market Data</span>
+                                                                       style="margin-right: 0.5rem!important;">openbook-dex Market Data</span>
         </a>
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
@@ -349,8 +349,7 @@
         </div>
         <div style="margin-top: 15px">
             <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
-                <li class="nav-item" style="float: right"><a href="#" aria-current="page" class="nav-link">API</a></li>
-                <li class="nav-item" style="float: right"><a href="https://twitter.com/openserum" aria-current="page"
+                <li class="nav-item" style="float: right"><a href="https://twitter.com/openbook-dex" aria-current="page"
                                                              class="nav-link"
                                                              target="_blank"><i class="fa fa-twitter"></i> Twitter</a>
                 </li>

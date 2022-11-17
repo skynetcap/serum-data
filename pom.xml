@@ -12,7 +12,7 @@
 	<artifactId>serum-data</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<name>serum-data</name>
-	<description>Openserum Market Data</description>
+	<description>openbook-dex Market Data</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
