@@ -51,7 +51,7 @@
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Home</a></li>
             <li class="nav-item"><a href="/markets" aria-current="page" class="nav-link active">Markets</a></li>
-            <li class="nav-item"><a th:href="https://dex.solape.io/" aria-current="page"
+            <li class="nav-item"><a href="https://dex.solape.io/" aria-current="page"
                                     class="nav-link"
                                     target="_blank" style="background-image:
                                                          linear-gradient(45deg, #ff9500, #ff0000); color:white;"><img

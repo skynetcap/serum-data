@@ -84,6 +84,12 @@ public class IdentityManager {
                 "Wintermute",
                 "wintermute"
         );
+
+        addKnownEntity(
+                "CkcJx7Uwgxck5zm3DqUp2N1ikkkoPn2wA8zf7oS4tFSZ",
+                "Dual Finance",
+                "dual"
+        );
     }
 
     public IdentityManager(final RpcClient rpcClient) {
