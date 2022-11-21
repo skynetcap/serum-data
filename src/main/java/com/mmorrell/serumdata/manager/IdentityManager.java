@@ -90,6 +90,18 @@ public class IdentityManager {
                 "Dual Finance",
                 "dual"
         );
+
+        addKnownEntity(
+                "CeLLnpHYVjZSmjfw4syfJwGyAdGtXccZiacJKybFEfHJ",
+                "CellFi",
+                "cellfi"
+        );
+
+        addKnownEntity(
+                "8EndYA8H6DBKdrGJNQ6JqckzZAVPMfoYAmaAPwhC9kar",
+                "CellFi",
+                "cellfi"
+        );
     }
 
     public IdentityManager(final RpcClient rpcClient) {
