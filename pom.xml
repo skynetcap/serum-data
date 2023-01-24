@@ -42,10 +42,6 @@
 			<artifactId>spring-boot-starter-undertow</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>org.jboss.xnio</groupId>
-					<artifactId>xnio-api</artifactId>
-				</exclusion>
-				<exclusion>
 					<groupId>io.undertow</groupId>
 					<artifactId>undertow-core</artifactId>
 				</exclusion>
