@@ -1,7 +1,7 @@
 # serum-data
 A web interface for viewing market data from [Project Serum](https://www.projectserum.com/), on the Solana blockchain.
 
-![serum-data](https://i.ibb.co/CJXrn4g/image.png)
+![openserum](https://user-images.githubusercontent.com/100323448/226496293-7dfad6f9-65fa-4fc7-b3ba-91c3cf130a0f.PNG)
 
 ## Building
 ### Requirements (if not using Docker)
