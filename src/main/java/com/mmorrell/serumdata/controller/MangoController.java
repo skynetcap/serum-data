@@ -28,12 +28,12 @@ public class MangoController {
 
         if (mangoAccountPubkey.isPresent()) {
             final String mangoUrl = String.format(
-                    "https://trade.mango.markets/account?pubkey=%s&ref=openserum",
+                    "https://app.mango.markets/?address=%s&ref=openserum",
                     mangoAccountPubkey.get().toBase58()
             );
             response.sendRedirect(mangoUrl);
         } else {
-            response.sendRedirect("https://trade.mango.markets/?ref=openserum");
+            response.sendRedirect("https://app.mango.markets/?ref=openserum");
         }
     }
 }
